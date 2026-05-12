@@ -5,6 +5,7 @@ export interface IReview extends Document {
   listingId: mongoose.Types.ObjectId;
   rating: number;
   comment: string;
+  geofenceVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -15,6 +16,7 @@ const reviewSchema = new Schema<IReview>(
     listingId: { type: Schema.Types.ObjectId, ref: 'Listing', required: true },
     rating: { type: Number, required: true, min: 1, max: 5 },
     comment: { type: String, required: true },
+    geofenceVerified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

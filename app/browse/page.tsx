@@ -29,6 +29,7 @@ export default function BrowsePage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [activeStream, setActiveStream] = useState<'STUDENT' | 'OWNER'>('STUDENT');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -36,12 +37,14 @@ export default function BrowsePage() {
       router.push('/login');
       return;
     }
-    fetchListings(page);
-  }, [page]);
+    fetchListings(page, activeStream);
+  }, [page, activeStream]);
 
-  const fetchListings = async (pageNum: number) => {
+  const fetchListings = async (pageNum: number, stream: string) => {
+    setLoading(true);
     try {
-      const res = await fetch(`/api/listings?page=${pageNum}&limit=12`);
+      const isOwnerListing = stream === 'OWNER';
+      const res = await fetch(`/api/listings?page=${pageNum}&limit=12&isOwnerListing=${isOwnerListing}`);
       const data = await res.json();
       setListings(data.data || []);
       setTotalPages(data.pagination.pages);
@@ -54,13 +57,12 @@ export default function BrowsePage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-x-hidden">
-      {/* Dynamic Background */}
+      {/* ... (Dynamic Background and Navigation same as before) */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-500/5 blur-[120px] animate-float" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/5 blur-[120px] animate-float" style={{ animationDelay: '2s' }} />
       </div>
 
-      {/* Navigation */}
       <nav className="glass sticky top-0 z-50 border-b border-gray-200/50 dark:border-slate-800/50 transition-all duration-300 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
@@ -85,7 +87,6 @@ export default function BrowsePage() {
                 👤
               </Link>
             </div>
-            {/* Mobile Navigation Icons */}
             <div className="sm:hidden flex items-center gap-1">
               <Link href="/create-listing" className="p-2 text-gray-700 dark:text-slate-300">
                 <span className="text-xl">✍️</span>
@@ -98,16 +99,31 @@ export default function BrowsePage() {
         </div>
       </nav>
 
-      {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-12 gap-6">
           <div className="text-center sm:text-left">
-             <h1 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tighter mb-2">Available Rooms</h1>
-             <p className="text-gray-500 dark:text-slate-400 font-medium">Find the perfect spot for your next semester</p>
+             <h1 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tighter mb-2">
+               {activeStream === 'STUDENT' ? 'Student Truth' : 'Marketplace'}
+             </h1>
+             <p className="text-gray-500 dark:text-slate-400 font-medium">
+               {activeStream === 'STUDENT' 
+                 ? 'Crowdsourced data from verified students' 
+                 : 'Marketing listings from verified owners'}
+             </p>
           </div>
           <div className="flex bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
-             <button className="px-6 py-2 bg-primary-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-primary-500/20">Latest</button>
-             <button className="px-6 py-2 text-gray-500 dark:text-slate-400 font-bold text-sm hover:text-primary-600 transition-colors">Budget</button>
+             <button 
+               onClick={() => setActiveStream('STUDENT')}
+               className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${activeStream === 'STUDENT' ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' : 'text-gray-500 dark:text-slate-400 hover:text-primary-600'}`}
+             >
+               Student Verified
+             </button>
+             <button 
+               onClick={() => setActiveStream('OWNER')}
+               className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${activeStream === 'OWNER' ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' : 'text-gray-500 dark:text-slate-400 hover:text-primary-600'}`}
+             >
+               Owner Listings
+             </button>
           </div>
         </div>
 
@@ -132,6 +148,11 @@ export default function BrowsePage() {
                          <span className="text-2xl">{listing.listingType === 'handover' ? '🎓' : '🏠'}</span>
                       </div>
                       <div className="flex flex-col items-end">
+                        {activeStream === 'STUDENT' && (
+                          <span className="px-3 py-1 mb-2 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-full text-[8px] font-black uppercase tracking-widest border border-blue-100 dark:border-blue-800">
+                            Truth Verified
+                          </span>
+                        )}
                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
                           listing.listingType === 'handover' 
                             ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' 
@@ -148,7 +169,7 @@ export default function BrowsePage() {
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-slate-400 font-bold flex items-center gap-1">
                         <span className="text-primary-600 text-base">📍</span>
-                        {listing.userId?.hostelName || 'Verified Location'}
+                        {listing.userId?.hostelName || 'Anonymous Location'}
                       </p>
                     </div>
 
@@ -181,6 +202,7 @@ export default function BrowsePage() {
                 </Link>
               ))}
             </div>
+            {/* ... (Pagination logic) */}
 
             {/* Pagination */}
             {totalPages > 1 && (

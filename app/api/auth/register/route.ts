@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     let collegeEmail = undefined;
     let studentId = undefined;
 
-    if (validated.role === 'student' && validated.collegeEmail) {
+    if (validated.role === 'STUDENT' && validated.collegeEmail) {
       // Ensure the college email isn't already used as an email OR a collegeEmail
       const collegeEmailConflict = await User.findOne({
         $or: [{ email: validated.collegeEmail }, { collegeEmail: validated.collegeEmail }],
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     if (collegeEmail) userObj.collegeEmail = collegeEmail;
     if (studentId) userObj.studentId = studentId;
     if (universityId) userObj.universityId = universityId;
-    if (validated.role === 'student') {
+    if (validated.role === 'STUDENT') {
       if (validated.hostelName) userObj.hostelName = validated.hostelName;
       if (validated.roomNumber) userObj.roomNumber = validated.roomNumber;
     }
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
 
     // Send verification email
     const verifyUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/verify-email?token=${verificationToken}`;
-    const emailToVerify = validated.role === 'student' ? validated.collegeEmail! : validated.email;
+    const emailToVerify = validated.role === 'STUDENT' ? validated.collegeEmail! : validated.email;
     
     const emailSent = await sendEmail({
       to: emailToVerify,
@@ -102,7 +102,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate JWT token
-    const jwtToken = signToken({ userId: newUser._id.toString(), email: newUser.email });
+    const jwtToken = signToken({ 
+      userId: newUser._id.toString(), 
+      email: newUser.email,
+      role: newUser.role
+    });
 
     return NextResponse.json(
       {

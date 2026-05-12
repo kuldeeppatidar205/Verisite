@@ -12,11 +12,12 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const listingType = searchParams.get('type');
+    const isOwnerListing = searchParams.get('isOwnerListing') === 'true';
     const skip = (page - 1) * limit;
 
     await connectToDatabase();
 
-    const query: any = { status: 'available' };
+    const query: any = { status: 'available', isOwnerListing };
     if (listingType) {
       query.listingType = listingType;
     }
@@ -29,8 +30,18 @@ export async function GET(req: NextRequest) {
 
     const total = await Listing.countDocuments(query);
 
+    // Filter sensitive info for student listings not in handoverMode
+    const sanitizedListings = listings.map(l => {
+      const listing = l.toObject();
+      if (!listing.isOwnerListing && !listing.handoverMode) {
+        // Keep it anonymous - remove user details except maybe university info if we had it
+        delete listing.userId;
+      }
+      return listing;
+    });
+
     return NextResponse.json({
-      data: listings,
+      data: sanitizedListings,
       pagination: {
         page,
         limit,
@@ -63,30 +74,50 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Only verified users can create listings' }, { status: 403 });
     }
 
-    if (user.role === 'guest') {
+    if (user.role === 'GUEST') {
       return NextResponse.json({ error: 'Guests cannot create listings' }, { status: 403 });
     }
 
-    // Determine listing type based on role
-    const listingType = user.role === 'student' ? 'handover' : 'pg';
+    const isOwnerListing = user.role === 'OWNER';
+
+    // Unique PG Listing Enforcement for Students
+    if (!isOwnerListing && validated.listingType === 'pg') {
+      const existingListing = await Listing.findOne({
+        isOwnerListing: false,
+        listingType: 'pg',
+        coordinates: {
+          lat: validated.lat,
+          lng: validated.lng
+        }
+      });
+
+      if (existingListing) {
+        return NextResponse.json({ 
+          error: 'A listing at this location already exists. Please add a review to the existing listing instead.',
+          existingListingId: existingListing._id 
+        }, { status: 409 });
+      }
+    }
 
     // Create listing
     const newListing = new Listing({
       userId: payload.userId,
-      listingType: listingType,
+      listingType: validated.listingType,
       roomDetails: validated.roomDetails,
       price: validated.price,
       availableDate: new Date(validated.availableDate),
-      legacyBundle: listingType === 'handover' ? validated.legacyBundle : undefined,
-      address: listingType === 'pg' ? validated.address : undefined,
-      amenities: listingType === 'pg' ? validated.amenities : undefined,
+      legacyBundle: validated.listingType === 'handover' ? validated.legacyBundle : undefined,
+      address: validated.address,
+      amenities: validated.amenities,
       coordinates: {
         lat: validated.lat,
         lng: validated.lng,
       },
-      totalRooms: listingType === 'pg' ? validated.totalRooms : undefined,
-      availableRooms: listingType === 'pg' ? (validated.availableRooms ?? validated.totalRooms) : undefined,
+      totalRooms: validated.totalRooms,
+      availableRooms: validated.availableRooms ?? validated.totalRooms,
       status: 'available',
+      isOwnerListing: isOwnerListing,
+      handoverMode: !isOwnerListing ? (validated.handoverMode ?? false) : true,
     });
 
     await newListing.save();

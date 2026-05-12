@@ -14,4 +14,6 @@ const universitySchema = new Schema<IUniversity>(
   { timestamps: true }
 );
 
+universitySchema.index({ name: 1 });
+
 export const University = mongoose.models.University || mongoose.model<IUniversity>('University', universitySchema);

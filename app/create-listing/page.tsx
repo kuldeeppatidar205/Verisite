@@ -14,7 +14,7 @@ function CreateListingForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [token, setToken] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<'student' | 'pg_owner'>('student');
+  const [userRole, setUserRole] = useState<'STUDENT' | 'OWNER'>('STUDENT');
   const [formData, setFormData] = useState({
     roomDetails: '',
     price: '',
@@ -30,6 +30,7 @@ function CreateListingForm() {
     lng: null as number | null,
     totalRooms: '',
     availableRooms: '',
+    handoverMode: false,
   });
 
   useEffect(() => {
@@ -101,6 +102,7 @@ function CreateListingForm() {
         lng: data.coordinates?.lng || null,
         totalRooms: data.totalRooms?.toString() || '',
         availableRooms: data.availableRooms?.toString() || '',
+        handoverMode: data.handoverMode || false,
       });
     } catch (error) {
       console.error('Failed to fetch listing:', error);
@@ -142,7 +144,17 @@ function CreateListingForm() {
         lng: formData.lng,
       };
 
-      if (userRole === 'student') {
+      if (userRole === 'STUDENT') {
+        payload.listingType = 'pg'; // Default to PG for Truth Stream unless it's a handover
+        // Actually, let's keep it simple: if student posts, it's a student listing.
+        // Prompt says "Unique Listing Enforcement: Before creating a new PG listing..."
+        // So students can post PG listings or Handover listings.
+        
+        // If they checked any included items, it's likely a handover
+        const isHandover = formData.mattress || formData.cooler || formData.shelf || formData.lamp || formData.other;
+        payload.listingType = isHandover ? 'handover' : 'pg';
+        payload.handoverMode = formData.handoverMode;
+
         payload.legacyBundle = {
           mattress: formData.mattress,
           cooler: formData.cooler,
@@ -151,6 +163,7 @@ function CreateListingForm() {
           other: formData.other || undefined,
         };
       } else {
+        payload.listingType = 'pg';
         payload.address = formData.address;
         payload.amenities = formData.amenities.split(',').map(s => s.trim()).filter(s => s !== '');
         payload.totalRooms = parseInt(formData.totalRooms);
@@ -189,7 +202,7 @@ function CreateListingForm() {
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 sm:p-8 transition-colors duration-200">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white leading-tight">
-          {editId ? 'Edit Listing' : userRole === 'student' ? 'Post a Room Handover' : 'List your PG Property'}
+          {editId ? 'Edit Specs' : userRole === 'STUDENT' ? 'Post to Student Truth Ledger' : 'List Marketplace Property'}
         </h1>
         <div className="flex items-center gap-2 text-[10px] font-medium px-3 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full">
            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
@@ -207,7 +220,7 @@ function CreateListingForm() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {userRole === 'student' ? 'Room Details * (describe handover items, etc.)' : 'PG Property Details * (describe amenities, rules, etc.)'}
+              {userRole === 'STUDENT' ? 'Property Details * (provide honest details for the community)' : 'Property Details * (marketing description)'}
             </label>
             <textarea
               name="roomDetails"
@@ -216,14 +229,14 @@ function CreateListingForm() {
               required
               rows={5}
               className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm"
-              placeholder={userRole === 'student' ? "Describe your room..." : "Provide a detailed description..."}
+              placeholder={userRole === 'STUDENT' ? "Be honest about the pros and cons..." : "Highlight the best features of your property..."}
             />
             <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
               Minimum 10 characters
             </p>
           </div>
 
-          {userRole === 'pg_owner' && (
+          {userRole === 'OWNER' && (
             <>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -234,7 +247,7 @@ function CreateListingForm() {
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
-                  required={userRole === 'pg_owner'}
+                  required={userRole === 'OWNER'}
                   className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white text-sm"
                   placeholder="Enter the complete address"
                 />
@@ -249,7 +262,7 @@ function CreateListingForm() {
                     name="totalRooms"
                     value={formData.totalRooms}
                     onChange={handleChange}
-                    required={userRole === 'pg_owner'}
+                    required={userRole === 'OWNER'}
                     min="1"
                     className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white text-sm"
                   />
@@ -263,7 +276,7 @@ function CreateListingForm() {
                     name="availableRooms"
                     value={formData.availableRooms}
                     onChange={handleChange}
-                    required={userRole === 'pg_owner'}
+                    required={userRole === 'OWNER'}
                     min="0"
                     className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white text-sm"
                   />
@@ -303,12 +316,12 @@ function CreateListingForm() {
             </div>
           </div>
 
-          {userRole === 'student' ? (
+          {userRole === 'STUDENT' ? (
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4 uppercase tracking-widest text-[10px]">
-                Included Items
+                Included Items (Handover)
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 mb-6">
                 <label className="flex items-center gap-3 cursor-pointer group p-3 border border-gray-100 dark:border-gray-700 rounded-lg">
                   <input
                     type="checkbox"
@@ -350,7 +363,7 @@ function CreateListingForm() {
                   <span className="text-xs text-gray-700 dark:text-gray-300">Lamp</span>
                 </label>
               </div>
-              <div className="mt-4">
+              <div className="mb-8">
                 <input
                   type="text"
                   name="other"
@@ -359,6 +372,25 @@ function CreateListingForm() {
                   className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white text-sm"
                   placeholder="Other items (e.g. Study table)"
                 />
+              </div>
+
+              <div className="p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-2xl">
+                 <label className="flex items-center justify-between cursor-pointer group">
+                    <div className="flex flex-col">
+                       <span className="text-sm font-bold text-blue-900 dark:text-blue-100 mb-1">Pass My Room Mode</span>
+                       <span className="text-[10px] text-blue-700/60 dark:text-blue-300/60">Enable this to show your contact details. Keep off for anonymous truth sharing.</span>
+                    </div>
+                    <div className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        name="handoverMode" 
+                        checked={formData.handoverMode} 
+                        onChange={handleChange} 
+                        className="sr-only peer" 
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    </div>
+                 </label>
               </div>
             </div>
           ) : (

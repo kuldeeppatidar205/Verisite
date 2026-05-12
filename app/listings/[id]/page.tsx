@@ -16,6 +16,9 @@ interface Listing {
   availableDate?: string;
   address?: string;
   amenities?: string[];
+  isOwnerListing: boolean;
+  handoverMode: boolean;
+  reviewCount: number;
   legacyBundle?: {
     mattress?: boolean;
     cooler?: boolean;
@@ -36,6 +39,7 @@ interface Review {
   _id: string;
   rating: number;
   comment: string;
+  geofenceVerified: boolean;
   createdAt: string;
 }
 
@@ -146,6 +150,7 @@ export default function ListingDetailPage() {
           if (res.ok) {
             setNewReview({ rating: 5, comment: '' });
             fetchReviews();
+            fetchListing(); // Refresh to update reviewCount
           } else {
             setReviewError(data.error);
           }
@@ -163,6 +168,14 @@ export default function ListingDetailPage() {
   };
 
   const handleDeleteListing = async () => {
+    if (!listing) return;
+    
+    // Community Ownership Rule Check
+    if (!listing.isOwnerListing && listing.reviewCount > 1) {
+      alert('Community Ownership Rule: This listing has significant community interaction and cannot be deleted by the publisher.');
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this listing?')) return;
 
     try {
@@ -175,7 +188,8 @@ export default function ListingDetailPage() {
         alert('Listing deleted successfully');
         router.push('/browse');
       } else {
-        alert('Failed to delete listing');
+        const data = await res.json();
+        alert(data.error || 'Failed to delete listing');
       }
     } catch (error) {
       console.error('Failed to delete listing:', error);
@@ -203,7 +217,7 @@ export default function ListingDetailPage() {
   }
 
   const isOwner = userProfile && listing?.userId && userProfile.id === (typeof listing.userId === 'string' ? listing.userId : listing.userId._id);
-  const canReview = userProfile && userProfile.role === 'student' && userProfile.verified && !isOwner;
+  const canReview = userProfile && userProfile.role === 'STUDENT' && userProfile.verified && !isOwner && !listing.isOwnerListing;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
@@ -236,22 +250,27 @@ export default function ListingDetailPage() {
                 </h1>
                 <p className="text-lg sm:text-2xl text-gray-600 dark:text-gray-300 flex items-center gap-2">
                   <span className="text-blue-600">📍</span>
-                  {listing.listingType === 'handover' 
-                    ? `${listing.userId?.hostelName || 'Hostel'}${listing.userId?.roomNumber ? ` • Room ${listing.userId.roomNumber}` : ''}`
-                    : listing.address || 'Address Not Provided'}
+                  {listing.isOwnerListing 
+                    ? listing.address || 'Address Not Provided'
+                    : listing.userId?.hostelName || 'Anonymous Location'}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <span className={`px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest ${
-                    listing.listingType === 'handover' 
-                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' 
-                      : 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300'
+                    listing.isOwnerListing 
+                      ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300' 
+                      : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
                   }`}>
-                    {listing.listingType === 'handover' ? 'Student Handover' : 'PG Property'}
+                    {listing.isOwnerListing ? 'Marketplace Listing' : 'Student Verified (Truth)'}
                   </span>
-                  {listing.listingType === 'pg' && (
+                  {listing.isOwnerListing && (
                     <span className="px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest">
                       {listing.availableRooms}/{listing.totalRooms} Rooms Available
                     </span>
+                  )}
+                  {listing.listingType === 'handover' && (
+                     <span className="px-3 py-1 bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest">
+                        Handover Opportunity
+                     </span>
                   )}
                 </div>
               </div>
@@ -261,13 +280,18 @@ export default function ListingDetailPage() {
                     href={`/create-listing?id=${id}`}
                     className="flex-1 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold transition shadow-lg shadow-blue-100 dark:shadow-none text-center text-sm"
                   >
-                    Edit Listing
+                    Edit Specs
                   </Link>
                   <button
                     onClick={handleDeleteListing}
-                    className="flex-1 px-6 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/50 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/40 font-bold transition text-sm"
+                    disabled={!listing.isOwnerListing && listing.reviewCount > 1}
+                    className={`flex-1 px-6 py-2.5 rounded-xl font-bold transition text-sm ${
+                      !listing.isOwnerListing && listing.reviewCount > 1
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/50 hover:bg-red-100 dark:hover:bg-red-900/40'
+                    }`}
                   >
-                    Delete
+                    {!listing.isOwnerListing && listing.reviewCount > 1 ? 'Locked (Community Owned)' : 'Delete'}
                   </button>
                 </div>
               )}
@@ -353,18 +377,28 @@ export default function ListingDetailPage() {
                 </div>
 
                 <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-6">
-                  <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 sm:mb-4">Posted By</h3>
+                  <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 sm:mb-4">
+                    {listing.isOwnerListing ? 'Property Owner' : 'Source'}
+                  </h3>
                   <p className="text-gray-900 dark:text-white font-extrabold text-lg sm:text-xl mb-1">
-                    {listing.userId?.name || 'Unknown User'}
+                    {listing.isOwnerListing || listing.handoverMode 
+                      ? listing.userId?.name || 'Verified User'
+                      : 'Anonymous Student'}
                   </p>
                   <p className="text-[10px] sm:text-xs text-gray-500 font-medium uppercase tracking-tighter">
-                    {listing.userId?.role === 'student' ? 'Student' : 'PG Owner'} • Since {new Date(listing.createdAt).toLocaleDateString()}
+                    {listing.isOwnerListing ? 'Verified Owner' : 'Verified Student'} • Since {new Date(listing.createdAt).toLocaleDateString()}
                   </p>
                   <div className="mt-6">
                     {token ? (
-                      <button className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold hover:opacity-90 transition shadow-lg dark:shadow-none text-sm">
-                        Contact {listing.userId?.role === 'student' ? 'Student' : 'Owner'}
-                      </button>
+                      (listing.isOwnerListing || listing.handoverMode) ? (
+                        <button className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold hover:opacity-90 transition shadow-lg dark:shadow-none text-sm">
+                          Contact {listing.isOwnerListing ? 'Owner' : 'Student'}
+                        </button>
+                      ) : (
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-xs text-center text-gray-500 italic">
+                          Contact info hidden by publisher to maintain anonymity.
+                        </div>
+                      )
                     ) : (
                       <Link href="/login" className="block w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-center hover:bg-blue-700 transition text-sm">
                         Login to Contact
@@ -377,93 +411,102 @@ export default function ListingDetailPage() {
           </div>
         </div>
 
-        {/* Reviews Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl dark:shadow-none border border-transparent dark:border-gray-700 p-8 transition-colors duration-200">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Authentic Student Reviews</h2>
-            <div className="flex items-center gap-1.5 text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full border border-blue-100 dark:border-blue-800">
-              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-              Geofence Verified
-            </div>
-          </div>
-          
-          {canReview ? (
-            <form onSubmit={handleReviewSubmit} className="mb-12 bg-gray-50 dark:bg-gray-900/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-800">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Write an Anonymous Review</h3>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">Identity Protected</span>
+        {/* Reviews Section - ONLY FOR STUDENT LISTINGS */}
+        {!listing.isOwnerListing && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl dark:shadow-none border border-transparent dark:border-gray-700 p-8 transition-colors duration-200">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Student Truth Ledger</h2>
+              <div className="flex items-center gap-1.5 text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full border border-blue-100 dark:border-blue-800">
+                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                Geofence Verified
               </div>
-              {reviewError && <p className="text-red-500 text-sm mb-4 font-medium">{reviewError}</p>}
-              
-              <div className="mb-4">
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Rating</label>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setNewReview({ ...newReview, rating: star })}
-                      className={`text-2xl transition ${star <= newReview.rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`}
-                    >
-                      ★
-                    </button>
-                  ))}
+            </div>
+            
+            {canReview ? (
+              <form onSubmit={handleReviewSubmit} className="mb-12 bg-gray-50 dark:bg-gray-900/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-800">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">Add to the Ledger</h3>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">Identity Protected</span>
                 </div>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Comment</label>
-                <textarea
-                  required
-                  value={newReview.comment}
-                  onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                  className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
-                  placeholder="Share your experience (your name will not be shown)..."
-                  rows={3}
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={reviewLoading}
-                className="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50 transition shadow-lg shadow-blue-100 dark:shadow-none"
-              >
-                {reviewLoading ? 'Verifying Location...' : 'Submit Anonymous Review'}
-              </button>
-            </form>
-          ) : userProfile && userProfile.role === 'student' && !userProfile.verified ? (
-            <div className="mb-8 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900/50 rounded-xl text-yellow-800 dark:text-yellow-200 text-sm font-medium text-center">
-              Please verify your college email to leave reviews.
-            </div>
-          ) : null}
-
-          <div className="space-y-6">
-            {reviews.length > 0 ? (
-              reviews.map((review) => (
-                <div key={review._id} className="border-b border-gray-100 dark:border-gray-700 pb-6 last:border-0">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <span className="font-bold text-gray-900 dark:text-white">Anonymous Student</span>
-                      <div className="flex text-yellow-400 mt-1">
-                        {[...Array(5)].map((_, i) => (
-                          <span key={i} className={i < review.rating ? 'opacity-100' : 'opacity-20 text-gray-400'}>★</span>
-                        ))}
-                      </div>
-                    </div>
-                    <span className="text-xs text-gray-400">
-                      {new Date(review.createdAt).toLocaleDateString()}
-                    </span>
+                {reviewError && <p className="text-red-500 text-sm mb-4 font-medium">{reviewError}</p>}
+                
+                <div className="mb-4">
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Rating</label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setNewReview({ ...newReview, rating: star })}
+                        className={`text-2xl transition ${star <= newReview.rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`}
+                      >
+                        ★
+                      </button>
+                    ))}
                   </div>
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed italic">
-                    "{review.comment}"
-                  </p>
                 </div>
-              ))
-            ) : (
-              <p className="text-gray-500 text-center py-8 italic">No verified reviews yet. Be the first to share your experience!</p>
-            )}
+
+                <div className="mb-4">
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Your Observation</label>
+                  <textarea
+                    required
+                    value={newReview.comment}
+                    onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                    className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+                    placeholder="Provide brutally honest feedback..."
+                    rows={3}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={reviewLoading}
+                  className="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50 transition shadow-lg shadow-blue-100 dark:shadow-none"
+                >
+                  {reviewLoading ? 'Verifying Proximity...' : 'Submit to Ledger'}
+                </button>
+              </form>
+            ) : userProfile && userProfile.role === 'OWNER' ? (
+              <div className="mb-8 p-4 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-500 text-sm font-medium text-center italic">
+                Owners are not permitted to interact with the student rating system.
+              </div>
+            ) : userProfile && userProfile.role === 'STUDENT' && !userProfile.verified ? (
+              <div className="mb-8 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900/50 rounded-xl text-yellow-800 dark:text-yellow-200 text-sm font-medium text-center">
+                Please verify your college email to add to the truth ledger.
+              </div>
+            ) : null}
+
+            <div className="space-y-6">
+              {reviews.length > 0 ? (
+                reviews.map((review) => (
+                  <div key={review._id} className="border-b border-gray-100 dark:border-gray-700 pb-6 last:border-0">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <span className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                          Anonymous Student
+                          {review.geofenceVerified && <span className="text-[8px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded font-black uppercase tracking-tighter">Verified @ Location</span>}
+                        </span>
+                        <div className="flex text-yellow-400 mt-1">
+                          {[...Array(5)].map((_, i) => (
+                            <span key={i} className={i < review.rating ? 'opacity-100' : 'opacity-20 text-gray-400'}>★</span>
+                          ))}
+                        </div>
+                      </div>
+                      <span className="text-xs text-gray-400">
+                        {new Date(review.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed italic">
+                      "{review.comment}"
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-8 italic">No verified truth entries yet.</p>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

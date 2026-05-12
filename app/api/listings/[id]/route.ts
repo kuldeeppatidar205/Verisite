@@ -12,9 +12,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     await connectToDatabase();
 
-    const listing = await Listing.findById(id).populate('userId', 'name hostelName roomNumber');
-    if (!listing) {
+    const listingDoc = await Listing.findById(id).populate('userId', 'name hostelName roomNumber role');
+    if (!listingDoc) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
+    }
+
+    const listing = listingDoc.toObject();
+    // Filter sensitive info for student listings not in handoverMode
+    if (!listing.isOwnerListing && !listing.handoverMode) {
+      delete listing.userId;
     }
 
     return NextResponse.json(listing);
@@ -48,12 +54,25 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'You can only edit your own listings' }, { status: 403 });
     }
 
+    // Lock Location for Student Listings
+    if (!listing.isOwnerListing) {
+      // If coordinates changed, block it
+      if (validated.lat !== listing.coordinates.lat || validated.lng !== listing.coordinates.lng) {
+        return NextResponse.json({ error: 'Address/Location cannot be changed after creation for student listings.' }, { status: 403 });
+      }
+    }
+
     // Update listing
     Object.assign(listing, {
       roomDetails: validated.roomDetails,
       price: validated.price,
       availableDate: new Date(validated.availableDate),
       legacyBundle: validated.legacyBundle,
+      address: validated.address,
+      amenities: validated.amenities,
+      totalRooms: validated.totalRooms,
+      availableRooms: validated.availableRooms,
+      handoverMode: listing.isOwnerListing ? true : (validated.handoverMode ?? listing.handoverMode),
     });
 
     await listing.save();
@@ -93,6 +112,13 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     if (listing.userId.toString() !== payload.userId) {
       return NextResponse.json({ error: 'You can only delete your own listings' }, { status: 403 });
+    }
+
+    // Deletion Lock: Community Ownership Rule
+    if (!listing.isOwnerListing && listing.reviewCount > 1) {
+      return NextResponse.json({ 
+        error: 'This listing has significant community interaction (reviews) and cannot be deleted by the publisher to maintain data integrity.' 
+      }, { status: 403 });
     }
 
     await Listing.deleteOne({ _id: id });

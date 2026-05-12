@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     // Only verified students can rate
     const user = await User.findById(payload.userId);
-    if (!user || !user.verified || user.role !== 'student') {
+    if (!user || !user.verified || user.role !== 'STUDENT') {
       return NextResponse.json({ error: 'Only verified students can rate listings' }, { status: 403 });
     }
 
@@ -56,6 +56,11 @@ export async function POST(req: NextRequest) {
     if (!listing) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
+
+    // Prevent owners from being rated/reviewed by themselves? 
+    // Wait, owners are blocked from interacting with the rating system entirely.
+    // "Owners are hard-blocked from interacting with the rating/review system. They cannot rate their own or others' properties."
+    // This is handled by the user.role !== 'STUDENT' check above.
 
     // Prevent users from rating their own listings
     if (listing.userId.toString() === payload.userId) {
@@ -69,9 +74,11 @@ export async function POST(req: NextRequest) {
       listing.coordinates.lng
     );
 
-    if (distance > 500) {
+    const isGeofenceVerified = distance <= 100;
+
+    if (!isGeofenceVerified) {
       return NextResponse.json(
-        { error: `You must be within 500 meters of the location to leave a review. (Current distance: ${Math.round(distance)}m)` },
+        { error: `You must be within 100 meters of the location to leave a review. (Current distance: ${Math.round(distance)}m)` },
         { status: 403 }
       );
     }
@@ -92,9 +99,15 @@ export async function POST(req: NextRequest) {
       listingId: validated.listingId,
       rating: validated.rating,
       comment: validated.comment,
+      geofenceVerified: isGeofenceVerified,
     });
 
     await newReview.save();
+
+    // Update Listing Review Count
+    await Listing.findByIdAndUpdate(validated.listingId, {
+      $inc: { reviewCount: 1 }
+    });
 
     return NextResponse.json(
       {
@@ -104,6 +117,7 @@ export async function POST(req: NextRequest) {
           listingId: newReview.listingId,
           rating: newReview.rating,
           comment: newReview.comment,
+          geofenceVerified: newReview.geofenceVerified,
           createdAt: newReview.createdAt,
         },
       },

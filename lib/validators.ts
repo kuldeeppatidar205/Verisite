@@ -5,12 +5,21 @@ export const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email format'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  role: z.enum(['student', 'pg_owner', 'guest']).default('student'),
+  role: z.enum(['STUDENT', 'OWNER', 'GUEST']).default('STUDENT'),
   collegeEmail: z.string().email('Invalid college email format').optional().or(z.literal('')),
   studentId: z.string().optional().or(z.literal('')),
   hostelName: z.string().optional(),
   roomNumber: z.string().optional(),
   phoneNumber: z.string().optional(),
+}).refine((data) => {
+  if (data.role === 'STUDENT' && data.collegeEmail) {
+    const domain = data.collegeEmail.split('@')[1];
+    return domain.endsWith('.edu') || domain.endsWith('.in') || domain.endsWith('.edu.in');
+  }
+  return true;
+}, {
+  message: 'Students must use a .edu or .in email address.',
+  path: ['collegeEmail'],
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
@@ -44,6 +53,7 @@ export const listingSchema = z.object({
   lng: z.number({ required_error: 'Longitude is required' }),
   totalRooms: z.number().positive().optional(),
   availableRooms: z.number().min(0).optional(),
+  handoverMode: z.boolean().optional().default(false),
 });
 
 export type ListingInput = z.infer<typeof listingSchema>;

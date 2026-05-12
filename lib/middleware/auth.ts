@@ -4,6 +4,7 @@ import { verifyToken, extractTokenFromHeader } from '../auth';
 export interface AuthenticatedRequest extends NextRequest {
   userId?: string;
   userEmail?: string;
+  userRole?: 'STUDENT' | 'OWNER' | 'GUEST';
 }
 
 export function withAuth(handler: (req: AuthenticatedRequest) => Promise<NextResponse>) {
@@ -18,6 +19,7 @@ export function withAuth(handler: (req: AuthenticatedRequest) => Promise<NextRes
       const authReq = req as AuthenticatedRequest;
       authReq.userId = payload.userId;
       authReq.userEmail = payload.email;
+      authReq.userRole = payload.role;
 
       return handler(authReq);
     } catch (error) {
