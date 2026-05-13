@@ -1,8 +1,8 @@
-# CampusPass - Quick Start Guide
+# PurePG - Quick Start Guide
 
 ## ✅ Application Successfully Built!
 
-The **CampusPass** student hostel room handover platform is fully built and ready to use.
+The **PurePG** student hostel room handover platform is fully built and ready to use.
 
 ---
 
@@ -10,7 +10,7 @@ The **CampusPass** student hostel room handover platform is fully built and read
 
 ### 1. **Install Dependencies**
 ```bash
-cd D:\programming projects\claude\campuspass
+cd D:\programming projects\claude\purePG
 npm install
 ```
 
@@ -22,7 +22,7 @@ cp .env.example .env.local
 
 Edit `.env.local` and set:
 ```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/campuspass
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/purePG
 JWT_SECRET=your_secret_key_here
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
 ```
@@ -197,4 +197,4 @@ Add more universities by editing `scripts/seed-db.ts`
 
 ---
 
-**Happy coding! 🚀 Your CampusPass application is ready to go!**
+**Happy coding! 🚀 Your PurePG application is ready to go!**

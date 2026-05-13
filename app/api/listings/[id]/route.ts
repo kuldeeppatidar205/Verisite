@@ -18,8 +18,22 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     const listing = listingDoc.toObject();
-    // Filter sensitive info for student listings not in handoverMode
-    if (!listing.isOwnerListing && !listing.handoverMode) {
+
+    // Check if the requester is the owner
+    const token = extractTokenFromHeader(req.headers.get('authorization'));
+    let isOwner = false;
+    if (token) {
+      try {
+        const payload = verifyToken(token);
+        const ownerId = listing.userId?._id?.toString() || listing.userId?.toString();
+        isOwner = ownerId === payload.userId;
+      } catch (e) {
+        // Invalid token, treat as guest
+      }
+    }
+
+    // Filter sensitive info for student listings not in handoverMode, unless requester is owner
+    if (!isOwner && !listing.isOwnerListing && !listing.handoverMode) {
       delete listing.userId;
     }
 

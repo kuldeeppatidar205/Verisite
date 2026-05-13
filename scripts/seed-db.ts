@@ -7,7 +7,7 @@ import { University } from '../lib/models/University';
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 async function seedUniversities() {
-  console.log('🌱 Seeding CampusPass universities...\n');
+  console.log('🌱 Seeding PurePG universities...\n');
 
   try {
     await connectToDatabase();

@@ -142,9 +142,9 @@ export default function ProfilePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
-              CP
+              PP
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">CampusPass</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">PurePG</h1>
           </Link>
           <div className="flex items-center gap-4">
             <ThemeToggle />

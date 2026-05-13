@@ -60,9 +60,9 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/30 group-hover:scale-110 transition-transform">
-              CP
+              PP
             </div>
-            <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tighter">CampusPass</h1>
+            <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tighter">PurePG</h1>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <ThemeToggle />
@@ -214,9 +214,11 @@ export default function Home() {
                   <div className="flex justify-between items-center border-t border-gray-50 dark:border-slate-800 pt-6">
                     <div className="flex items-center gap-2">
                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-xs font-black text-white shadow-sm">
-                          {listing.userId?.name.charAt(0)}
+                          {listing.userId?.name ? listing.userId.name.charAt(0) : '?'}
                        </div>
-                       <span className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">{listing.userId?.name.split(' ')[0]}</span>
+                       <span className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                         {listing.userId?.name ? listing.userId.name.split(' ')[0] : 'Anonymous'}
+                       </span>
                     </div>
                     <div className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-widest group-hover:translate-x-1 transition-transform">
                       Details <span>→</span>
@@ -250,7 +252,7 @@ export default function Home() {
               Engineered for Students
             </h3>
             <p className="text-gray-500 dark:text-slate-400 max-w-xl mx-auto font-medium">
-              We built CampusPass to solve the friction of finding verified accommodation and handling room handovers.
+              We built PurePG to solve the friction of finding verified accommodation and handling room handovers.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 sm:gap-16">
@@ -282,9 +284,9 @@ export default function Home() {
             <div>
               <div className="flex items-center gap-2 mb-6 justify-center sm:justify-start">
                  <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-primary-500/20">
-                  CP
+                  PP
                 </div>
-                <span className="font-black text-gray-900 dark:text-white tracking-tighter text-xl">CampusPass</span>
+                <span className="font-black text-gray-900 dark:text-white tracking-tighter text-xl">PurePG</span>
               </div>
               <p className="text-sm max-w-xs mx-auto sm:mx-0 font-medium">
                 Making student accommodation safe, transparent, and easy for everyone.
@@ -297,7 +299,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-16 pt-8 border-t border-gray-100 dark:border-slate-900 flex flex-col sm:flex-row justify-between items-center gap-4">
-             <p className="text-xs font-bold opacity-40 uppercase tracking-[0.2em]">&copy; 2024 CampusPass Platform</p>
+             <p className="text-xs font-bold opacity-40 uppercase tracking-[0.2em]">&copy; 2024 PurePG Platform</p>
              <div className="flex gap-6 opacity-40 grayscale hover:grayscale-0 transition-all">
                 <span className="text-xs font-black">IITK</span>
                 <span className="text-xs font-black">DU</span>

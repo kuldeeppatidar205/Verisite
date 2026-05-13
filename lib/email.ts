@@ -28,7 +28,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
 
   try {
     await transporter.sendMail({
-      from: `"CampusPass" <${user}>`,
+      from: `"PurePG" <${user}>`,
       to: options.to,
       subject: options.subject,
       html: options.html,
@@ -50,9 +50,9 @@ export function generateVerificationEmailHtml(verifyUrl: string, userName: strin
     <!DOCTYPE html>
     <html>
       <body style="font-family: Arial, sans-serif;">
-        <h2>Email Verification - CampusPass</h2>
+        <h2>Email Verification - PurePG</h2>
         <p>Hi ${userName},</p>
-        <p>Welcome to CampusPass! Please verify your email to get started.</p>
+        <p>Welcome to PurePG! Please verify your email to get started.</p>
         <p>
           <a href="${verifyUrl}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
             Verify Email
@@ -60,8 +60,10 @@ export function generateVerificationEmailHtml(verifyUrl: string, userName: strin
         </p>
         <p>Or copy this link: <code>${verifyUrl}</code></p>
         <p>This link expires in 24 hours.</p>
-        <p>Best regards,<br/>CampusPass Team</p>
+        <p>Best regards,<br/>PurePG Team</p>
       </body>
     </html>
   `;
+}
+ `;
 }

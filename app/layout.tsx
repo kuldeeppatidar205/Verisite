@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CampusPass - Student Room Handover",
+  title: "PurePG - Student Room Handover",
   description: "Find and list student hostel room handovers. Verified college students only.",
 };
 

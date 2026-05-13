@@ -30,13 +30,13 @@ async function testEmail() {
     // Send test email
     console.log('📨 Sending test email...');
     const result = await transporter.sendMail({
-      from: `"CampusPass Test" <${user}>`,
+      from: `"PurePG Test" <${user}>`,
       to: user, // Send to same Gmail account for testing
-      subject: 'CampusPass Email Test',
+      subject: 'PurePG Email Test',
       html: `
         <h2>Email Verification Test</h2>
         <p>If you received this email, Gmail SMTP is working correctly!</p>
-        <p>This is a test from CampusPass email verification system.</p>
+        <p>This is a test from PurePG email verification system.</p>
         <p><strong>Test Status: SUCCESS ✅</strong></p>
       `,
     });

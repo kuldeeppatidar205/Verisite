@@ -41,10 +41,11 @@ function CreateListingForm() {
     }
     setToken(t);
     fetchUserRole(t);
-    captureLocation();
-
+    
     if (editId) {
       fetchListing(editId);
+    } else {
+      captureLocation();
     }
   }, []);
 
@@ -76,7 +77,9 @@ function CreateListingForm() {
       });
       const data = await res.json();
       if (data.user) {
-        setUserRole(data.user.role);
+        // Normalize role to uppercase to match state types and new schema
+        const normalizedRole = data.user.role?.toUpperCase() || 'STUDENT';
+        setUserRole(normalizedRole as 'STUDENT' | 'OWNER');
       }
     } catch (error) {
       console.error('Failed to fetch user role:', error);
@@ -122,14 +125,21 @@ function CreateListingForm() {
     e.preventDefault();
     setError('');
     
-    if (!formData.lat || !formData.lng) {
+    if (formData.lat === null || formData.lng === null) {
       setError('Waiting for location coordinates... Please ensure location is enabled.');
       return;
     }
 
     setLoading(true);
 
-    if (!formData.roomDetails || !formData.price || !formData.availableDate) {
+    const price = parseFloat(formData.price);
+    if (isNaN(price)) {
+      setError('Please enter a valid price');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.roomDetails || !formData.availableDate) {
       setError('Please fill in all required fields');
       setLoading(false);
       return;
@@ -138,20 +148,15 @@ function CreateListingForm() {
     try {
       const payload: any = {
         roomDetails: formData.roomDetails,
-        price: parseFloat(formData.price),
+        price: price,
         availableDate: new Date(formData.availableDate).toISOString(),
         lat: formData.lat,
         lng: formData.lng,
       };
 
       if (userRole === 'STUDENT') {
-        payload.listingType = 'pg'; // Default to PG for Truth Stream unless it's a handover
-        // Actually, let's keep it simple: if student posts, it's a student listing.
-        // Prompt says "Unique Listing Enforcement: Before creating a new PG listing..."
-        // So students can post PG listings or Handover listings.
-        
         // If they checked any included items, it's likely a handover
-        const isHandover = formData.mattress || formData.cooler || formData.shelf || formData.lamp || formData.other;
+        const isHandover = formData.mattress || formData.cooler || formData.shelf || formData.lamp || !!formData.other;
         payload.listingType = isHandover ? 'handover' : 'pg';
         payload.handoverMode = formData.handoverMode;
 
@@ -166,8 +171,18 @@ function CreateListingForm() {
         payload.listingType = 'pg';
         payload.address = formData.address;
         payload.amenities = formData.amenities.split(',').map(s => s.trim()).filter(s => s !== '');
-        payload.totalRooms = parseInt(formData.totalRooms);
-        payload.availableRooms = parseInt(formData.availableRooms || formData.totalRooms);
+        
+        const totalRooms = parseInt(formData.totalRooms);
+        if (!isNaN(totalRooms)) {
+          payload.totalRooms = totalRooms;
+        }
+        
+        const availableRooms = parseInt(formData.availableRooms);
+        if (!isNaN(availableRooms)) {
+          payload.availableRooms = availableRooms;
+        } else if (!isNaN(totalRooms)) {
+          payload.availableRooms = totalRooms;
+        }
       }
 
       const url = editId ? `/api/listings/${editId}` : '/api/listings';
@@ -438,9 +453,9 @@ export default function CreateListingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
-              CP
+              PP
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">CampusPass</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">PurePG</h1>
           </Link>
           <div className="flex items-center gap-4">
             <ThemeToggle />

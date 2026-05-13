@@ -20,18 +20,18 @@ export default function RegisterPage() {
     hostelName: '',
     roomNumber: '',
     phoneNumber: '',
-    role: 'student' as 'student' | 'pg_owner' | 'guest',
+    role: 'STUDENT' as 'STUDENT' | 'OWNER' | 'GUEST',
   });
 
-  const setRole = (role: 'student' | 'pg_owner' | 'guest') => {
+  const setRole = (role: 'STUDENT' | 'OWNER' | 'GUEST') => {
     setFormData({
       ...formData,
       role,
       // Clear student-specific fields when role changes to non-student
-      collegeEmail: role === 'student' ? formData.collegeEmail : '',
-      studentId: role === 'student' ? formData.studentId : '',
-      hostelName: role === 'student' ? formData.hostelName : '',
-      roomNumber: role === 'student' ? formData.roomNumber : '',
+      collegeEmail: role === 'STUDENT' ? formData.collegeEmail : '',
+      studentId: role === 'STUDENT' ? formData.studentId : '',
+      hostelName: role === 'STUDENT' ? formData.hostelName : '',
+      roomNumber: role === 'STUDENT' ? formData.roomNumber : '',
     });
   };
 
@@ -62,7 +62,7 @@ export default function RegisterPage() {
       role: formData.role,
     };
 
-    if (formData.role === 'student') {
+    if (formData.role === 'STUDENT') {
       payload.collegeEmail = formData.collegeEmail;
       payload.studentId = formData.studentId;
       payload.hostelName = formData.hostelName;
@@ -84,7 +84,7 @@ export default function RegisterPage() {
       }
 
       localStorage.setItem('token', data.token);
-      const verifyEmail = formData.role === 'student' ? formData.collegeEmail : formData.email;
+      const verifyEmail = formData.role === 'STUDENT' ? formData.collegeEmail : formData.email;
       router.push('/verify-email?email=' + encodeURIComponent(verifyEmail));
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -95,8 +95,8 @@ export default function RegisterPage() {
   };
 
   const getSubtitle = () => {
-    if (formData.role === 'student') return 'Join thousands of students';
-    if (formData.role === 'pg_owner') return 'List your PG and connect with students';
+    if (formData.role === 'STUDENT') return 'Join thousands of students';
+    if (formData.role === 'OWNER') return 'List your PG and connect with students';
     return 'Browse listings and view ratings anonymously';
   };
 
@@ -110,9 +110,9 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <Link href="/" className="flex items-center justify-center gap-2 mb-4">
             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-              CP
+              PP
             </div>
-            <span className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-200">CampusPass</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-200">PurePG</span>
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 transition-colors duration-200">Create Account</h1>
           <p className="text-gray-600 dark:text-gray-400 transition-colors duration-200">
@@ -131,9 +131,9 @@ export default function RegisterPage() {
             <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-xl mb-4">
               <button
                 type="button"
-                onClick={() => setRole('student')}
+                onClick={() => setRole('STUDENT')}
                 className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition ${
-                  formData.role === 'student' 
+                  formData.role === 'STUDENT' 
                     ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
@@ -142,9 +142,9 @@ export default function RegisterPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setRole('pg_owner')}
+                onClick={() => setRole('OWNER')}
                 className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition ${
-                  formData.role === 'pg_owner' 
+                  formData.role === 'OWNER' 
                     ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
@@ -153,9 +153,9 @@ export default function RegisterPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setRole('guest')}
+                onClick={() => setRole('GUEST')}
                 className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition ${
-                  formData.role === 'guest' 
+                  formData.role === 'GUEST' 
                     ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
@@ -194,7 +194,7 @@ export default function RegisterPage() {
               />
             </div>
 
-            {formData.role === 'student' && (
+            {formData.role === 'STUDENT' && (
               <>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1 ml-1">

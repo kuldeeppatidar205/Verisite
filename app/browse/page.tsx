@@ -29,7 +29,7 @@ export default function BrowsePage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [activeStream, setActiveStream] = useState<'STUDENT' | 'OWNER'>('STUDENT');
+  const [activeStream, setActiveStream] = useState<'STUDENT' | 'OWNER' | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -37,7 +37,31 @@ export default function BrowsePage() {
       router.push('/login');
       return;
     }
-    fetchListings(page, activeStream);
+    
+    // Fetch user role to set default stream
+    const fetchUserRole = async () => {
+      try {
+        const res = await fetch('/api/users/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.user?.role === 'OWNER') {
+          setActiveStream('OWNER');
+        } else {
+          setActiveStream('STUDENT');
+        }
+      } catch (error) {
+        setActiveStream('STUDENT');
+      }
+    };
+
+    fetchUserRole();
+  }, []);
+
+  useEffect(() => {
+    if (activeStream) {
+      fetchListings(page, activeStream);
+    }
   }, [page, activeStream]);
 
   const fetchListings = async (pageNum: number, stream: string) => {
@@ -55,6 +79,14 @@ export default function BrowsePage() {
     }
   };
 
+  if (!activeStream) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+        <div className="text-gray-400 animate-pulse font-bold tracking-tighter text-2xl">PUREPG</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-x-hidden">
       {/* ... (Dynamic Background and Navigation same as before) */}
@@ -67,9 +99,9 @@ export default function BrowsePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/30 group-hover:scale-110 transition-transform">
-              CP
+              PP
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tighter">CampusPass</h1>
+            <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tighter">PurePG</h1>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <ThemeToggle />

@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     
     const emailSent = await sendEmail({
       to: emailToVerify,
-      subject: 'Verify your CampusPass account',
+      subject: 'Verify your PurePG account',
       html: generateVerificationEmailHtml(verifyUrl, validated.name),
     });
 

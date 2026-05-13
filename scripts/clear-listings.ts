@@ -7,7 +7,7 @@ import { Listing } from '../lib/models/Listing';
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 async function clearListings() {
-  console.log('🧹 CampusPass - Clearing All Listings');
+  console.log('🧹 PurePG - Clearing All Listings');
   console.log('====================================\n');
 
   try {

@@ -140,9 +140,9 @@ export default function LoginPage() {
         <div className="text-center mb-12 animate-slide-down">
           <Link href="/" className="flex items-center justify-center gap-2 mb-6 group">
             <div className="w-12 h-12 bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg shadow-primary-500/30 group-hover:scale-110 transition-transform">
-              CP
+              PP
             </div>
-            <span className="text-3xl font-black text-gray-900 dark:text-white transition-colors duration-200 tracking-tighter">CampusPass</span>
+            <span className="text-3xl font-black text-gray-900 dark:text-white transition-colors duration-200 tracking-tighter">PurePG</span>
           </Link>
           <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-3 transition-colors duration-200 tracking-tighter">Welcome Back</h1>
           <p className="text-gray-600 dark:text-slate-400 transition-colors duration-200 font-medium">Sign in to your account</p>

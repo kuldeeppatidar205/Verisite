@@ -85,9 +85,9 @@ export default function VerifyEmailPage() {
         <div className="text-center mb-8">
           <Link href="/" className="flex items-center justify-center gap-2 mb-4">
             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-              CP
+              PP
             </div>
-            <span className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-200">CampusPass</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-200">PurePG</span>
           </Link>
         </div>
 

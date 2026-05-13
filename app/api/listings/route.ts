@@ -17,7 +17,12 @@ export async function GET(req: NextRequest) {
 
     await connectToDatabase();
 
-    const query: any = { status: 'available', isOwnerListing };
+    const query: any = { status: 'available' };
+    const isOwnerListingParam = searchParams.get('isOwnerListing');
+    if (isOwnerListingParam !== null) {
+      query.isOwnerListing = isOwnerListingParam === 'true';
+    }
+
     if (listingType) {
       query.listingType = listingType;
     }
@@ -71,14 +76,16 @@ export async function POST(req: NextRequest) {
     // Check if user is verified
     const user = await User.findById(payload.userId);
     if (!user || !user.verified) {
-      return NextResponse.json({ error: 'Only verified users can create listings' }, { status: 403 });
+      return NextResponse.json({ error: 'Only verified users can create listings. Please verify your email first.' }, { status: 403 });
     }
 
-    if (user.role === 'GUEST') {
+    const userRole = user.role?.toUpperCase() || 'STUDENT';
+
+    if (userRole === 'GUEST') {
       return NextResponse.json({ error: 'Guests cannot create listings' }, { status: 403 });
     }
 
-    const isOwnerListing = user.role === 'OWNER';
+    const isOwnerListing = userRole === 'OWNER';
 
     // Unique PG Listing Enforcement for Students
     if (!isOwnerListing && validated.listingType === 'pg') {

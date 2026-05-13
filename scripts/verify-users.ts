@@ -7,7 +7,7 @@ import { User } from '../lib/models/User';
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 async function verifyAllUsers() {
-  console.log('🛡️  CampusPass - Manual User Verification');
+  console.log('🛡️  PurePG - Manual User Verification');
   console.log('========================================\n');
 
   try {

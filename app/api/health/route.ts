@@ -4,6 +4,6 @@ export async function GET() {
   return NextResponse.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    message: 'CampusPass API is running',
+    message: 'PurePG API is running',
   });
 }
