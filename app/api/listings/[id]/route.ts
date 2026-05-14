@@ -91,7 +91,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       pgName: validated.pgName,
       roomDetails: validated.roomDetails,
       price: validated.price,
-      availableDate: new Date(validated.availableDate),
+      availableDate: validated.availableDate ? new Date(validated.availableDate) : listing.availableDate,
       legacyBundle: validated.legacyBundle,
       address: validated.address,
       amenities: validated.amenities,
