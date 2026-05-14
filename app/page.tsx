@@ -7,6 +7,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 interface Listing {
   _id: string;
   listingType: 'handover' | 'pg';
+  pgName?: string;
   roomDetails: string;
   price: number;
   availableDate: string;
@@ -134,7 +135,7 @@ export default function Home() {
           Seamless <span className="gradient-text">Room Handovers</span> for Campus Life
         </h2>
         <p className="text-lg sm:text-xl text-gray-600 dark:text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: '0.1s' }}>
-          The all-in-one platform for verified students to securely hand over hostel rooms and for owners to list whitelisted PGs.
+          The all-in-one platform for verified students to securely hand over hostel rooms and for owners to list PGs.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <Link
@@ -194,16 +195,14 @@ export default function Home() {
                       {listing.listingType === 'handover' ? 'Handover' : 'PG'}
                     </span>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h4 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter mb-1">
-                      ₹{(listing.price ?? 0).toLocaleString('en-IN')}<span className="text-sm text-gray-500 font-normal">/mo</span>
+                      ₹{listing.price.toLocaleString('en-IN')}<span className="text-sm text-gray-500 font-normal">/mo</span>
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-slate-400 font-bold flex items-center gap-1">
                       <span className="text-primary-600 text-base">📍</span>
-                      {listing.listingType === 'handover' 
-                        ? (listing.userId?.hostelName || 'Hostel') 
-                        : (listing.address || 'Accommodation')}
+                      {listing.pgName || listing.userId?.hostelName || listing.address || 'Verified Location'}
                     </p>
                   </div>
                   
@@ -252,7 +251,7 @@ export default function Home() {
               Engineered for Students
             </h3>
             <p className="text-gray-500 dark:text-slate-400 max-w-xl mx-auto font-medium">
-              We built PurePG to solve the friction of finding verified accommodation and handling room handovers.
+              Built PurePG to solve the friction of finding verified accommodation and handling room handovers.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 sm:gap-16">
@@ -299,11 +298,9 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-16 pt-8 border-t border-gray-100 dark:border-slate-900 flex flex-col sm:flex-row justify-between items-center gap-4">
-             <p className="text-xs font-bold opacity-40 uppercase tracking-[0.2em]">&copy; 2024 PurePG Platform</p>
+             <p className="text-xs font-bold opacity-40 uppercase tracking-[0.2em]">&copy; 2026 PurePG Platform</p>
              <div className="flex gap-6 opacity-40 grayscale hover:grayscale-0 transition-all">
-                <span className="text-xs font-black">IITK</span>
-                <span className="text-xs font-black">DU</span>
-                <span className="text-xs font-black">BITS</span>
+                <span className="text-xm font-black">Expanding Everyday</span>
              </div>
           </div>
         </div>

@@ -8,6 +8,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 interface Listing {
   _id: string;
   listingType: 'handover' | 'pg';
+  pgName?: string;
   roomDetails: string;
   price: number;
   availableRooms?: number;
@@ -16,6 +17,10 @@ interface Listing {
   availableDate?: string;
   address?: string;
   amenities?: string[];
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
   isOwnerListing: boolean;
   handoverMode: boolean;
   reviewCount: number;
@@ -32,6 +37,7 @@ interface Listing {
     hostelName?: string;
     roomNumber?: string;
     role: string;
+    email?: string;
   };
 }
 
@@ -217,7 +223,7 @@ export default function ListingDetailPage() {
   }
 
   const isOwner = userProfile && listing?.userId && userProfile.id === (typeof listing.userId === 'string' ? listing.userId : listing.userId._id);
-  const canReview = userProfile && userProfile.role === 'STUDENT' && userProfile.verified && !isOwner && !listing.isOwnerListing;
+  const canReview = userProfile && userProfile.role === 'STUDENT' && userProfile.verified && !isOwner;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
@@ -248,11 +254,19 @@ export default function ListingDetailPage() {
                 <h1 className="text-3xl sm:text-5xl font-extrabold text-gray-900 dark:text-white mb-3 sm:mb-4">
                   ₹{(listing.price ?? 0).toLocaleString('en-IN')}<span className="text-lg sm:text-xl text-gray-500 font-normal">/month</span>
                 </h1>
-                <p className="text-lg sm:text-2xl text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                <p className="text-lg sm:text-2xl text-gray-600 dark:text-gray-300 flex items-center flex-wrap gap-2">
                   <span className="text-blue-600">📍</span>
-                  {listing.isOwnerListing 
-                    ? listing.address || 'Address Not Provided'
-                    : listing.userId?.hostelName || 'Anonymous Location'}
+                  {listing.pgName || listing.userId?.hostelName || listing.address || 'Verified Location'}
+                  {listing.coordinates && (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${listing.coordinates.lat},${listing.coordinates.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs sm:text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full font-bold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition border border-blue-100 dark:border-blue-800 ml-2"
+                    >
+                      View on Maps
+                    </a>
+                  )}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <span className={`px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest ${
@@ -391,9 +405,27 @@ export default function ListingDetailPage() {
                   <div className="mt-6">
                     {token ? (
                       (listing.isOwnerListing || listing.handoverMode) ? (
-                        <button className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold hover:opacity-90 transition shadow-lg dark:shadow-none text-sm">
-                          Contact {listing.isOwnerListing ? 'Owner' : 'Student'}
-                        </button>
+                        listing.userId?.email ? (
+                          <div className="space-y-3">
+                            <a 
+                              href={`mailto:${listing.userId.email}`}
+                              className="block w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold text-center hover:opacity-90 transition shadow-lg dark:shadow-none text-sm"
+                            >
+                              Email {listing.isOwnerListing ? 'Owner' : 'Student'}
+                            </a>
+                            <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-700 text-center">
+                              <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">Personal Email</p>
+                              <p className="text-sm font-bold text-gray-900 dark:text-white break-all">{listing.userId.email}</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <button 
+                            disabled
+                            className="w-full py-3 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-xl font-bold cursor-not-allowed text-sm"
+                          >
+                            Contact details unavailable
+                          </button>
+                        )
                       ) : (
                         <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-xs text-center text-gray-500 italic">
                           Contact info hidden by publisher to maintain anonymity.
@@ -411,9 +443,8 @@ export default function ListingDetailPage() {
           </div>
         </div>
 
-        {/* Reviews Section - ONLY FOR STUDENT LISTINGS */}
-        {!listing.isOwnerListing && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl dark:shadow-none border border-transparent dark:border-gray-700 p-8 transition-colors duration-200">
+        {/* Reviews Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl dark:shadow-none border border-transparent dark:border-gray-700 p-8 transition-colors duration-200">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Student Truth Ledger</h2>
               <div className="flex items-center gap-1.5 text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full border border-blue-100 dark:border-blue-800">
@@ -506,7 +537,6 @@ export default function ListingDetailPage() {
               )}
             </div>
           </div>
-        )}
       </div>
     </div>
   );

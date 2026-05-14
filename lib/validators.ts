@@ -35,11 +35,12 @@ export type LoginInput = z.infer<typeof loginSchema>;
 // Listing Schema
 export const listingSchema = z.object({
   listingType: z.enum(['handover', 'pg']).default('handover'),
+  pgName: z.string().min(2, 'PG/Hostel name must be at least 2 characters').optional().or(z.literal('')),
   roomDetails: z.string().min(10, 'Room details must be at least 10 characters'),
   price: z.number().positive('Price must be positive'),
-  availableDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+  availableDate: z.string().refine((val) => !val || !isNaN(Date.parse(val)), {
     message: 'Invalid date format. Please use YYYY-MM-DD or ISO format.',
-  }),
+  }).optional().or(z.literal('')),
   legacyBundle: z.object({
     mattress: z.boolean().optional(),
     cooler: z.boolean().optional(),
@@ -76,3 +77,13 @@ export const universitySchema = z.object({
 });
 
 export type UniversityInput = z.infer<typeof universitySchema>;
+
+// Profile Update Schema
+export const profileUpdateSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').optional(),
+  phoneNumber: z.string().min(10, 'Phone number must be at least 10 characters').optional(),
+  hostelName: z.string().optional(),
+  roomNumber: z.string().optional(),
+});
+
+export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;

@@ -16,6 +16,7 @@ function CreateListingForm() {
   const [token, setToken] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<'STUDENT' | 'OWNER'>('STUDENT');
   const [formData, setFormData] = useState({
+    pgName: '',
     roomDetails: '',
     price: '',
     availableDate: '',
@@ -91,6 +92,7 @@ function CreateListingForm() {
       const res = await fetch(`/api/listings/${id}`);
       const data = await res.json();
       setFormData({
+        pgName: data.pgName || '',
         roomDetails: data.roomDetails,
         price: data.price.toString(),
         availableDate: new Date(data.availableDate).toISOString().split('T')[0],
@@ -139,17 +141,24 @@ function CreateListingForm() {
       return;
     }
 
-    if (!formData.roomDetails || !formData.availableDate) {
-      setError('Please fill in all required fields');
+    if (!formData.roomDetails) {
+      setError('Please fill in the property details');
+      setLoading(false);
+      return;
+    }
+
+    if (userRole === 'OWNER' && !formData.availableDate) {
+      setError('Available From date is required for owner listings');
       setLoading(false);
       return;
     }
 
     try {
       const payload: any = {
+        pgName: formData.pgName,
         roomDetails: formData.roomDetails,
         price: price,
-        availableDate: new Date(formData.availableDate).toISOString(),
+        availableDate: formData.availableDate ? new Date(formData.availableDate).toISOString() : undefined,
         lat: formData.lat,
         lng: formData.lng,
       };
@@ -232,6 +241,21 @@ function CreateListingForm() {
               {error}
             </div>
           )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              PG / Hostel Name *
+            </label>
+            <input
+              type="text"
+              name="pgName"
+              value={formData.pgName}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white text-sm"
+              placeholder="e.g. Skyline PG or Raman Hostel"
+            />
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -318,14 +342,14 @@ function CreateListingForm() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Available From *
+                Available From {userRole === 'OWNER' ? '*' : '(Optional)'}
               </label>
               <input
                 type="date"
                 name="availableDate"
                 value={formData.availableDate}
                 onChange={handleChange}
-                required
+                required={userRole === 'OWNER'}
                 className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white text-sm"
               />
             </div>

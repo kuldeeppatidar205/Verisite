@@ -12,30 +12,40 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     await connectToDatabase();
 
-    const listingDoc = await Listing.findById(id).populate('userId', 'name hostelName roomNumber role');
+    const listingDoc = await Listing.findById(id).populate('userId', 'name hostelName roomNumber role email');
     if (!listingDoc) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
     const listing = listingDoc.toObject();
+    
+    // Fallback: If isOwnerListing is not set but user is an OWNER, treat as owner listing
+    const actualIsOwnerListing = listing.isOwnerListing || listing.userId?.role === 'OWNER';
 
-    // Check if the requester is the owner
+    // Check if the requester is the owner of the listing
     const token = extractTokenFromHeader(req.headers.get('authorization'));
-    let isOwner = false;
+    let isRequesterTheOwner = false;
     if (token) {
       try {
         const payload = verifyToken(token);
         const ownerId = listing.userId?._id?.toString() || listing.userId?.toString();
-        isOwner = ownerId === payload.userId;
+        isRequesterTheOwner = ownerId === payload.userId;
       } catch (e) {
         // Invalid token, treat as guest
       }
     }
 
-    // Filter sensitive info for student listings not in handoverMode, unless requester is owner
-    if (!isOwner && !listing.isOwnerListing && !listing.handoverMode) {
+    // Filter sensitive info for student listings not in handoverMode, unless requester is the owner
+    if (!isRequesterTheOwner && !actualIsOwnerListing && !listing.handoverMode) {
+      const hostelName = listing.userId?.hostelName;
       delete listing.userId;
+      if (hostelName) {
+        listing.userId = { hostelName };
+      }
     }
+
+    // Return the updated isOwnerListing status
+    listing.isOwnerListing = actualIsOwnerListing;
 
     return NextResponse.json(listing);
   } catch (error) {
@@ -78,6 +88,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     // Update listing
     Object.assign(listing, {
+      pgName: validated.pgName,
       roomDetails: validated.roomDetails,
       price: validated.price,
       availableDate: new Date(validated.availableDate),

@@ -35,6 +35,7 @@ const listingSchema = new Schema<IListing>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     listingType: { type: String, enum: ['handover', 'pg'], default: 'handover', required: true },
+    pgName: { type: String },
     roomDetails: { type: String, required: true },
     price: { type: Number, required: true },
     availableDate: { type: Date, required: true },

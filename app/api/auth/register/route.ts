@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       passwordHash: hashedPassword,
       role: validated.role,
       phoneNumber: validated.phoneNumber,
-      verified: false,
+      verified: validated.role === 'GUEST', // Guests are verified by default
       verificationToken,
       verificationTokenExpiry,
     };
@@ -86,19 +86,25 @@ export async function POST(req: NextRequest) {
     const newUser = new User(userObj);
     await newUser.save();
 
-    // Send verification email
-    const verifyUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/verify-email?token=${verificationToken}`;
-    const emailToVerify = validated.role === 'STUDENT' ? validated.collegeEmail! : validated.email;
-    
-    const emailSent = await sendEmail({
-      to: emailToVerify,
-      subject: 'Verify your PurePG account',
-      html: generateVerificationEmailHtml(verifyUrl, validated.name),
-    });
+    let emailSent = false;
+    let verifyUrl = '';
 
-    if (!emailSent) {
-      console.warn('⚠️ Email sending failed for user:', newUser._id);
-      console.warn('💡 Verification link for manual testing:', verifyUrl);
+    // Only send verification email for non-GUEST users
+    if (validated.role !== 'GUEST') {
+      // Send verification email
+      verifyUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/verify-email?token=${verificationToken}`;
+      const emailToVerify = validated.role === 'STUDENT' ? validated.collegeEmail! : validated.email;
+      
+      emailSent = await sendEmail({
+        to: emailToVerify,
+        subject: 'Verify your PurePG account',
+        html: generateVerificationEmailHtml(verifyUrl, validated.name),
+      });
+
+      if (!emailSent) {
+        console.warn('⚠️ Email sending failed for user:', newUser._id);
+        console.warn('💡 Verification link for manual testing:', verifyUrl);
+      }
     }
 
     // Generate JWT token
@@ -110,9 +116,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       {
-        message: emailSent 
-          ? 'Registration successful. Please verify your email.' 
-          : 'Registration successful. Check console for verification link (email not sent - check Gmail credentials).',
+        message: validated.role === 'GUEST'
+          ? 'Registration successful.'
+          : (emailSent 
+            ? 'Registration successful. Please verify your email.' 
+            : 'Registration successful. Check console for verification link (email not sent - check Gmail credentials).'),
         token: jwtToken,
         user: {
           id: newUser._id.toString(),
@@ -120,7 +128,7 @@ export async function POST(req: NextRequest) {
           email: newUser.email,
           role: newUser.role,
           collegeEmail: newUser.collegeEmail,
-          verified: false,
+          verified: newUser.verified,
         },
       },
       { status: 201 }

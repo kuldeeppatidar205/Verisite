@@ -1,12 +1,13 @@
 import path from 'path';
 import dotenv from 'dotenv';
-import { connectToDatabase } from '../lib/db';
-import { Listing } from '../lib/models/Listing';
 
 // Load environment variables from .env.local
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 async function clearListings() {
+  const { connectToDatabase } = require('../lib/db');
+  const { Listing } = require('../lib/models/Listing');
+
   console.log('🧹 PurePG - Clearing All Listings');
   console.log('====================================\n');
 

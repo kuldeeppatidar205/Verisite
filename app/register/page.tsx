@@ -84,6 +84,12 @@ export default function RegisterPage() {
       }
 
       localStorage.setItem('token', data.token);
+      
+      if (formData.role === 'GUEST') {
+        router.push('/browse');
+        return;
+      }
+
       const verifyEmail = formData.role === 'STUDENT' ? formData.collegeEmail : formData.email;
       router.push('/verify-email?email=' + encodeURIComponent(verifyEmail));
     } catch (err) {
@@ -262,13 +268,14 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1 ml-1">
-                Phone Number
+                Phone Number *
               </label>
               <input
                 type="tel"
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
+                required
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white transition-colors duration-200"
                 placeholder="+91 98765 43210"
               />

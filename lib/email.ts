@@ -65,5 +65,3 @@ export function generateVerificationEmailHtml(verifyUrl: string, userName: strin
     </html>
   `;
 }
- `;
-}

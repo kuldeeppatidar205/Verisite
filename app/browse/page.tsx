@@ -11,6 +11,12 @@ interface Listing {
   price: number;
   availableDate: string;
   listingType: 'handover' | 'pg';
+  pgName?: string;
+  address?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
   userId: {
     name: string;
     hostelName?: string;
@@ -169,10 +175,10 @@ export default function BrowsePage() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {listings.map((listing) => (
-                <Link
+                <div
                   key={listing._id}
-                  href={`/listings/${listing._id}`}
-                  className="group bg-white dark:bg-slate-900 rounded-[32px] shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden card-hover"
+                  onClick={() => router.push(`/listings/${listing._id}`)}
+                  className="group bg-white dark:bg-slate-900 rounded-[32px] shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden card-hover cursor-pointer"
                 >
                   <div className="p-8">
                     <div className="flex justify-between items-start mb-6">
@@ -199,10 +205,28 @@ export default function BrowsePage() {
                       <h4 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter mb-1">
                         ₹{listing.price.toLocaleString('en-IN')}<span className="text-sm text-gray-500 font-normal">/mo</span>
                       </h4>
-                      <p className="text-sm text-gray-500 dark:text-slate-400 font-bold flex items-center gap-1">
-                        <span className="text-primary-600 text-base">📍</span>
-                        {listing.userId?.hostelName || 'Anonymous Location'}
-                      </p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm text-gray-900 dark:text-white font-bold flex items-center gap-1 min-w-0">
+                          <span className="text-primary-600 text-base flex-shrink-0">📍</span>
+                          <span className="truncate">{listing.pgName || listing.userId?.hostelName || 'Verified Location'}</span>
+                        </p>
+                        {listing.coordinates && (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${listing.coordinates.lat},${listing.coordinates.lng}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-[10px] bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 px-2 py-1 rounded-lg font-black uppercase tracking-tighter hover:bg-primary-100 transition flex-shrink-0 border border-primary-100 dark:border-primary-800"
+                          >
+                            Map ↗
+                          </a>
+                        )}
+                      </div>
+                      {listing.address && (
+                        <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium ml-5 mt-0.5 line-clamp-1">
+                          {listing.address}
+                        </p>
+                      )}
                     </div>
 
                     <p className="text-gray-600 dark:text-slate-300 text-sm mb-8 line-clamp-2 leading-relaxed font-medium">
@@ -231,7 +255,7 @@ export default function BrowsePage() {
                        </div>
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
             {/* ... (Pagination logic) */}

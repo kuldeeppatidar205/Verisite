@@ -5,6 +5,7 @@ import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
 import { User } from '@/lib/models/User';
 import { Listing } from '@/lib/models/Listing';
 import { ZodError } from 'zod';
+import { calculateDistance } from '@/lib/utils/geo';
 
 export async function GET(req: NextRequest) {
   try {
@@ -39,8 +40,12 @@ export async function GET(req: NextRequest) {
     const sanitizedListings = listings.map(l => {
       const listing = l.toObject();
       if (!listing.isOwnerListing && !listing.handoverMode) {
-        // Keep it anonymous - remove user details except maybe university info if we had it
+        // Keep it anonymous - remove user details except location name
+        const hostelName = listing.userId?.hostelName;
         delete listing.userId;
+        if (hostelName) {
+          listing.userId = { hostelName }; // Return a partial object with only the location name
+        }
       }
       return listing;
     });
@@ -89,19 +94,25 @@ export async function POST(req: NextRequest) {
 
     // Unique PG Listing Enforcement for Students
     if (!isOwnerListing && validated.listingType === 'pg') {
-      const existingListing = await Listing.findOne({
+      const studentPgListings = await Listing.find({
         isOwnerListing: false,
         listingType: 'pg',
-        coordinates: {
-          lat: validated.lat,
-          lng: validated.lng
-        }
       });
 
-      if (existingListing) {
+      const duplicate = studentPgListings.find(l => {
+        const d = calculateDistance(
+          validated.lat,
+          validated.lng,
+          l.coordinates.lat,
+          l.coordinates.lng
+        );
+        return d <= 40;
+      });
+
+      if (duplicate) {
         return NextResponse.json({ 
-          error: 'A listing at this location already exists. Please add a review to the existing listing instead.',
-          existingListingId: existingListing._id 
+          error: 'A listing at this location already exists (within 40m). Please add a review to the existing listing instead.',
+          existingListingId: duplicate._id 
         }, { status: 409 });
       }
     }
@@ -110,6 +121,7 @@ export async function POST(req: NextRequest) {
     const newListing = new Listing({
       userId: payload.userId,
       listingType: validated.listingType,
+      pgName: validated.pgName,
       roomDetails: validated.roomDetails,
       price: validated.price,
       availableDate: new Date(validated.availableDate),
