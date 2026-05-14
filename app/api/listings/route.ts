@@ -41,11 +41,9 @@ export async function GET(req: NextRequest) {
       const listing = l.toObject();
       if (!listing.isOwnerListing && !listing.handoverMode) {
         // Keep it anonymous - remove user details except location name
-        const hostelName = listing.userId?.hostelName;
-        delete listing.userId;
-        if (hostelName) {
-          listing.userId = { hostelName }; // Return a partial object with only the location name
-        }
+        const populatedUser = listing.userId as any;
+        const hostelName = populatedUser?.hostelName;
+        (listing as any).userId = hostelName ? { hostelName } : undefined;
       }
       return listing;
     });
@@ -100,6 +98,10 @@ export async function POST(req: NextRequest) {
       });
 
       const duplicate = studentPgListings.find(l => {
+        if (!l.coordinates || l.coordinates.lat === undefined || l.coordinates.lng === undefined) {
+          return false;
+        }
+        
         const d = calculateDistance(
           validated.lat,
           validated.lng,
@@ -111,7 +113,7 @@ export async function POST(req: NextRequest) {
 
       if (duplicate) {
         return NextResponse.json({ 
-          error: 'A listing at this location already exists (within 25m). Please add a review to the existing listing instead.',
+          error: 'A listing with the current address already exists. Please add a review to the existing listing instead.',
           existingListingId: duplicate._id 
         }, { status: 409 });
       }
@@ -150,6 +152,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (error: any) {
     console.error('Listing creation error:', error);
+    require('fs').writeFileSync('error.log', error.stack || error.toString());
     
     if (error instanceof ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });

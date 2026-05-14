@@ -23,7 +23,7 @@ async function inspectListings() {
       listings.forEach((l, i) => {
         console.log(`[${i + 1}] ID: ${l._id}`);
         console.log(`    Price: ₹${l.price}`);
-        console.log(`    User: ${l.userId?.name || 'N/A'}`);
+        console.log(`    User: ${(l.userId as any)?.name || 'N/A'}`);
         console.log(`    Details: ${l.roomDetails.slice(0, 50)}...`);
         console.log(`    Status: ${l.status}`);
         console.log('    -----------------------------------');

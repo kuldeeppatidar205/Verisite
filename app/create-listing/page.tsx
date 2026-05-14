@@ -25,7 +25,8 @@ function CreateListingForm() {
     shelf: false,
     lamp: false,
     other: '',
-    address: '',
+    addressPrefix: '',
+    baseAddress: '',
     amenities: '',
     lat: null as number | null,
     lng: null as number | null,
@@ -64,32 +65,35 @@ function CreateListingForm() {
           }));
           console.log("📍 Location captured:", lat, lng);
 
-          // Reverse geocode to get a human-readable address
+          // Reverse geocode to get a human-readable address via backend proxy
           try {
-            const res = await fetch(`https://photon.komoot.io/reverse?lon=${lng}&lat=${lat}`);
+            const res = await fetch(`/api/geocode?lat=${lat}&lon=${lng}`);
             const data = await res.json();
             
-            if (data && data.features && data.features.length > 0) {
-              const props = data.features[0].properties;
-              
-              // Construct a detailed address
+            if (res.ok && data) {
+              // Construct a detailed address from proxy response
               const addressParts = [];
-              if (props.name) addressParts.push(props.name);
-              if (props.street) addressParts.push(props.street);
-              if (props.district) addressParts.push(props.district);
-              if (props.city) addressParts.push(props.city);
-              else if (props.locality) addressParts.push(props.locality);
+              if (data.street) addressParts.push(data.street);
+              if (data.locality && data.locality !== data.city) addressParts.push(data.locality);
+              if (data.city) addressParts.push(data.city);
+              if (data.state) addressParts.push(data.state);
               
-              const detectedAddress = addressParts.join(', ');
+              const detectedAddress = addressParts.filter(Boolean).join(', ');
               
-              setFormData(prev => ({
-                ...prev,
-                address: prev.address || detectedAddress // Don't overwrite if user already typed something
-              }));
-              console.log("🗺️ Detected Address (Photon):", detectedAddress);
+              if (detectedAddress) {
+                setFormData(prev => ({
+                  ...prev,
+                  baseAddress: prev.baseAddress || detectedAddress // Don't overwrite if user already has an address
+                }));
+                console.log("🗺️ Detected Address (Proxy):", detectedAddress);
+              }
+            } else {
+              console.error("Geocoding API error:", data.error);
+              setError(data.error || "Location service unavailable.");
             }
           } catch (error) {
             console.error("Error reverse geocoding:", error);
+            setError("Geocoding service is currently unavailable.");
           }
         },
         (error) => {
@@ -132,7 +136,8 @@ function CreateListingForm() {
         shelf: data.legacyBundle?.shelf || false,
         lamp: data.legacyBundle?.lamp || false,
         other: data.legacyBundle?.other || '',
-        address: data.address || '',
+        addressPrefix: '',
+        baseAddress: data.address || '',
         amenities: data.amenities?.join(', ') || '',
         lat: data.coordinates?.lat || null,
         lng: data.coordinates?.lng || null,
@@ -185,12 +190,16 @@ function CreateListingForm() {
     }
 
     try {
+      const finalAddress = formData.addressPrefix 
+        ? `${formData.addressPrefix.trim()}, ${formData.baseAddress}` 
+        : formData.baseAddress;
+
       const payload: any = {
         pgName: formData.pgName,
         roomDetails: formData.roomDetails,
         price: price,
         availableDate: formData.availableDate ? new Date(formData.availableDate).toISOString() : undefined,
-        address: formData.address,
+        address: finalAddress,
         lat: formData.lat,
         lng: formData.lng,
       };
@@ -210,7 +219,7 @@ function CreateListingForm() {
         };
       } else {
         payload.listingType = 'pg';
-        payload.address = formData.address;
+        payload.address = finalAddress;
         payload.amenities = formData.amenities.split(',').map(s => s.trim()).filter(s => s !== '');
         
         const totalRooms = parseInt(formData.totalRooms);
@@ -307,22 +316,33 @@ function CreateListingForm() {
             </p>
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Property Location *
+            </label>
+            <div className="flex flex-col gap-2">
+              <input
+                type="text"
+                name="addressPrefix"
+                value={formData.addressPrefix}
+                onChange={handleChange}
+                className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white text-sm"
+                placeholder="Specific details (e.g. House No., Building Name)"
+              />
+              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg">
+                <span className="text-gray-500 dark:text-gray-400 text-sm whitespace-nowrap">Auto-captured:</span>
+                <span className="text-gray-900 dark:text-white text-sm font-medium truncate">
+                  {formData.baseAddress || "Waiting for location..."}
+                </span>
+              </div>
+            </div>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
+              The base location is auto-captured based on your current coordinates. You can add specific details like a house number or building name.
+            </p>
+          </div>
+
           {userRole === 'OWNER' && (
             <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Full Address *
-                </label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  required={userRole === 'OWNER'}
-                  className="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white text-sm"
-                  placeholder="Enter the complete address"
-                />
-              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

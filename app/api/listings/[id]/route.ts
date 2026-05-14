@@ -18,9 +18,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     const listing = listingDoc.toObject();
+    const populatedUser = listing.userId as any;
     
     // Fallback: If isOwnerListing is not set but user is an OWNER, treat as owner listing
-    const actualIsOwnerListing = listing.isOwnerListing || listing.userId?.role === 'OWNER';
+    const actualIsOwnerListing = listing.isOwnerListing || populatedUser?.role === 'OWNER';
 
     // Check if the requester is the owner of the listing
     const token = extractTokenFromHeader(req.headers.get('authorization'));
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     if (token) {
       try {
         const payload = verifyToken(token);
-        const ownerId = listing.userId?._id?.toString() || listing.userId?.toString();
+        const ownerId = populatedUser?._id?.toString() || populatedUser?.toString();
         isRequesterTheOwner = ownerId === payload.userId;
       } catch (e) {
         // Invalid token, treat as guest
@@ -37,11 +38,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     // Filter sensitive info for student listings not in handoverMode, unless requester is the owner
     if (!isRequesterTheOwner && !actualIsOwnerListing && !listing.handoverMode) {
-      const hostelName = listing.userId?.hostelName;
-      delete listing.userId;
-      if (hostelName) {
-        listing.userId = { hostelName };
-      }
+      const hostelName = populatedUser?.hostelName;
+      // Reassign instead of delete to satisfy TS interface
+      (listing as any).userId = hostelName ? { hostelName } : undefined;
     }
 
     // Return the updated isOwnerListing status

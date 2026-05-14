@@ -76,4 +76,9 @@ listingSchema.index({ userId: 1 });
 listingSchema.index({ isOwnerListing: 1 });
 listingSchema.index({ listingType: 1 });
 
-export const Listing = mongoose.models.Listing || mongoose.model<IListing>('Listing', listingSchema);
+// Fix Next.js HMR caching issues with Mongoose
+if (mongoose.models.Listing) {
+  delete mongoose.models.Listing;
+}
+
+export const Listing = mongoose.model<IListing>('Listing', listingSchema);
