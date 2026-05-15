@@ -11,6 +11,11 @@ export interface IUser extends Document {
   hostelName?: string;
   roomNumber?: string;
   phoneNumber?: string;
+  favoriteCollege?: {
+    name: string;
+    lat: number;
+    lng: number;
+  };
   verified: boolean;
   verificationToken?: string;
   verificationTokenExpiry?: Date;
@@ -30,6 +35,11 @@ const userSchema = new Schema<IUser>(
     hostelName: { type: String },
     roomNumber: { type: String },
     phoneNumber: { type: String },
+    favoriteCollege: {
+      name: String,
+      lat: Number,
+      lng: Number,
+    },
     verified: { type: Boolean, default: false },
     verificationToken: { type: String },
     verificationTokenExpiry: { type: Date },

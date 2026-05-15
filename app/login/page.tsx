@@ -15,7 +15,9 @@ function LoginForm() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    collegeName: '',
   });
+  const [collegeStatus, setCollegeStatus] = useState<'idle' | 'searching' | 'saved' | 'error'>('idle');
 
   useEffect(() => {
     if (searchParams.get('verified')) {
@@ -39,22 +41,64 @@ function LoginForm() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
         setError(data.error || 'Login failed');
+        setLoading(false);
         return;
       }
 
       localStorage.setItem('token', data.token);
+
+      // If college name is provided, search and save it to profile
+      if (formData.collegeName.trim()) {
+        setCollegeStatus('searching');
+        try {
+          const searchRes = await fetch(`/api/geocode/search?q=${encodeURIComponent(formData.collegeName.trim())}`);
+          const searchData = await searchRes.json();
+          
+          if (searchRes.ok && searchData.lat && searchData.lon) {
+            const updateRes = await fetch('/api/users/profile', {
+              method: 'PUT',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${data.token}`
+              },
+              body: JSON.stringify({
+                favoriteCollege: {
+                  name: searchData.name,
+                  lat: searchData.lat,
+                  lng: searchData.lon
+                }
+              })
+            });
+            if (updateRes.ok) setCollegeStatus('saved');
+            else setCollegeStatus('error');
+          } else {
+            setCollegeStatus('error');
+          }
+        } catch (searchErr) {
+          console.error('Failed to save college preference:', searchErr);
+          setCollegeStatus('error');
+        }
+      }
+
+      // Delay a bit if we were searching so user sees the status
+      if (formData.collegeName.trim()) {
+        await new Promise(resolve => setTimeout(resolve, 800));
+      }
+
       router.push('/browse');
     } catch (err) {
       setError('An error occurred. Please try again.');
       console.error(err);
-    } finally {
       setLoading(false);
     }
   };
@@ -89,6 +133,37 @@ function LoginForm() {
             className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 dark:text-white transition-all duration-200 font-medium placeholder-gray-400"
             placeholder="john@example.com"
           />
+        </div>
+
+        <div className="space-y-2 relative">
+          <label className="block text-xs font-black text-gray-600 dark:text-slate-400 uppercase tracking-widest ml-1">
+            🏫 Current College (Distance Hub)
+          </label>
+          <input
+            type="text"
+            name="collegeName"
+            value={formData.collegeName}
+            onChange={handleChange}
+            className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 dark:text-white transition-all duration-200 font-medium placeholder-gray-400"
+            placeholder="e.g. JECRC University, Jaipur"
+          />
+          {collegeStatus === 'searching' && (
+            <div className="absolute right-4 bottom-3.5 flex items-center gap-2 text-[10px] font-bold text-blue-500">
+              <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              Finding...
+            </div>
+          )}
+          {collegeStatus === 'saved' && (
+            <div className="absolute right-4 bottom-3.5 text-[10px] font-bold text-green-500 flex items-center gap-1">
+              <span>✓</span> Saved
+            </div>
+          )}
+          {collegeStatus === 'error' && (
+            <div className="absolute right-4 bottom-3.5 text-[10px] font-bold text-orange-500 flex items-center gap-1">
+              <span>⚠️</span> Not found
+            </div>
+          )}
+          <p className="text-[10px] text-gray-400 ml-1 italic">Automatically calculate distances to all listings</p>
         </div>
 
         <div className="space-y-2">

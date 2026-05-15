@@ -12,6 +12,7 @@ export const registerSchema = z.object({
   hostelName: z.string().optional(),
   roomNumber: z.string().optional(),
   phoneNumber: z.string().optional(),
+  collegeName: z.string().optional(),
 }).refine((data) => {
   if (data.role === 'STUDENT' && data.collegeEmail) {
     const domain = data.collegeEmail.split('@')[1].toLowerCase();
@@ -77,9 +78,16 @@ export type ReviewInput = z.infer<typeof reviewSchema>;
 // Profile Update Schema
 export const profileUpdateSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').optional(),
-  phoneNumber: z.string().min(10, 'Phone number must be at least 10 characters').optional(),
+  phoneNumber: z.string().refine((val) => !val || val.length >= 10, {
+    message: 'Phone number must be at least 10 characters',
+  }).optional().or(z.literal('')),
   hostelName: z.string().optional(),
   roomNumber: z.string().optional(),
+  favoriteCollege: z.object({
+    name: z.string(),
+    lat: z.number(),
+    lng: z.number(),
+  }).optional(),
 });
 
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;

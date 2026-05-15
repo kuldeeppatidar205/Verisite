@@ -12,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     await connectToDatabase();
 
-    const listingDoc = await Listing.findById(id).populate('userId', 'name hostelName roomNumber role email');
+    const listingDoc = await Listing.findById(id).populate('userId', 'name hostelName roomNumber role email phoneNumber');
     if (!listingDoc) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }

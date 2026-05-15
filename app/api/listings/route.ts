@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
           l.coordinates.lat,
           l.coordinates.lng
         );
-        return d <= 25;
+        return d <= 100;
       });
 
       if (duplicate) {

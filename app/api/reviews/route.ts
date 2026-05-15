@@ -74,11 +74,11 @@ export async function POST(req: NextRequest) {
       listing.coordinates.lng
     );
 
-    const isGeofenceVerified = distance <= 25;
+    const isGeofenceVerified = distance <= 100;
 
     if (!isGeofenceVerified) {
       return NextResponse.json(
-        { error: `You must be within 25 meters of the location to leave a review. (Current distance: ${Math.round(distance)}m)` },
+        { error: `You must be within 100 meters of the location to leave a review. (Current distance: ${Math.round(distance)}m)` },
         { status: 403 }
       );
     }

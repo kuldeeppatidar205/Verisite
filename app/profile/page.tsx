@@ -17,6 +17,11 @@ interface UserProfile {
   roomNumber?: string;
   studentId: string;
   idCardImageUrl?: string;
+  favoriteCollege?: {
+    name: string;
+    lat: number;
+    lng: number;
+  };
   createdAt: string;
 }
 
@@ -40,6 +45,7 @@ export default function ProfilePage() {
     phoneNumber: '',
     hostelName: '',
     roomNumber: '',
+    collegeName: '',
   });
   const [updateLoading, setUpdateLoading] = useState(false);
 
@@ -75,6 +81,7 @@ export default function ProfilePage() {
         phoneNumber: data.phoneNumber || '',
         hostelName: data.hostelName || '',
         roomNumber: data.roomNumber || '',
+        collegeName: data.favoriteCollege?.name || '',
       });
     } catch (error) {
       console.error('Failed to fetch profile:', error);
@@ -87,13 +94,37 @@ export default function ProfilePage() {
     setUpdateLoading(true);
 
     try {
+      const body: any = {
+        name: editData.name,
+        phoneNumber: editData.phoneNumber,
+        hostelName: editData.hostelName,
+        roomNumber: editData.roomNumber,
+      };
+
+      // If college name changed, geocode it
+      if (editData.collegeName && editData.collegeName !== profile?.favoriteCollege?.name) {
+        try {
+          const searchRes = await fetch(`/api/geocode/search?q=${encodeURIComponent(editData.collegeName)}`);
+          const searchData = await searchRes.json();
+          if (searchRes.ok && searchData.lat && searchData.lon) {
+            body.favoriteCollege = {
+              name: searchData.name || editData.collegeName,
+              lat: searchData.lat,
+              lng: searchData.lon
+            };
+          }
+        } catch (err) {
+          console.error('Geocoding error during profile update:', err);
+        }
+      }
+
       const res = await fetch('/api/users/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(editData),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -264,45 +295,34 @@ export default function ProfilePage() {
                       />
                     </div>
 
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        value={editData.phoneNumber}
-                        onChange={(e) => setEditData({ ...editData, phoneNumber: e.target.value })}
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white transition focus:ring-2 focus:ring-blue-500 outline-none"
-                        required
-                      />
-                    </div>
+                    {profile.role === 'OWNER' && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          value={editData.phoneNumber}
+                          onChange={(e) => setEditData({ ...editData, phoneNumber: e.target.value })}
+                          className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white transition focus:ring-2 focus:ring-blue-500 outline-none"
+                          required
+                        />
+                      </div>
+                    )}
 
-                    {profile.role === 'STUDENT' && (
-                      <>
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Hostel Name
-                          </label>
-                          <input
-                            type="text"
-                            value={editData.hostelName}
-                            onChange={(e) => setEditData({ ...editData, hostelName: e.target.value })}
-                            className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white transition focus:ring-2 focus:ring-blue-500 outline-none"
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Room Number
-                          </label>
-                          <input
-                            type="text"
-                            value={editData.roomNumber}
-                            onChange={(e) => setEditData({ ...editData, roomNumber: e.target.value })}
-                            className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white transition focus:ring-2 focus:ring-blue-500 outline-none"
-                          />
-                        </div>
-                      </>
+                    {profile.role !== 'OWNER' && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          College/University Name
+                        </label>
+                        <input
+                          type="text"
+                          value={editData.collegeName}
+                          onChange={(e) => setEditData({ ...editData, collegeName: e.target.value })}
+                          className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white transition focus:ring-2 focus:ring-blue-500 outline-none"
+                          required
+                        />
+                      </div>
                     )}
                   </div>
 
@@ -333,48 +353,31 @@ export default function ProfilePage() {
                     <p className="text-[9px] text-gray-400 font-medium uppercase tracking-tighter">Cannot be changed</p>
                   </div>
 
-                  <div className="space-y-1">
-                    <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Phone Number
-                    </h3>
-                    <p className="text-gray-900 dark:text-white font-medium break-all">{profile.phoneNumber || 'Not provided'}</p>
-                  </div>
+                  {profile.role === 'OWNER' && (
+                    <div className="space-y-1">
+                      <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Phone Number
+                      </h3>
+                      <p className="text-gray-900 dark:text-white font-medium break-all">{profile.phoneNumber || 'Not provided'}</p>
+                    </div>
+                  )}
 
                   {profile.role === 'STUDENT' && (
-                    <>
-                      <div className="space-y-1">
-                        <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          College Email
-                        </h3>
-                        <p className="text-gray-900 dark:text-white font-medium break-all">{profile.collegeEmail}</p>
-                      </div>
+                    <div className="space-y-1">
+                      <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        College Email
+                      </h3>
+                      <p className="text-gray-900 dark:text-white font-medium break-all">{profile.collegeEmail}</p>
+                    </div>
+                  )}
 
-                      <div className="space-y-1">
-                        <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Student ID
-                        </h3>
-                        <p className="text-gray-900 dark:text-white font-medium break-all">{profile.studentId}</p>
-                      </div>
-
-                      {profile.idCardImageUrl && (
-                        <div className="md:col-span-2 space-y-2">
-                          <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Student ID Card
-                          </h3>
-                          <div className="relative group max-w-sm">
-                            <img 
-                              src={profile.idCardImageUrl} 
-                              alt="Student ID Card" 
-                              className="rounded-xl border border-gray-200 dark:border-gray-700 w-full hover:brightness-90 transition cursor-pointer"
-                              onClick={() => window.open(profile.idCardImageUrl, '_blank')}
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-xs font-bold">Click to Expand</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </>
+                  {profile.role !== 'OWNER' && (
+                    <div className="space-y-1">
+                      <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        College/University Name
+                      </h3>
+                      <p className="text-gray-900 dark:text-white font-medium break-all">{profile.favoriteCollege?.name || 'Not provided'}</p>
+                    </div>
                   )}
 
                   <div className="space-y-1">
@@ -389,24 +392,6 @@ export default function ProfilePage() {
                       })}
                     </p>
                   </div>
-
-                  {profile.role === 'STUDENT' && profile.hostelName && (
-                    <div className="space-y-1">
-                      <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Hostel Name
-                      </h3>
-                      <p className="text-gray-900 dark:text-white font-medium">{profile.hostelName}</p>
-                    </div>
-                  )}
-
-                  {profile.role === 'STUDENT' && profile.roomNumber && (
-                    <div className="space-y-1">
-                      <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Room Number
-                      </h3>
-                      <p className="text-gray-900 dark:text-white font-medium">{profile.roomNumber}</p>
-                    </div>
-                  )}
                 </div>
               )}
             </div>

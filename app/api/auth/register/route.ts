@@ -68,6 +68,23 @@ export async function POST(req: NextRequest) {
       if (validated.roomNumber) userObj.roomNumber = validated.roomNumber;
     }
 
+    // Geocode favoriteCollege if provided
+    if (validated.collegeName && validated.role !== 'OWNER') {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/geocode/search?q=${encodeURIComponent(validated.collegeName)}`);
+        const data = await res.json();
+        if (res.ok && data.lat && data.lon) {
+          userObj.favoriteCollege = {
+            name: data.name || validated.collegeName,
+            lat: data.lat,
+            lng: data.lon,
+          };
+        }
+      } catch (err) {
+        console.error('Failed to geocode college during registration:', err);
+      }
+    }
+
     const newUser = new User(userObj);
     await newUser.save();
 

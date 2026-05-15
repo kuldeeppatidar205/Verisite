@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
       roomNumber: user.roomNumber,
       studentId: user.studentId,
       idCardImageUrl: user.idCardImageUrl,
+      favoriteCollege: user.favoriteCollege,
       createdAt: user.createdAt,
     });
   } catch (error) {
@@ -62,12 +63,15 @@ export async function PUT(req: NextRequest) {
 
     // Update allowed fields
     if (validated.name) user.name = validated.name;
-    if (validated.phoneNumber) user.phoneNumber = validated.phoneNumber;
     
-    // Only students have hostel/room details
-    if (user.role === 'STUDENT') {
-      if (validated.hostelName !== undefined) user.hostelName = validated.hostelName;
-      if (validated.roomNumber !== undefined) user.roomNumber = validated.roomNumber;
+    // Only Owners can have/update phone numbers
+    if (user.role === 'OWNER' && validated.phoneNumber) {
+      user.phoneNumber = validated.phoneNumber;
+    }
+
+    // Support favoriteCollege updates
+    if (validated.favoriteCollege) {
+      user.favoriteCollege = validated.favoriteCollege;
     }
 
     await user.save();
@@ -85,6 +89,7 @@ export async function PUT(req: NextRequest) {
         hostelName: user.hostelName,
         roomNumber: user.roomNumber,
         studentId: user.studentId,
+        favoriteCollege: user.favoriteCollege,
       }
     });
   } catch (error) {
