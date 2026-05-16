@@ -19,7 +19,7 @@ async function testResend() {
     const { data, error } = await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: ['kuldeep.25bcon0852@jecrcu.edu.in'], // User's email from logs
-      subject: 'Resend Integration Test - PurePG',
+      subject: 'Resend Integration Test - Verisite',
       html: '<p>If you see this, Resend integration is working!</p>',
     });
 

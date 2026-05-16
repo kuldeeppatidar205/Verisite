@@ -6,7 +6,7 @@ import { connectToDatabase } from '../lib/db';
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 async function seedDatabase() {
-  console.log('🌱 Seeding PurePG database...\n');
+  console.log('🌱 Seeding Verisite database...\n');
 
   try {
     await connectToDatabase();

@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
       
       emailSent = await sendEmail({
         to: emailToVerify,
-        subject: 'Verify your PurePG account',
+        subject: 'Verify your Verisite account',
         html: generateVerificationEmailHtml(verifyUrl, validated.name),
       });
 

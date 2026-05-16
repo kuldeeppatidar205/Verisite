@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Search query is required' }, { status: 400 });
   }
 
-  const userAgent = 'CampusPassApp/1.0 (contact: support@campuspass.com)';
+  const userAgent = 'VerisiteApp/1.0 (contact: support@verisite.com)';
 
   try {
     // Search using Nominatim

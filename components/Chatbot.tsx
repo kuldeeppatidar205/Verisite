@@ -11,7 +11,7 @@ interface Message {
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', content: 'Hi! I am the PurePG AI Assistant. How can I help you today?' }
+    { role: 'model', content: 'Hi! I am the Verisite AI Assistant. How can I help you today?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -82,7 +82,7 @@ export default function Chatbot() {
         <div className="flex items-center justify-between p-4 bg-blue-600 text-white">
           <div className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5" />
-            <h3 className="font-semibold">PurePG Assistant</h3>
+            <h3 className="font-semibold">Verisite Assistant</h3>
           </div>
           <button
             onClick={() => setIsOpen(false)}

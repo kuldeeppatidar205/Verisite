@@ -36,6 +36,7 @@ export default function BrowsePage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [activeStream, setActiveStream] = useState<'STUDENT' | 'OWNER' | null>(null);
+  const [userRole, setUserRole] = useState<'STUDENT' | 'OWNER' | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -51,12 +52,15 @@ export default function BrowsePage() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        if (data.user?.role === 'OWNER') {
+        const role = data.user?.role?.toUpperCase();
+        setUserRole(role);
+        if (role === 'OWNER') {
           setActiveStream('OWNER');
         } else {
           setActiveStream('STUDENT');
         }
       } catch (error) {
+        setUserRole('STUDENT');
         setActiveStream('STUDENT');
       }
     };
@@ -87,78 +91,72 @@ export default function BrowsePage() {
 
   if (!activeStream) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <div className="text-gray-400 animate-pulse font-bold tracking-tighter text-2xl">PUREPG</div>
+      <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center">
+        <div className="text-gray-300 dark:text-gray-700 animate-pulse font-bold tracking-tight text-xl">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-x-hidden">
-      {/* ... (Dynamic Background and Navigation same as before) */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-500/5 blur-[120px] animate-float" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/5 blur-[120px] animate-float" style={{ animationDelay: '2s' }} />
-      </div>
-
-      <nav className="glass sticky top-0 z-50 border-b border-gray-200/50 dark:border-slate-800/50 transition-all duration-300 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+    <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-500 overflow-x-hidden">
+      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/30 group-hover:scale-110 transition-transform">
+            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold transition-transform group-hover:scale-105">
               PP
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tighter">PurePG</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Verisite</h1>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <ThemeToggle />
             <div className="hidden sm:flex items-center gap-4">
               <Link
                 href="/create-listing"
-                className="px-5 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-bold transition shadow-lg shadow-primary-500/20 active:scale-95"
+                className="text-sm font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 Post Room
               </Link>
               <Link
                 href="/profile"
-                className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center text-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors border border-gray-200 dark:border-slate-700 shadow-sm"
+                className="w-9 h-9 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-sm hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
               >
                 👤
               </Link>
             </div>
-            <div className="sm:hidden flex items-center gap-1">
-              <Link href="/create-listing" className="p-2 text-gray-700 dark:text-slate-300">
-                <span className="text-xl">✍️</span>
+            <div className="sm:hidden flex items-center gap-2">
+              <Link href="/create-listing" className="p-2 text-gray-600 dark:text-slate-300">
+                <span className="text-lg">✍️</span>
               </Link>
-              <Link href="/profile" className="p-2 text-gray-700 dark:text-slate-300">
-                <span className="text-xl">👤</span>
+              <Link href="/profile" className="p-2 text-gray-600 dark:text-slate-300">
+                <span className="text-lg">👤</span>
               </Link>
             </div>
           </div>
         </div>
       </nav>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-12 gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-6">
           <div className="text-center sm:text-left">
-             <h1 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tighter mb-2">
-               {activeStream === 'STUDENT' ? 'Student Truth' : 'Marketplace'}
+             <h1 className="text-3xl sm:text-4xl font-semibold text-gray-900 dark:text-white tracking-tight mb-2">
+               {activeStream === 'STUDENT' ? 'Student Listings' : 'Owner Listings'}
              </h1>
-             <p className="text-gray-500 dark:text-slate-400 font-medium">
+             <p className="text-gray-500 dark:text-slate-400 text-base">
                {activeStream === 'STUDENT' 
-                 ? 'Crowdsourced data from verified students' 
-                 : 'Marketing listings from verified owners'}
+                 ? 'Verified room handovers from students' 
+                 : 'Direct listings from PG owners'}
              </p>
           </div>
-          <div className="flex bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
+          <div className="flex bg-gray-100 dark:bg-slate-800 p-1.5 rounded-lg">
              <button 
                onClick={() => setActiveStream('STUDENT')}
-               className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${activeStream === 'STUDENT' ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' : 'text-gray-500 dark:text-slate-400 hover:text-primary-600'}`}
+               className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${activeStream === 'STUDENT' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'}`}
              >
                Student Verified
              </button>
              <button 
                onClick={() => setActiveStream('OWNER')}
-               className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${activeStream === 'OWNER' ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' : 'text-gray-500 dark:text-slate-400 hover:text-primary-600'}`}
+               className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${activeStream === 'OWNER' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'}`}
              >
                Owner Listings
              </button>
@@ -166,119 +164,96 @@ export default function BrowsePage() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-slate-200/50 dark:bg-slate-900/50 rounded-3xl h-80 shimmer border border-gray-200 dark:border-slate-800" style={{ animation: `slideUp 0.5s ease-out ${i * 0.05}s both` }} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-gray-100 dark:bg-slate-800/50 rounded-xl h-72 animate-pulse" />
             ))}
           </div>
         ) : listings.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {listings.map((listing) => (
                 <div
                   key={listing._id}
                   onClick={() => router.push(`/listings/${listing._id}`)}
-                  className="group bg-white dark:bg-slate-900 rounded-[32px] shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden card-hover cursor-pointer"
+                  className="group flex flex-col gap-3 cursor-pointer transition-transform duration-300 hover:-translate-y-1"
                 >
-                  <div className="p-8">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-2xl">
-                         <span className="text-2xl">{listing.listingType === 'handover' ? '🎓' : '🏠'}</span>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        {activeStream === 'STUDENT' && (
-                          <span className="px-3 py-1 mb-2 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-full text-[8px] font-black uppercase tracking-widest border border-blue-100 dark:border-blue-800">
-                            Truth Verified
-                          </span>
-                        )}
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                          listing.listingType === 'handover' 
-                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' 
-                            : 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300'
-                        }`}>
-                          {listing.listingType === 'handover' ? 'Handover' : 'PG'}
-                        </span>
-                      </div>
+                  <div className="w-full aspect-4/3 bg-gray-100 dark:bg-slate-800 rounded-xl flex flex-col items-center justify-center relative overflow-hidden border border-gray-200 dark:border-slate-700/50">
+                    <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-xs font-semibold text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center gap-1.5">
+                       {activeStream === 'STUDENT' && <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>}
+                       {listing.listingType === 'handover' ? 'Handover' : 'PG'}
                     </div>
-
-                    <div className="mb-6">
-                      <h4 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter mb-1">
-                        ₹{listing.price.toLocaleString('en-IN')}<span className="text-sm text-gray-500 font-normal">/mo</span>
-                      </h4>
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm text-gray-900 dark:text-white font-bold flex items-center gap-1 min-w-0">
-                          <span className="text-primary-600 text-base flex-shrink-0">📍</span>
-                          <span className="truncate">{listing.pgName || listing.userId?.hostelName || 'Verified Location'}</span>
-                        </p>
-                        {listing.coordinates && (
-                          <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${listing.coordinates.lat},${listing.coordinates.lng}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-[10px] bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 px-2 py-1 rounded-lg font-black uppercase tracking-tighter hover:bg-primary-100 transition flex-shrink-0 border border-primary-100 dark:border-primary-800"
-                          >
-                            Map ↗
-                          </a>
-                        )}
+                    {listing.coordinates && (
+                      <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-[11px] font-semibold text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center">
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${listing.coordinates.lat},${listing.coordinates.lng}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="hover:underline flex items-center gap-1"
+                        >
+                          Map ↗
+                        </a>
                       </div>
-                      {listing.address && (
-                        <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium ml-5 mt-0.5 line-clamp-1">
-                          {listing.address}
-                        </p>
-                      )}
-                    </div>
+                    )}
+                    <span className="text-5xl opacity-40 group-hover:scale-110 transition-transform duration-300">
+                      {listing.listingType === 'handover' ? '🎓' : '🏠'}
+                    </span>
+                  </div>
 
-                    <p className="text-gray-600 dark:text-slate-300 text-sm mb-8 line-clamp-2 leading-relaxed font-medium">
+                  <div className="flex flex-col mt-1">
+                    <div className="flex justify-between items-start mb-0.5">
+                      <p className="text-[15px] font-semibold text-gray-900 dark:text-white truncate">
+                        {listing.pgName || listing.userId?.hostelName || 'Verified Location'}
+                      </p>
+                    </div>
+                    {listing.address && (
+                      <p className="text-[13px] text-gray-500 dark:text-slate-400 truncate mb-0.5">
+                        {listing.address}
+                      </p>
+                    )}
+                    <p className="text-[15px] text-gray-500 dark:text-slate-400 line-clamp-1 mb-0.5">
                       {listing.roomDetails}
                     </p>
-
-                    <div className="flex flex-wrap gap-2 mb-8">
-                      {listing.legacyBundle?.mattress && (
-                        <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-lg">
-                          Mattress
-                        </span>
+                    <p className="text-[15px] font-medium text-gray-900 dark:text-white mt-1 mb-1.5">
+                      <span className="font-semibold">₹{listing.price.toLocaleString('en-IN')}</span> month
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[13px] text-gray-500 dark:text-slate-400">
+                        {new Date(listing.availableDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      </p>
+                      {(listing.legacyBundle?.mattress || listing.legacyBundle?.cooler) && (
+                        <div className="flex gap-2 items-center">
+                          <span className="text-gray-300 dark:text-slate-600">•</span>
+                          <span className="text-[13px] text-gray-500 dark:text-slate-400 truncate">
+                            Includes items
+                          </span>
+                        </div>
                       )}
-                      {listing.legacyBundle?.cooler && (
-                        <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-lg">
-                          Cooler
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex justify-between items-center border-t border-gray-50 dark:border-slate-800 pt-6">
-                       <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
-                         Available {new Date(listing.availableDate).toLocaleDateString()}
-                       </span>
-                       <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white scale-0 group-hover:scale-100 transition-transform duration-300 shadow-lg shadow-primary-500/40">
-                          →
-                       </div>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-            {/* ... (Pagination logic) */}
 
-            {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-3 mt-20">
+              <div className="flex justify-center items-center gap-2 mt-16">
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-slate-800 transition shadow-sm active:scale-90"
+                  className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-slate-800 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors text-sm"
                 >
                   ←
                 </button>
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   {[...Array(totalPages)].map((_, i) => (
                     <button
                       key={i + 1}
                       onClick={() => setPage(i + 1)}
-                      className={`w-12 h-12 rounded-2xl font-black transition-all ${
+                      className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
                         page === i + 1
-                          ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/30'
-                          : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800'
+                          ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+                          : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800'
                       }`}
                     >
                       {i + 1}
@@ -288,7 +263,7 @@ export default function BrowsePage() {
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-slate-800 transition shadow-sm active:scale-90"
+                  className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-slate-800 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors text-sm"
                 >
                   →
                 </button>
@@ -296,12 +271,11 @@ export default function BrowsePage() {
             )}
           </>
         ) : (
-          <div className="text-center py-32 bg-white dark:bg-slate-900 rounded-[40px] border-2 border-dashed border-gray-200 dark:border-slate-800">
-             <div className="text-8xl mb-8 opacity-20">🛋️</div>
-            <p className="text-gray-500 dark:text-slate-400 text-2xl font-black tracking-tighter mb-8">No listings match your criteria.</p>
+          <div className="text-center py-20 bg-gray-50 dark:bg-slate-900/30 rounded-xl border border-gray-200 dark:border-slate-800">
+            <p className="text-gray-500 dark:text-slate-400 text-base mb-6">No listings match your criteria.</p>
             <Link
               href="/create-listing"
-              className="inline-block px-10 py-4 bg-primary-600 text-white rounded-2xl font-black hover:bg-primary-700 transition shadow-2xl shadow-primary-500/40"
+              className="inline-block px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
             >
               Post a listing
             </Link>

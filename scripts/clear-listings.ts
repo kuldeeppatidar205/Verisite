@@ -8,7 +8,7 @@ async function clearListings() {
   const { connectToDatabase } = require('../lib/db');
   const { Listing } = require('../lib/models/Listing');
 
-  console.log('🧹 PurePG - Clearing All Listings');
+  console.log('🧹 Verisite - Clearing All Listings');
   console.log('====================================\n');
 
   try {

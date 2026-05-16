@@ -90,14 +90,16 @@ export async function POST(req: NextRequest) {
 
     const isOwnerListing = userRole === 'OWNER';
 
-    // Unique PG Listing Enforcement for Students
-    if (!isOwnerListing && validated.listingType === 'pg') {
-      const studentPgListings = await Listing.find({
-        isOwnerListing: false,
+    // Unique PG Listing Enforcement (Prevent duplicates in same building/area)
+    // IMPORTANT: Handover listings are BYPASSED as multiple students can live in one building.
+    // Only 'pg' types (Student Ratings and Owner Listings) are restricted to 1 per location.
+    if (validated.listingType === 'pg') {
+      const existingPgListings = await Listing.find({
         listingType: 'pg',
+        status: 'available'
       });
 
-      const duplicate = studentPgListings.find(l => {
+      const duplicate = existingPgListings.find(l => {
         if (!l.coordinates || l.coordinates.lat === undefined || l.coordinates.lng === undefined) {
           return false;
         }
@@ -108,12 +110,13 @@ export async function POST(req: NextRequest) {
           l.coordinates.lat,
           l.coordinates.lng
         );
-        return d <= 100;
+        // If distance is very close (< 50m), it's likely the same building/property
+        return d <= 50;
       });
 
       if (duplicate) {
         return NextResponse.json({ 
-          error: 'A listing with the current address already exists. Please add a review to the existing listing instead.',
+          error: 'A listing at this location already exists. To keep the community organized, please add your review or details to the existing listing instead of creating a duplicate.',
           existingListingId: duplicate._id 
         }, { status: 409 });
       }

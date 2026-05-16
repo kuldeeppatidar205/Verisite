@@ -8,7 +8,7 @@ import { Listing } from '../lib/models/Listing';
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 async function inspectListings() {
-  console.log('🔍 PurePG - Database Listing Inspector');
+  console.log('🔍 Verisite - Database Listing Inspector');
   console.log('==========================================\n');
 
   try {

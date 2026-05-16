@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Latitude and longitude are required' }, { status: 400 });
   }
 
-  const userAgent = 'CampusPassApp/1.0 (contact: support@campuspass.com)';
+  const userAgent = 'VerisiteApp/1.0 (contact: support@verisite.com)';
 
   try {
     // Attempt 1: Photon API

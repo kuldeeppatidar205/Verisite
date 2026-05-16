@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PurePG - Student Room Handover",
+  title: "Verisite - A True PGvault",
   description: "Find and list student hostel room handovers. Verified college students only.",
 };
 

@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     // Initialize the model with the latest supported version and system instructions
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-2.5-flash',
-      systemInstruction: "You are the PurePG AI Assistant. You help students and PG owners navigate the PurePG platform. PurePG is a student hostel and PG management platform where students can find PGs, hand over their rooms to other students, and leave anonymous reviews. Be helpful, concise, and friendly."
+      systemInstruction: "You are the Verisite AI Assistant. You help students and PG owners navigate the Verisite platform. Verisite is a student hostel and PG management platform where students can find PGs, hand over their rooms to other students, and leave anonymous reviews. Be helpful, concise, and friendly."
     });
 
     // Format history for Gemini API (filtering out the initial model greeting if present)

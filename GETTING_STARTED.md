@@ -1,8 +1,8 @@
-# PurePG - Quick Start Guide
+# Verisite - Quick Start Guide
 
 ## ✅ Application Successfully Built!
 
-The **PurePG** student hostel room handover platform is fully built and ready to use.
+The **Verisite** student hostel room handover platform is fully built and ready to use.
 
 ---
 
@@ -181,4 +181,4 @@ npm run db:check
 
 ---
 
-**Happy coding! 🚀 Your PurePG application is ready to go!**
+**Happy coding! 🚀 Your Verisite application is ready to go!**

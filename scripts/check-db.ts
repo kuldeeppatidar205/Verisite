@@ -7,7 +7,7 @@ import { connectToDatabase } from '../lib/db';
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 async function checkDatabaseConnection() {
-  console.log('🔍 PurePG - MongoDB Connection Check');
+  console.log('🔍 Verisite - MongoDB Connection Check');
   console.log('==========================================\n');
 
   try {
@@ -19,7 +19,7 @@ async function checkDatabaseConnection() {
     // Try a test write/read
     console.log('📝 Testing database operations...');
     const testCollection = mongoose.connection.collection('_connection_test');
-    const testData = { timestamp: new Date(), message: 'PurePG test' };
+    const testData = { timestamp: new Date(), message: 'Verisite test' };
     
     const writeResult = await testCollection.insertOne(testData);
     console.log('✓ Write successful (document ID:', writeResult.insertedId.toString().slice(0, 8) + '...)\n');

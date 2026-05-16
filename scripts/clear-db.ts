@@ -8,7 +8,7 @@ import { Listing } from '../lib/models/Listing';
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 async function clearDatabase() {
-  console.log('🧹 PurePG - Clearing User Accounts & Listings');
+  console.log('🧹 Verisite - Clearing User Accounts & Listings');
   console.log('================================================\n');
 
   try {

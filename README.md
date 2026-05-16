@@ -1,6 +1,6 @@
-# PurePG - Task List & Project Requirements
+# Verisite - Task List & Project Requirements
 
-This document outlines the core functional requirements and user roles for the PurePG student hostel and PG management platform.
+This document outlines the core functional requirements and user roles for the Verisite student hostel and PG management platform.
 
 ## 🔑 Core Login Methods & User Roles
 

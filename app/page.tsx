@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 
 interface Listing {
@@ -26,6 +27,7 @@ interface Listing {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
@@ -47,44 +49,45 @@ export default function Home() {
     }
   };
 
+  const handleProtectedAction = (href: string) => {
+    if (!token) {
+      router.push('/login');
+    } else {
+      router.push(href);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 transition-colors duration-500 overflow-x-hidden">
-      {/* Dynamic Background Effect with Animation */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-500/10 blur-[120px] animate-float" style={{ animationDelay: '0s' }} />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/10 blur-[120px] animate-float" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/2 left-1/2 w-[30%] h-[30%] rounded-full bg-purple-500/5 blur-[120px] animate-float" style={{ animationDelay: '4s' }} />
-      </div>
-
       {/* Navigation */}
-      <nav className="glass sticky top-0 z-50 border-b border-gray-200/50 dark:border-slate-800/50 transition-all duration-300">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/30 group-hover:scale-110 transition-transform">
+            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold transition-transform group-hover:scale-105">
               PP
             </div>
-            <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tighter">PurePG</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Verisite</h1>
           </Link>
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-6">
             <ThemeToggle />
-            <div className="hidden sm:flex items-center gap-4">
-              <Link
-                href="/browse"
-                className="px-4 py-2 text-gray-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 font-semibold transition-colors"
+            <div className="hidden sm:flex items-center gap-6">
+              <button
+                onClick={() => handleProtectedAction('/browse')}
+                className="text-md font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 Browse
-              </Link>
+              </button>
               {token ? (
                 <>
                   <Link
                     href="/create-listing"
-                    className="px-5 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-bold transition shadow-lg shadow-primary-500/20 active:scale-95"
+                    className="text-md font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white transition-colors"
                   >
                     Post Room
                   </Link>
                   <Link
                     href="/profile"
-                    className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-gray-200 dark:border-slate-700"
+                    className="w-9 h-9 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-sm hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
                     title="Profile"
                   >
                     👤
@@ -94,13 +97,13 @@ export default function Home() {
                 <>
                   <Link
                     href="/login"
-                    className="px-4 py-2 text-gray-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 font-semibold transition-colors"
+                    className="text-sm font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white transition-colors"
                   >
                     Login
                   </Link>
                   <Link
                     href="/register"
-                    className="px-5 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-bold transition shadow-lg shadow-primary-500/20 active:scale-95"
+                    className="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
                   >
                     Get Started
                   </Link>
@@ -108,17 +111,17 @@ export default function Home() {
               )}
             </div>
             {/* Mobile Navigation Icons */}
-            <div className="sm:hidden flex items-center gap-1">
-               <Link href="/browse" className="p-2 text-gray-700 dark:text-slate-300">
-                  <span className="text-xl">🔍</span>
-               </Link>
+            <div className="sm:hidden flex items-center gap-2">
+               <button onClick={() => handleProtectedAction('/browse')} className="p-2 text-gray-600 dark:text-slate-300">
+                  <span className="text-lg">🔍</span>
+               </button>
                {token ? (
-                 <Link href="/profile" className="p-2 text-gray-700 dark:text-slate-300">
-                   <span className="text-xl">👤</span>
+                 <Link href="/profile" className="p-2 text-gray-600 dark:text-slate-300">
+                   <span className="text-lg">👤</span>
                  </Link>
                ) : (
-                 <Link href="/login" className="p-2 text-gray-700 dark:text-slate-300">
-                   <span className="text-xl">🔑</span>
+                 <Link href="/login" className="p-2 text-gray-600 dark:text-slate-300">
+                   <span className="text-lg">🔑</span>
                  </Link>
                )}
             </div>
@@ -127,147 +130,129 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32 text-center relative">
-        <div className="animate-slide-down inline-block px-4 py-1.5 mb-6 rounded-full bg-primary-50 dark:bg-primary-900/30 border border-primary-100 dark:border-primary-800 text-primary-600 dark:text-primary-400 text-xs font-black uppercase tracking-widest">
-          ✨ Designed for Verified Students
-        </div>
-        <h2 className="text-5xl sm:text-7xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter leading-[1.1] animate-slide-up">
-          Seamless <span className="gradient-text">Room Handovers</span> for Campus Life
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center relative">
+        <h2 className="text-5xl sm:text-6xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight leading-tight animate-fade-in">
+          Find your next place <br className="hidden sm:block" />
+          <span className="text-primary-600">near campus.</span>
         </h2>
-        <p className="text-lg sm:text-xl text-gray-600 dark:text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: '0.1s' }}>
-          The all-in-one platform for verified students to securely hand over hostel rooms and for owners to list PGs.
+        <p className="text-lg text-gray-500 dark:text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          Verisite - A True PGvault. The secure platform for verified students to discover and hand over hostel rooms, and for owners to list PGs.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          <Link
-            href="/browse"
-            className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-2xl hover:from-primary-700 hover:to-primary-800 font-black text-lg transition-all shadow-2xl shadow-primary-500/40 active:scale-95 hover:shadow-2xl hover:shadow-primary-500/60 flex items-center justify-center gap-2 group btn-press"
+        <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <button
+            onClick={() => handleProtectedAction('/browse')}
+            className="w-full sm:w-auto px-8 py-3.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium text-base transition-colors flex items-center justify-center gap-2"
           >
-            Find a Room <span className="group-hover:translate-x-1 transition-transform">→</span>
-          </Link>
+            Explore Rooms
+          </button>
           {!token && (
             <Link
               href="/register"
-              className="w-full sm:w-auto px-10 py-4 glass border-2 border-primary-600 text-primary-600 dark:text-primary-400 rounded-2xl hover:bg-primary-50 dark:hover:bg-primary-900/20 font-black text-lg transition-all flex items-center justify-center btn-press backdrop-blur-sm"
+              className="w-full sm:w-auto px-8 py-3.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-gray-900 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 font-medium text-base transition-colors flex items-center justify-center"
             >
-              Create Account
+              Sign Up
             </Link>
           )}
         </div>
       </section>
 
       {/* Featured Listings */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="flex flex-col sm:flex-row justify-between items-end mb-12 gap-4 animate-slide-up">
-          <div className="text-center sm:text-left">
-            <h3 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tighter mb-2">Featured Listings</h3>
-            <p className="text-gray-500 dark:text-slate-400 font-medium">Handpicked rooms near your institution</p>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="flex flex-col sm:flex-row justify-between items-end mb-10 gap-4 animate-fade-in">
+          <div className="text-left">
+            <h3 className="text-3xl font-semibold text-gray-900 dark:text-white tracking-tight mb-2">Featured Rooms</h3>
+            <p className="text-base text-gray-500 dark:text-slate-400">Handpicked near your institution</p>
           </div>
-          <Link href="/browse" className="text-primary-600 dark:text-primary-400 font-bold hover:underline flex items-center gap-1 group smooth-color">
-            View all <span className="group-hover:translate-x-1 transition-transform">→</span>
-          </Link>
+          <button 
+            onClick={() => handleProtectedAction('/browse')}
+            className="text-sm text-gray-900 dark:text-white font-medium hover:underline flex items-center gap-1"
+          >
+            View all <span>→</span>
+          </button>
         </div>
         
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-slate-100 dark:bg-slate-900 rounded-3xl h-80 shimmer border border-gray-200 dark:border-slate-800" />
+              <div key={i} className="bg-gray-100 dark:bg-slate-800/50 rounded-xl h-72 animate-pulse" />
             ))}
           </div>
         ) : listings.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map((listing, idx) => (
-              <Link
+              <div
                 key={listing._id}
-                href={`/listings/${listing._id}`}
-                className="group bg-white dark:bg-slate-900 rounded-3xl shadow-md border border-gray-100 dark:border-slate-800 overflow-hidden card-hover transition-all duration-300 hover:border-primary-500/30 hover:shadow-xl"
-                style={{ animation: `slideUp 0.5s ease-out ${idx * 0.1}s both` }}
+                onClick={() => handleProtectedAction(`/listings/${listing._id}`)}
+                className="group flex flex-col gap-3 transition-transform duration-300 hover:-translate-y-1 cursor-pointer"
+                style={{ animation: `fadeIn 0.5s ease-out ${idx * 0.1}s both` }}
               >
-                <div className="p-8">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-2xl group-hover:scale-110 transition-transform duration-300">
-                      <span className="text-2xl">{listing.listingType === 'handover' ? '🎓' : '🏠'}</span>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-                      listing.listingType === 'handover' 
-                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' 
-                        : 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300'
-                    }`}>
-                      {listing.listingType === 'handover' ? 'Handover' : 'PG'}
-                    </span>
+                {/* Minimal Card Header/Image placeholder */}
+                <div className="w-full aspect-4/3 bg-gray-100 dark:bg-slate-800 rounded-xl flex flex-col items-center justify-center relative overflow-hidden border border-gray-200 dark:border-slate-700/50">
+                  <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-xs font-semibold text-gray-900 dark:text-white backdrop-blur-sm shadow-sm">
+                     {listing.listingType === 'handover' ? 'Handover' : 'PG'}
                   </div>
+                  <span className="text-5xl opacity-40 group-hover:scale-110 transition-transform duration-300">
+                    {listing.listingType === 'handover' ? '🎓' : '🏠'}
+                  </span>
+                </div>
 
-                  <div className="mb-6">
-                    <h4 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter mb-1">
-                      ₹{listing.price.toLocaleString('en-IN')}<span className="text-sm text-gray-500 font-normal">/mo</span>
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-slate-400 font-bold flex items-center gap-1">
-                      <span className="text-primary-600 text-base">📍</span>
+                <div className="flex flex-col mt-1">
+                  <div className="flex justify-between items-start">
+                    <p className="text-[15px] font-semibold text-gray-900 dark:text-white truncate">
                       {listing.pgName || listing.userId?.hostelName || listing.address || 'Verified Location'}
                     </p>
                   </div>
-                  
-                  <p className="text-gray-600 dark:text-slate-300 text-sm mb-8 line-clamp-2 leading-relaxed font-medium">
+                  <p className="text-[15px] text-gray-500 dark:text-slate-400 line-clamp-1 mt-0.5">
                     {listing.roomDetails}
                   </p>
-
-                  <div className="flex justify-between items-center border-t border-gray-50 dark:border-slate-800 pt-6">
-                    <div className="flex items-center gap-2">
-                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-xs font-black text-white shadow-sm">
-                          {listing.userId?.name ? listing.userId.name.charAt(0) : '?'}
-                       </div>
-                       <span className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                         {listing.userId?.name ? listing.userId.name.split(' ')[0] : 'Anonymous'}
-                       </span>
-                    </div>
-                    <div className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-widest group-hover:translate-x-1 transition-transform">
-                      Details <span>→</span>
-                    </div>
-                  </div>
+                  <p className="text-[15px] text-gray-500 dark:text-slate-400 mt-0.5">
+                    {listing.userId?.name ? listing.userId.name.split(' ')[0] : 'Anonymous'}
+                  </p>
+                  <p className="text-[15px] font-medium text-gray-900 dark:text-white mt-1">
+                    <span className="font-semibold">₹{listing.price.toLocaleString('en-IN')}</span> month
+                  </p>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 bg-slate-50 dark:bg-slate-900/50 rounded-[40px] border border-dashed border-gray-200 dark:border-slate-800 animate-slide-up">
-            <div className="text-6xl mb-6 opacity-30 animate-float">📭</div>
-            <p className="text-gray-500 dark:text-slate-400 text-lg mb-8 font-bold">No rooms listed yet.</p>
-            {token && (
-              <Link
-                href="/create-listing"
-                className="inline-block bg-gradient-to-r from-primary-600 to-primary-700 text-white px-10 py-4 rounded-2xl font-black hover:from-primary-700 hover:to-primary-800 transition-all shadow-xl shadow-primary-500/30 btn-press"
-              >
-                Be the first to post
-              </Link>
-            )}
+          <div className="text-center py-20 bg-gray-50 dark:bg-slate-900/30 rounded-xl border border-gray-200 dark:border-slate-800 animate-fade-in">
+            <p className="text-gray-500 dark:text-slate-400 text-base mb-6">No rooms listed yet.</p>
+            <button
+              onClick={() => handleProtectedAction('/create-listing')}
+              className="inline-block bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-3 rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+            >
+              Be the first to post
+            </button>
           </div>
         )}
       </section>
 
       {/* Features Section */}
-      <section className="bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-950 py-32 transition-colors duration-500 border-y border-gray-100 dark:border-slate-900">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20 animate-slide-up">
-            <h3 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tighter mb-4">
+      <section className="bg-white dark:bg-slate-950 py-24 sm:py-32 border-t border-gray-100 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-16 animate-fade-in">
+            <h3 className="text-3xl sm:text-4xl font-semibold text-gray-900 dark:text-white tracking-tight mb-4">
               Engineered for Students
             </h3>
-            <p className="text-gray-500 dark:text-slate-400 max-w-xl mx-auto font-medium">
-              Built PurePG to solve the friction of finding verified accommodation and handling room handovers.
+            <p className="text-gray-500 dark:text-slate-400 text-lg">
+              Built to solve the friction of finding verified accommodation.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 sm:gap-16">
             {[
-              { icon: '🛡️', title: 'Verified Identity', desc: 'We use institutional email verification to ensure every user is a legitimate student at your campus.', color: 'blue' },
-              { icon: '📍', title: 'Geofenced Reviews', desc: 'Reviews are only accepted if you\'re physically near the property, ensuring 100% authentic feedback.', color: 'purple' },
-              { icon: '⚡', title: 'Instant Listing', desc: 'Post your room handover items in under 60 seconds with our optimized student-focused interface.', color: 'green' }
+              { icon: '🛡️', title: 'Verified Identity', desc: 'We use institutional email verification to ensure every user is a legitimate student at your campus.' },
+              { icon: '📍', title: 'Geofenced Reviews', desc: 'Reviews are only accepted if you\'re physically near the property, ensuring 100% authentic feedback.' },
+              { icon: '⚡', title: 'Instant Listing', desc: 'Post your room handover items in under 60 seconds with our optimized student-focused interface.' }
             ].map((feature, idx) => (
-              <div key={idx} className="p-10 bg-white dark:bg-slate-900 rounded-[32px] border border-gray-100 dark:border-slate-800 shadow-md transition-all duration-300 hover:shadow-xl hover:border-primary-500/30 hover:-translate-y-1 group animate-slide-up" style={{ animationDelay: `${idx * 0.1}s` }}>
-                <div className={`w-16 h-16 bg-${feature.color}-50 dark:bg-${feature.color}-900/20 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-transform duration-300`}>
+              <div key={idx} className="group animate-fade-in" style={{ animationDelay: `${idx * 0.1}s` }}>
+                <div className="text-3xl mb-6">
                   {feature.icon}
                 </div>
-                <h4 className="text-2xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 tracking-tight">
                   {feature.title}
                 </h4>
-                <p className="text-gray-600 dark:text-slate-400 leading-relaxed font-medium">
+                <p className="text-gray-500 dark:text-slate-400 leading-relaxed text-sm">
                   {feature.desc}
                 </p>
               </div>
@@ -277,30 +262,29 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-slate-950 text-gray-600 dark:text-slate-400 py-20 border-t border-gray-100 dark:border-slate-900 transition-colors duration-500">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="flex items-center gap-2 mb-6 justify-center sm:justify-start">
-                 <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-primary-500/20">
+      <footer className="bg-gray-50 dark:bg-slate-900/50 py-12 border-t border-gray-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-2">
+                 <div className="w-6 h-6 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center text-white dark:text-gray-900 font-bold text-xs">
                   PP
                 </div>
-                <span className="font-black text-gray-900 dark:text-white tracking-tighter text-xl">PurePG</span>
-              </div>
-              <p className="text-sm max-w-xs mx-auto sm:mx-0 font-medium">
-                Making student accommodation safe, transparent, and easy for everyone.
-              </p>
+                <span className="font-semibold text-gray-900 dark:text-white text-sm">Verisite</span>
             </div>
-            <div className="flex flex-col sm:flex-row gap-8 justify-center sm:justify-end font-bold text-sm uppercase tracking-widest text-gray-400 dark:text-slate-600">
-              <Link href="/browse" className="hover:text-primary-600 transition-colors">Browse</Link>
-              <Link href="/login" className="hover:text-primary-600 transition-colors">Login</Link>
-              <Link href="/register" className="hover:text-primary-600 transition-colors">Register</Link>
+            
+            <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500 dark:text-slate-400">
+              <button onClick={() => handleProtectedAction('/browse')} className="hover:text-gray-900 dark:hover:text-white transition-colors">Browse</button>
+              <Link href="/login" className="hover:text-gray-900 dark:hover:text-white transition-colors">Login</Link>
+              <Link href="/register" className="hover:text-gray-900 dark:hover:text-white transition-colors">Register</Link>
             </div>
           </div>
-          <div className="mt-16 pt-8 border-t border-gray-100 dark:border-slate-900 flex flex-col sm:flex-row justify-between items-center gap-4">
-             <p className="text-xs font-bold opacity-40 uppercase tracking-[0.2em]">&copy; 2026 PurePG Platform</p>
-             <div className="flex gap-6 opacity-40 grayscale hover:grayscale-0 transition-all">
-                <span className="text-xm font-black">Expanding Everyday</span>
+          
+          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 dark:text-slate-400">
+             <p>&copy; {new Date().getFullYear()} Verisite, Inc. All rights reserved.</p>
+             <div className="flex gap-4">
+                <span className="hover:underline cursor-pointer">Privacy</span>
+                <span className="hover:underline cursor-pointer">Terms</span>
+                <span className="hover:underline cursor-pointer">Sitemap</span>
              </div>
           </div>
         </div>
