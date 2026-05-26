@@ -62,7 +62,6 @@ export async function POST(req: NextRequest) {
     // Only add student-specific fields if they exist
     if (collegeEmail) userObj.collegeEmail = collegeEmail;
     if (studentId) userObj.studentId = studentId;
-    if (validated.idCardImageUrl) userObj.idCardImageUrl = validated.idCardImageUrl;
     if (validated.role === 'STUDENT') {
       if (validated.hostelName) userObj.hostelName = validated.hostelName;
       if (validated.roomNumber) userObj.roomNumber = validated.roomNumber;

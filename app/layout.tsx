@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Verisite - A True PGvault",
-  description: "Find and list student hostel room handovers. Verified college students only.",
+  description: "Find and list student rooms. Verified college students only.",
 };
 
 export default function RootLayout({

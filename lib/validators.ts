@@ -27,22 +27,18 @@ export const registerSchema = z.object({
   path: ['collegeEmail'],
 });
 
-export type RegisterInput = z.infer<typeof registerSchema>;
-
 // Login Schema
 export const loginSchema = z.object({
   email: z.string().email('Invalid email format'),
   password: z.string().min(1, 'Password is required'),
 });
 
-export type LoginInput = z.infer<typeof loginSchema>;
-
 // Listing Schema
 export const listingSchema = z.object({
-  listingType: z.enum(['handover', 'pg']).default('handover'),
+  listingType: z.enum(['handover', 'pg', 'roommate']).default('handover'),
   pgName: z.string().min(2, 'PG/Hostel name must be at least 2 characters').optional().or(z.literal('')),
-  roomDetails: z.string().min(10, 'Room details must be at least 10 characters'),
-  price: z.number().positive('Price must be positive'),
+  roomDetails: z.string().min(10, 'Room details must be at least 10 characters').optional().or(z.literal('')),
+  price: z.number().nonnegative('Price must be valid').optional(),
   availableDate: z.string().refine((val) => !val || !isNaN(Date.parse(val)), {
     message: 'Invalid date format. Please use YYYY-MM-DD or ISO format.',
   }).optional().or(z.literal('')),
@@ -60,9 +56,12 @@ export const listingSchema = z.object({
   totalRooms: z.number().positive().optional(),
   availableRooms: z.number().min(0).optional(),
   handoverMode: z.boolean().optional().default(false),
+  sharingType: z.enum(['single', 'double', 'triple', 'multiple', '']).optional(),
+  foodIncluded: z.boolean().optional(),
+  billsIncluded: z.boolean().optional(),
+  genderCategory: z.enum(['boys', 'girls', 'both', '']).optional(),
+  images: z.array(z.string()).max(3, 'Maximum 3 images allowed').optional(),
 });
-
-export type ListingInput = z.infer<typeof listingSchema>;
 
 // Review Schema
 export const reviewSchema = z.object({
@@ -72,8 +71,6 @@ export const reviewSchema = z.object({
   lat: z.number({ required_error: 'Latitude is required to verify your location' }),
   lng: z.number({ required_error: 'Longitude is required to verify your location' }),
 });
-
-export type ReviewInput = z.infer<typeof reviewSchema>;
 
 // Profile Update Schema
 export const profileUpdateSchema = z.object({
@@ -89,5 +86,3 @@ export const profileUpdateSchema = z.object({
     lng: z.number(),
   }).optional(),
 });
-
-export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;

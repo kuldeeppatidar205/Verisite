@@ -3,6 +3,8 @@ import { connectToDatabase } from '@/lib/db';
 import { listingSchema } from '@/lib/validators';
 import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
 import { Listing } from '@/lib/models/Listing';
+import { Review } from '@/lib/models/Review';
+import { User } from '@/lib/models/User';
 
 import { ZodError } from 'zod';
 
@@ -36,8 +38,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       }
     }
 
-    // Filter sensitive info for student listings not in handoverMode, unless requester is the owner
-    if (!isRequesterTheOwner && !actualIsOwnerListing && !listing.handoverMode) {
+    // Filter sensitive info for student listings not in handoverMode or roommate, unless requester is the owner
+    if (!isRequesterTheOwner && !actualIsOwnerListing && !listing.handoverMode && listing.listingType !== 'roommate') {
       const hostelName = populatedUser?.hostelName;
       // Reassign instead of delete to satisfy TS interface
       (listing as any).userId = hostelName ? { hostelName } : undefined;
@@ -85,6 +87,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       }
     }
 
+    // Prevent changing listingType after creation
+    if (validated.listingType !== listing.listingType) {
+      return NextResponse.json({ error: 'Listing type cannot be changed after creation.' }, { status: 400 });
+    }
+
     // Update listing
     Object.assign(listing, {
       pgName: validated.pgName,
@@ -97,9 +104,41 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       totalRooms: validated.totalRooms,
       availableRooms: validated.availableRooms,
       handoverMode: listing.isOwnerListing ? true : (validated.handoverMode ?? listing.handoverMode),
+      sharingType: validated.sharingType,
+      foodIncluded: validated.foodIncluded,
+      billsIncluded: validated.billsIncluded,
+      genderCategory: validated.genderCategory,
     });
 
+    if (validated.images && validated.images.length > 0) {
+      listing.images = validated.images;
+    }
+
     await listing.save();
+
+    // If student and type is PG (Rating), handle review update
+    const user = await User.findById(payload.userId);
+    const userRole = user?.role?.toUpperCase() || 'STUDENT';
+
+    if (userRole === 'STUDENT' && validated.listingType === 'pg' && body.rating && body.comment) {
+      const existingReview = await Review.findOne({ userId: payload.userId, listingId: listing._id });
+      if (existingReview) {
+        existingReview.rating = body.rating;
+        existingReview.comment = body.comment;
+        await existingReview.save();
+      } else {
+        const newReview = new Review({
+          userId: payload.userId,
+          listingId: listing._id,
+          rating: body.rating,
+          comment: body.comment,
+          geofenceVerified: true,
+        });
+        await newReview.save();
+        listing.reviewCount = (listing.reviewCount || 0) + 1;
+        await listing.save();
+      }
+    }
 
     return NextResponse.json({
       message: 'Listing updated successfully',

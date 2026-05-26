@@ -4,6 +4,7 @@ import { listingSchema } from '@/lib/validators';
 import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
 import { User } from '@/lib/models/User';
 import { Listing } from '@/lib/models/Listing';
+import { Review } from '@/lib/models/Review';
 import { ZodError } from 'zod';
 import { calculateDistance } from '@/lib/utils/geo';
 
@@ -36,10 +37,10 @@ export async function GET(req: NextRequest) {
 
     const total = await Listing.countDocuments(query);
 
-    // Filter sensitive info for student listings not in handoverMode
+    // Filter sensitive info for student listings not in handoverMode or roommate
     const sanitizedListings = listings.map(l => {
       const listing = l.toObject();
-      if (!listing.isOwnerListing && !listing.handoverMode) {
+      if (!listing.isOwnerListing && !listing.handoverMode && listing.listingType !== 'roommate') {
         // Keep it anonymous - remove user details except location name
         const populatedUser = listing.userId as any;
         const hostelName = populatedUser?.hostelName;
@@ -89,6 +90,13 @@ export async function POST(req: NextRequest) {
     }
 
     const isOwnerListing = userRole === 'OWNER';
+
+    // Validate PG Rating inputs
+    if (userRole === 'STUDENT' && validated.listingType === 'pg') {
+      if (!body.rating || !body.comment) {
+        return NextResponse.json({ error: 'Rating and comment are required for PG reviews' }, { status: 400 });
+      }
+    }
 
     // Unique PG Listing Enforcement (Prevent duplicates in same building/area)
     // IMPORTANT: Handover listings are BYPASSED as multiple students can live in one building.
@@ -142,9 +150,29 @@ export async function POST(req: NextRequest) {
       status: 'available',
       isOwnerListing: isOwnerListing,
       handoverMode: !isOwnerListing ? (validated.handoverMode ?? false) : true,
+      sharingType: validated.sharingType,
+      foodIncluded: validated.foodIncluded,
+      billsIncluded: validated.billsIncluded,
+      genderCategory: validated.genderCategory,
+      images: validated.images || [],
     });
 
     await newListing.save();
+
+    // Automatically create a review if this is a PG rating from a student
+    if (userRole === 'STUDENT' && validated.listingType === 'pg' && body.rating && body.comment) {
+      const newReview = new Review({
+        userId: payload.userId,
+        listingId: newListing._id,
+        rating: body.rating,
+        comment: body.comment,
+        geofenceVerified: true,
+      });
+      await newReview.save();
+      
+      newListing.reviewCount = 1;
+      await newListing.save();
+    }
 
     return NextResponse.json(
       {
@@ -164,3 +192,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to create listing' }, { status: 500 });
   }
 }
+

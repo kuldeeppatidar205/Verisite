@@ -1,139 +1,67 @@
 # Verisite - Quick Start Guide
 
-## ✅ Application Successfully Built!
-
-The **Verisite** student hostel room handover platform is fully built and ready to use.
-
----
-
 ## 🚀 Getting Started
 
 ### 1. **Install Dependencies**
+Ensure you are in the project root directory:
 ```bash
-cd D:\programming projects\claude\purePG
 npm install
 ```
 
 ### 2. **Configure Environment**
-Copy the example environment file and add your MongoDB connection string:
-```bash
-cp .env.example .env.local
-```
+Create a `.env.local` file in the root directory and add the following keys:
 
-Edit `.env.local` and set:
 ```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/purePG
-JWT_SECRET=your_secret_key_here
+# Database
+MONGODB_URI=your_mongodb_atlas_connection_string
+
+# Authentication
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRES_IN=30d
+
+# Image Storage (Cloudinary)
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Email (Gmail SMTP)
+GMAIL_USER=your_email@gmail.com
+GMAIL_APP_PASSWORD=your_app_specific_password
+
+# API
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
 ```
 
-### 3. **Database Health Check**
-Verify your MongoDB connection:
-```bash
-npm run db:check
-```
-
-### 4. **Start Development Server**
+### 3. **Start Development Server**
 ```bash
 npm run dev
 ```
-
 The app will be available at: **http://localhost:3000**
 
 ---
 
-## 📋 Features Implemented
+## 🏗️ Core Architecture
 
-### Authentication & Security
-- ✅ User registration with college email verification
-- ✅ JWT-based authentication
-- ✅ Password hashing with bcryptjs
-- ✅ Educational email domain validation (.edu.in, .ac.in, .edu)
-- ✅ 24-hour verification token expiry
+### Key Models
+- **User:** Handles authentication, verification status, and favorite college location.
+- **Listing:** Unified model for 'handover', 'pg', and 'roommate' posts. Includes images, geo-coordinates, and accommodation specs (Sharing, Food, Bills, Gender).
+- **Review:** Integrated into PG listings to power the Student Truth Ledger.
 
-### Core Features
-- ✅ Browse available room listings with pagination
-- ✅ Create, read, update, delete room listings
-- ✅ Filter by availability and included items
-- ✅ User profile management
-- ✅ Room ownership validation
-
-### Amenities Tracking
-- ✅ Mattress
-- ✅ Cooler
-- ✅ Shelf
-- ✅ Lamp
-- ✅ Custom items
-
-### Database
-- ✅ MongoDB with Mongoose ORM
-- ✅ Connection pooling
-- ✅ Schema validation
-- ✅ Two main collections: Users, Listings
+### Image Pipeline
+1.  **Selection:** User picks up to 3 images (validated for type and size on frontend).
+2.  **Compression:** Backend `/api/upload` uses **Sharp** to resize to 1200px and compress to 80% quality.
+3.  **Storage:** Compressed buffers are streamed to **Cloudinary**.
+4.  **Database:** Secure URLs are stored in the listing document.
 
 ---
 
-## 🏗️ Architecture
-
-### API Endpoints
-```
-Authentication:
-  POST /api/auth/register          - Register new user
-  POST /api/auth/login             - Login user
-  GET  /api/auth/verify-email      - Verify email token
-
-Listings:
-  GET  /api/listings               - Browse all listings (paginated)
-  POST /api/listings               - Create new listing (auth required)
-  GET  /api/listings/[id]          - Get listing details
-  PUT  /api/listings/[id]          - Update listing (owner only)
-  DELETE /api/listings/[id]        - Delete listing (owner only)
-
-Users:
-  GET  /api/users/profile          - Get user profile (auth required)
-
-Health:
-  GET  /api/health                 - API health check
-```
-
-### Frontend Pages
-```
-/                    - Homepage with featured listings
-/register            - User registration
-/login               - User login
-/verify-email        - Email verification status
-/browse              - Browse all listings with pagination
-/listings/[id]       - Listing detail & owner actions
-/create-listing      - Post or edit room listing
-/profile             - User profile & account info
-```
-
-### Database Schemas
-```
-User: email, passwordHash, collegeEmail, studentId, verification status
-Listing: userId, roomDetails, price, availableDate, legacyBundle, status
-```
-
----
-
-## 📚 Tech Stack
-
-- **Frontend**: Next.js 16, React 19, Tailwind CSS
-- **Backend**: Next.js API Routes, Node.js
-- **Database**: MongoDB with Mongoose
-- **Authentication**: JWT + bcryptjs
-- **Validation**: Zod schema validation
-- **TypeScript**: Full type safety
-
----
-
-## 🔧 Development Commands
+## 🔧 Essential Commands
 
 ```bash
-# Start development server (webpack mode)
+# Start development (Webpack mode)
 npm run dev
 
-# Build for production (webpack mode)
+# Full production build
 npm run build
 
 # Start production server
@@ -141,44 +69,16 @@ npm start
 
 # Run linter
 npm run lint
-
-# Check MongoDB connection
-npm run db:check
 ```
 
 ---
 
-## 💡 Next Steps
-
-1. **Configure MongoDB**
-   - Get free tier at https://www.mongodb.com/cloud/atlas
-   - Create connection string
-   - Add to `.env.local`
-
-2. **Test the App**
-   - Register with your college email (must end in .edu.in, .ac.in, .edu)
-   - Verify email (check console in dev mode)
-   - Create a room listing
-   - Browse and view listings
-
-3. **Customize**
-   - Modify UI colors in Tailwind classes
-   - Add more amenities to `legacyBundle`
-
-4. **Deploy**
-   - Use Vercel (official Next.js hosting)
-   - Configure MongoDB Atlas IP whitelist
-   - Set environment variables in deployment platform
+## 📋 Developer Notes
+*   **Mapping:** Leaflet CSS is imported dynamically; no Google Maps API keys are required.
+*   **Authentication:** Students must use educational emails. In development mode, check the server console for the verification URL.
+*   **Image Compression:** Requires `sharp` binary. If you face installation issues on Windows, run `npm install --include=optional sharp`.
+*   **UI Icons:** Powered by `lucide-react`.
 
 ---
 
-## ⚠️ Important Notes
-
-- Uses Webpack instead of Turbopack for Windows compatibility
-- Email sending requires configuration (currently logs to console)
-- MongoDB connection string must be added to `.env.local`
-- User verification is currently console-logged (integrate with SendGrid/Mailgun for production)
-
----
-
-**Happy coding! 🚀 Your Verisite application is ready to go!**
+**Happy coding! 🚀 Verisite is now optimized and ready for scaling.**

@@ -5,10 +5,31 @@ import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import { calculateDistance } from '@/lib/utils/geo';
+import { 
+  MapPin, 
+  Calendar, 
+  Star, 
+  Trash2, 
+  Edit3, 
+  Mail, 
+  Phone, 
+  ChevronLeft, 
+  Users, 
+  Utensils, 
+  Zap, 
+  Package,
+  Search,
+  CheckCircle2,
+  Info,
+  Clock,
+  ArrowLeft,
+  X,
+  Maximize2
+} from 'lucide-react';
 
 interface Listing {
   _id: string;
-  listingType: 'handover' | 'pg';
+  listingType: 'handover' | 'pg' | 'roommate';
   pgName?: string;
   roomDetails: string;
   price: number;
@@ -18,6 +39,7 @@ interface Listing {
   availableDate?: string;
   address?: string;
   amenities?: string[];
+  images?: string[];
   coordinates?: {
     lat: number;
     lng: number;
@@ -25,6 +47,10 @@ interface Listing {
   isOwnerListing: boolean;
   handoverMode: boolean;
   reviewCount: number;
+  sharingType?: string;
+  foodIncluded?: boolean;
+  billsIncluded?: boolean;
+  genderCategory?: string;
   legacyBundle?: {
     mattress?: boolean;
     cooler?: boolean;
@@ -64,11 +90,9 @@ function DistanceResult({ dist, collegeName, lat, lng, userProfile, listing, onS
   const scootyMins = Math.round(dist / 416); // 25km/h avg
   const busMins = Math.round(dist / 250); // 15km/h avg incl stops
   
-  let colorClass = "bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-900 dark:text-white";
   let badge = "";
-
   if (dist < 1000) {
-    badge = "🚶 Walkable";
+    badge = "Walkable";
   }
 
   const handleSave = async () => {
@@ -93,24 +117,32 @@ function DistanceResult({ dist, collegeName, lat, lng, userProfile, listing, onS
   };
 
   return (
-    <div className={`p-4 rounded-xl border animate-in fade-in slide-in-from-top-2 ${colorClass}`}>
+    <div className={`p-4 rounded-xl border animate-in fade-in slide-in-from-top-2 bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-900 dark:text-white`}>
       <div className="flex justify-between items-start mb-2">
         <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Distance</p>
-        {badge && <span className="text-[10px] font-semibold uppercase px-2 py-1 bg-gray-900 text-white dark:bg-white dark:text-gray-900 rounded-md">{badge}</span>}
+        {badge && (
+          <span className="flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-md">
+            <CheckCircle2 className="w-3 h-3" /> {badge}
+          </span>
+        )}
       </div>
       <p className="text-2xl font-semibold text-gray-900 dark:text-white">
         {km} km <span className="text-[15px] font-normal text-gray-500 dark:text-slate-400">away</span>
       </p>
-      <div className="mt-3 space-y-1">
-        <p className="text-[15px] text-gray-600 dark:text-slate-300">🛵 ~{scootyMins} mins by scooty</p>
-        <p className="text-[15px] text-gray-600 dark:text-slate-300">🚌 ~{busMins} mins by bus</p>
+      <div className="mt-3 space-y-1.5">
+        <p className="text-[14px] text-gray-600 dark:text-slate-300 flex items-center gap-2">
+           <span className="opacity-70 text-base">🛵</span> ~{scootyMins} mins by scooty
+        </p>
+        <p className="text-[14px] text-gray-600 dark:text-slate-300 flex items-center gap-2">
+           <span className="opacity-70 text-base">🚌</span> ~{busMins} mins by bus
+        </p>
       </div>
-      <p className="text-[13px] text-gray-500 dark:text-slate-400 mt-3 line-clamp-1">{collegeName}</p>
+      <p className="text-[13px] text-gray-500 dark:text-slate-400 mt-3 line-clamp-1 italic">{collegeName}</p>
       
       {userProfile && (!userProfile.favoriteCollege || userProfile.favoriteCollege.name !== collegeName) && (
         <button
           onClick={handleSave}
-          className="mt-4 text-[15px] font-medium text-gray-900 dark:text-white hover:underline flex items-center gap-1"
+          className="mt-4 text-[14px] font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1"
         >
           Set as default college
         </button>
@@ -125,7 +157,6 @@ export default function ListingDetailPage() {
   const [listing, setListing] = useState<Listing | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [token, setToken] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
@@ -137,6 +168,7 @@ export default function ListingDetailPage() {
   const [showSearch, setShowSearch] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   const [shouldMoveToSidebar, setShouldMoveToSidebar] = useState(false);
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
 
   const mainContentRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -178,14 +210,11 @@ export default function ListingDetailPage() {
     }
   }, [listing, userProfile, loading, profileLoading]);
 
-  // Dynamic layout check
   useLayoutEffect(() => {
     const calculateLayout = () => {
       if (!loading && listing && mainContentRef.current && sidebarRef.current) {
         const mainHeight = mainContentRef.current.offsetHeight;
         const sidebarHeight = sidebarRef.current.offsetHeight;
-        
-        // If main content height > 50% of sidebar height, move to sidebar
         if (mainHeight > (sidebarHeight * 0.5)) {
           setShouldMoveToSidebar(true);
         } else {
@@ -193,26 +222,21 @@ export default function ListingDetailPage() {
         }
       }
     };
-
     calculateLayout();
-    
-    // Optional: Re-calculate on window resize
     window.addEventListener('resize', calculateLayout);
     return () => window.removeEventListener('resize', calculateLayout);
-  }, [loading, listing]); // Re-run if listing or loading state changes
+  }, [loading, listing]);
 
   const fetchListing = async () => {
     try {
       const res = await fetch(`/api/listings/${id}`);
       const data = await res.json();
       if (!res.ok) {
-        console.error('API Error:', data.error);
         setListing(null);
       } else {
         setListing(data);
       }
     } catch (error) {
-      console.error('Failed to fetch listing:', error);
       setListing(null);
     } finally {
       setLoading(false);
@@ -301,58 +325,57 @@ export default function ListingDetailPage() {
   const handleDeleteListing = async () => {
     if (!listing) return;
     if (!listing.isOwnerListing && listing.reviewCount > 1) {
-      alert('Community Ownership Rule: This listing has significant community interaction and cannot be deleted by the publisher.');
+      alert('Community Ownership Rule: This listing has interaction and cannot be deleted.');
       return;
     }
-    if (!confirm('Are you sure you want to delete this listing?')) return;
+    if (!confirm('Delete this listing?')) return;
     try {
       const res = await fetch(`/api/listings/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        alert('Listing deleted successfully');
         router.push('/browse');
       } else {
         const data = await res.json();
-        alert(data.error || 'Failed to delete listing');
+        alert(data.error);
       }
     } catch (error) {
-      console.error('Failed to delete listing:', error);
+      console.error(error);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center transition-colors duration-500">
-        <div className="text-gray-400 dark:text-slate-600 animate-pulse font-medium text-lg">Loading details...</div>
+      <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center">
+        <div className="text-gray-400 dark:text-slate-600 animate-pulse font-medium text-lg">Loading...</div>
       </div>
     );
   }
 
   if (!listing) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col items-center justify-center transition-colors duration-500 px-4 text-center">
-        <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-4">Listing not found</h1>
-        <p className="text-gray-500 dark:text-slate-400 mb-8">This room might have been taken or removed.</p>
-        <Link href="/browse" className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
-          Back to listings
-        </Link>
+      <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col items-center justify-center px-4 text-center">
+        <h1 className="text-3xl font-semibold mb-4 text-gray-900 dark:text-white">Listing not found</h1>
+        <Link href="/browse" className="bg-primary-600 text-white px-6 py-3 rounded-lg font-bold">Back to listings</Link>
       </div>
     );
   }
 
   const isOwner = userProfile && listing?.userId && userProfile.id === (typeof listing.userId === 'string' ? listing.userId : listing.userId._id);
   const canReview = userProfile && userProfile.role === 'STUDENT' && userProfile.verified && !isOwner;
+  const isRatingPost = listing.listingType === 'pg' && !listing.isOwnerListing;
 
   const CommuteDistanceModule = () => (
     <div className="w-full">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Commute Distance</h2>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+           <Search className="w-5 h-5 text-gray-400" /> Commute Distance
+        </h2>
         {autoDist && (
           <button 
             onClick={() => setShowSearch(!showSearch)} 
-            className="text-[13px] font-medium text-gray-900 dark:text-white underline hover:text-primary-600 transition-colors"
+            className="text-[13px] font-medium text-primary-600 dark:text-primary-400 hover:underline"
           >
             {showSearch ? 'Cancel' : 'Change Location'}
           </button>
@@ -379,7 +402,7 @@ export default function ListingDetailPage() {
                 type="text"
                 placeholder="Enter college/university name..."
                 disabled={distLoading}
-                className="w-full px-4 py-2.5 text-[15px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-white text-gray-900 dark:text-white transition disabled:opacity-50"
+                className="w-full px-4 py-2.5 text-[15px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                 onKeyDown={async (e) => {
                   if (e.key === 'Enter') {
                     const query = (e.target as HTMLInputElement).value;
@@ -393,20 +416,18 @@ export default function ListingDetailPage() {
                         const d = calculateDistance(listing.coordinates.lat, listing.coordinates.lng, data.lat, data.lon);
                         setSearchResult({ dist: d, name: data.name, lat: data.lat, lng: data.lon });
                       } else {
-                        alert(data.error || 'College not found.');
+                        alert('College not found.');
                       }
                     } catch (err) {
                       console.error(err);
-                      alert('Failed to calculate distance.');
                     } finally {
                       setDistLoading(false);
                     }
                   }
                 }}
               />
-              {distLoading && <div className="absolute right-3 top-3"><div className="w-4 h-4 border-2 border-gray-900 dark:border-white border-t-transparent rounded-full animate-spin"></div></div>}
+              {distLoading && <div className="absolute right-3 top-3"><div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>}
             </div>
-            <p className="text-[13px] text-gray-500 dark:text-slate-400 mt-2">Press Enter to search</p>
           </div>
         )}
 
@@ -432,18 +453,18 @@ export default function ListingDetailPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-500">
-      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 transition-all duration-300">
+      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold transition-transform group-hover:scale-105">
-              PP
+            <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-105">
+              <img src="/logo image short.png" alt="Logo" className="w-full h-full object-cover rounded-full" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Verisite</h1>
+            <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">Verisite</h1>
           </Link>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Link href="/browse" className="text-[15px] font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-              ← Back to listings
+            <Link href="/browse" className="text-[15px] font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-1">
+              <ArrowLeft className="w-4 h-4" /> Listings
             </Link>
           </div>
         </div>
@@ -454,222 +475,263 @@ export default function ListingDetailPage() {
         <div className="mb-8 border-b border-gray-200 dark:border-slate-800 pb-8">
           <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-6">
             <div className="w-full">
-              <h1 className="text-3xl sm:text-4xl font-semibold text-gray-900 dark:text-white mb-2 tracking-tight">
+              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-primary-600 dark:text-primary-400 mb-3">
+                 <span className="px-2 py-0.5 bg-primary-50 dark:bg-primary-900/20 rounded">
+                   {listing.listingType === 'roommate' ? 'Roommate Search' : listing.listingType === 'handover' ? 'Room Handover' : 'PG Listing'}
+                 </span>
+                 {!listing.isOwnerListing && <span className="text-gray-400">• Verified by Student</span>}
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight leading-tight">
                 {listing.pgName || listing.userId?.hostelName || 'Verified Property'}
               </h1>
-              <div className="flex flex-wrap items-center gap-2 text-[15px] text-gray-600 dark:text-slate-400 mb-4">
-                <span className="font-medium flex items-center gap-1">
-                   {listing.address || 'Location Verified'}
+              <div className="flex flex-wrap items-center gap-4 text-[15px] text-gray-600 dark:text-slate-400">
+                <span className="flex items-center gap-1.5 font-medium">
+                   <MapPin className="w-4 h-4 text-gray-400" /> {listing.address || 'Location Verified'}
                 </span>
                 {listing.coordinates && (
-                  <>
-                    <span>•</span>
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${listing.coordinates.lat},${listing.coordinates.lng}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="hover:underline text-gray-900 dark:text-white font-medium"
-                    >
-                      View on Map
-                    </a>
-                  </>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${listing.coordinates.lat},${listing.coordinates.lng}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-1 hover:underline text-primary-600 font-semibold"
+                  >
+                    Google Maps <Info className="w-3.5 h-3.5" />
+                  </a>
                 )}
               </div>
             </div>
             {isOwner && (
-              <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                <Link href={`/create-listing?id=${id}`} className="flex-1 px-4 py-2 bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 font-medium transition-colors text-center text-sm">Edit Specs</Link>
-                <button onClick={handleDeleteListing} disabled={!listing.isOwnerListing && listing.reviewCount > 1} className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${!listing.isOwnerListing && listing.reviewCount > 1 ? 'bg-gray-50 dark:bg-slate-900 text-gray-400' : 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40'}`}>
-                  Delete
+              <div className="flex gap-2 w-full md:w-auto">
+                <Link href={`/create-listing?id=${id}`} className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 transition-colors text-center text-sm font-semibold flex items-center justify-center gap-2 text-gray-900 dark:text-white">
+                  <Edit3 className="w-4 h-4" /> Edit
+                </Link>
+                <button onClick={handleDeleteListing} disabled={!listing.isOwnerListing && listing.reviewCount > 1} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-30">
+                  <Trash2 className="w-5 h-5" />
                 </button>
               </div>
             )}
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center justify-between">
-            <div className="flex flex-col">
-               <span className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white tracking-tight">
-                 ₹{(listing.price ?? 0).toLocaleString('en-IN')} <span className="text-[15px] font-normal text-gray-500 dark:text-slate-400">month</span>
-               </span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-gray-100 dark:bg-slate-800 rounded-md text-xs font-medium text-gray-900 dark:text-white">
-                {listing.isOwnerListing ? 'Marketplace Listing' : 'Student Verified'}
-              </span>
+          {!isRatingPost && (
+            <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center justify-between">
+              <div className="flex flex-col">
+                 <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+                   ₹{(listing.price ?? 0).toLocaleString('en-IN')} <span className="text-lg font-normal text-gray-500">/ month</span>
+                 </span>
+              </div>
               {listing.isOwnerListing && (
-                <span className="px-3 py-1 bg-gray-100 dark:bg-slate-800 rounded-md text-xs font-medium text-gray-900 dark:text-white">
-                  {listing.availableRooms}/{listing.totalRooms} Rooms Available
-                </span>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-900 rounded-full border border-slate-100 dark:border-slate-800">
+                   <Users className="w-4 h-4 text-primary-500" />
+                   <span className="text-xs font-bold text-gray-700 dark:text-slate-300">
+                     {listing.availableRooms}/{listing.totalRooms} Rooms Available
+                   </span>
+                </div>
               )}
             </div>
-          </div>
+          )}
         </div>
 
+        {/* Image Gallery */}
+        {listing.images && listing.images.length > 0 && (
+          <div className="mb-12 group">
+            <div className={`grid gap-4 ${listing.images.length === 1 ? 'grid-cols-1' : listing.images.length === 2 ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-3'}`}>
+              {listing.images.map((imgUrl, index) => (
+                <div 
+                  key={index} 
+                  onClick={() => setFullScreenImage(imgUrl)}
+                  className={`relative rounded-2xl overflow-hidden bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 cursor-zoom-in shadow-sm transition-all duration-300 hover:shadow-xl ${listing.images!.length === 3 && index === 0 ? 'md:col-span-2 md:row-span-2 aspect-[4/3] md:aspect-auto' : 'aspect-square md:aspect-[4/3]'}`}
+                >
+                  <img
+                    src={imgUrl}
+                    alt={`Room Image ${index + 1}`}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                     <div className="bg-white/90 p-3 rounded-full shadow-lg transform scale-90 hover:scale-100 transition-transform">
+                        <Maximize2 className="w-6 h-6 text-gray-900" />
+                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Full Screen Overlay */}
+        {fullScreenImage && (
+          <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 animate-in fade-in" onClick={() => setFullScreenImage(null)}>
+            <button className="absolute top-6 right-6 text-white hover:opacity-70 transition-opacity"><X className="w-8 h-8" /></button>
+            <img src={fullScreenImage} alt="Full View" className="max-w-full max-h-full object-contain rounded-lg animate-in zoom-in-95" />
+          </div>
+        )}
+
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16 pb-12 border-b border-gray-200 dark:border-slate-800">
-          <div className="md:col-span-2 space-y-10">
-            <div ref={mainContentRef} className="space-y-10">
-              {/* Description */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16 pb-12">
+          <div className="md:col-span-2 space-y-12">
+            <div ref={mainContentRef} className="space-y-12">
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">About this place</h2>
-                <p className="text-gray-600 dark:text-slate-300 text-[15px] leading-relaxed whitespace-pre-wrap">{listing.roomDetails}</p>
+                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
+                   <Info className="w-5 h-5 text-primary-500" /> About this place
+                </h2>
+                <p className="text-gray-600 dark:text-slate-300 text-[16px] leading-relaxed whitespace-pre-wrap">{listing.roomDetails}</p>
               </section>
 
-              {/* Amenities/Items */}
-              {listing.listingType === 'handover' ? (
-                listing.legacyBundle && (listing.legacyBundle.mattress || listing.legacyBundle.cooler || listing.legacyBundle.shelf || listing.legacyBundle.lamp || listing.legacyBundle.other) && (
+              {/* Specs */}
+              {(listing.sharingType || listing.foodIncluded || listing.billsIncluded) && (
+                <section>
+                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
+                    <Users className="w-5 h-5 text-primary-500" /> Accommodation Details
+                  </h2>
+                  <div className="grid grid-cols-2 gap-6">
+                    {listing.genderCategory && (
+                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <Users className="w-5 h-5 text-gray-400" />
+                        <span className="font-semibold capitalize text-sm">
+                          {listing.genderCategory === 'both' ? 'Co-living (Both)' : `${listing.genderCategory} only`}
+                        </span>
+                      </div>
+                    )}
+                    {listing.sharingType && (
+                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <Users className="w-5 h-5 text-gray-400" />
+                        <span className="font-semibold capitalize text-sm">{listing.sharingType} Sharing</span>
+                      </div>
+                    )}
+                    {listing.foodIncluded && (
+                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <Utensils className="w-5 h-5 text-gray-400" />
+                        <span className="font-semibold text-sm">Food Included</span>
+                      </div>
+                    )}
+                    {listing.billsIncluded && (
+                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <Zap className="w-5 h-5 text-gray-400" />
+                        <span className="font-semibold text-sm">Bills Included</span>
+                      </div>
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {listing.listingType === 'handover' && listing.legacyBundle && (
                   <section>
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Handover Items Included</h2>
-                    <div className="grid grid-cols-2 gap-y-4 gap-x-8">
-                      {listing.legacyBundle.mattress && <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300"><span className="text-xl w-6">🛏️</span> <span className="font-medium">Mattress</span></div>}
-                      {listing.legacyBundle.cooler && <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300"><span className="text-xl w-6">❄️</span> <span className="font-medium">Cooler</span></div>}
-                      {listing.legacyBundle.shelf && <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300"><span className="text-xl w-6">📦</span> <span className="font-medium">Shelf</span></div>}
-                      {listing.legacyBundle.lamp && <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300"><span className="text-xl w-6">💡</span> <span className="font-medium">Lamp</span></div>}
-                      {listing.legacyBundle.other && <div className="col-span-2 flex items-center gap-3 text-gray-700 dark:text-slate-300"><span className="text-xl w-6">📌</span> <span className="font-medium">{listing.legacyBundle.other}</span></div>}
+                    <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
+                      <Package className="w-5 h-5 text-primary-500" /> Handover Items
+                    </h2>
+                    <div className="grid grid-cols-2 gap-4">
+                      {listing.legacyBundle.mattress && <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Mattress</div>}
+                      {listing.legacyBundle.cooler && <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Cooler</div>}
+                      {listing.legacyBundle.shelf && <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Shelf</div>}
+                      {listing.legacyBundle.lamp && <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Lamp</div>}
                     </div>
                   </section>
-                )
-              ) : (
-                listing.amenities && listing.amenities.length > 0 && (
-                  <section>
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">What this place offers</h2>
-                    <div className="grid grid-cols-2 gap-y-4">
-                      {listing.amenities.map((amenity: string, idx: number) => (
-                        <div key={idx} className="flex items-center gap-3 text-gray-700 dark:text-slate-300 font-medium">✨ {amenity}</div>
-                      ))}
-                    </div>
-                  </section>
-                )
               )}
             </div>
 
-            {/* College Distance Calculator (Horizontal Version) */}
             {userProfile?.role === 'STUDENT' && !shouldMoveToSidebar && (
-            <section className="pt-4 border-t border-gray-100 dark:border-slate-800">
-              <CommuteDistanceModule />
-            </section>
+              <section className="pt-10 border-t border-gray-100 dark:border-slate-800">
+                <CommuteDistanceModule />
+              </section>
             )}
           </div>
 
-          {/* Sidebar */}
           <div ref={sidebarRef} className="space-y-6">
-            <div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
-              <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white mb-2">Availability</h3>
-              <p className="text-gray-600 dark:text-slate-400 font-medium mb-6 text-[15px]">
-                {listing.availableDate ? new Date(listing.availableDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : 'TBA'}
-              </p>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm  top-24">
+              <div className="mb-6">
+                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Availability</h3>
+                 <div className="flex items-center gap-2 text-[15px] font-bold text-gray-900 dark:text-white">
+                   <Calendar className="w-4 h-4 text-primary-500" />
+                   {listing.availableDate ? new Date(listing.availableDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Ready Now'}
+                 </div>
+              </div>
               
               <div className="pt-6 border-t border-gray-200 dark:border-slate-800">
-                <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white mb-2">Listed by</h3>
-                <p className="text-gray-900 dark:text-white font-medium mb-1 text-[15px]">
-                  {listing.isOwnerListing || listing.handoverMode ? listing.userId?.name || 'Verified User' : 'Anonymous Student'}
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Listed by</h3>
+                <p className="text-gray-900 dark:text-white font-bold mb-1 text-[16px]">
+                  {listing.isOwnerListing || listing.handoverMode || listing.listingType === 'roommate' ? listing.userId?.name || 'Verified User' : 'Anonymous Student'}
                 </p>
-                <p className="text-[13px] text-gray-500 dark:text-slate-400 mb-6">
-                  Joined in {new Date(listing.createdAt).getFullYear()}
-                </p>
+                <div className="flex items-center gap-1.5 text-[13px] text-gray-500 dark:text-slate-400 mb-6">
+                   <Clock className="w-3.5 h-3.5" /> Since {new Date(listing.createdAt).getFullYear()}
+                </div>
 
                 {token ? (
-                  (listing.isOwnerListing || listing.handoverMode) ? (
+                  (listing.isOwnerListing || listing.handoverMode || listing.listingType === 'roommate') ? (
                     listing.userId?.email ? (
                       <div className="space-y-3">
-                        <a href={`mailto:${listing.userId.email}`} className="block w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-medium text-center text-[15px] transition-colors hover:bg-gray-800 dark:hover:bg-gray-100">
-                          Email {listing.isOwnerListing ? 'Owner' : 'Student'}
+                        <a href={`mailto:${listing.userId.email}`} className="flex items-center justify-center gap-2 w-full py-3.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-500/20">
+                          <Mail className="w-4 h-4" /> Send Email
                         </a>
-                        <div className="text-[13px] space-y-2 mt-4 pt-4 border-t border-gray-200 dark:border-slate-800">
-                          <p className="text-gray-500 dark:text-slate-400"><span className="font-medium text-gray-900 dark:text-white">Email:</span> {listing.userId.email}</p>
+                        <div className="text-[14px] space-y-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                          <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300 font-medium">
+                             <Mail className="w-4 h-4 opacity-50" /> {listing.userId.email}
+                          </div>
                           {listing.userId.phoneNumber && (
-                            <p className="text-gray-500 dark:text-slate-400"><span className="font-medium text-gray-900 dark:text-white">Phone:</span> {listing.userId.phoneNumber}</p>
+                             <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300 font-medium">
+                                <Phone className="w-4 h-4 opacity-50" /> {listing.userId.phoneNumber}
+                             </div>
                           )}
                         </div>
                       </div>
                     ) : null
                   ) : (
-                    <div className="p-4 bg-gray-50 dark:bg-slate-800 rounded-lg text-[13px] text-center text-gray-500 dark:text-slate-400">
-                      Contact info hidden by publisher to maintain anonymity.
+                    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-[13px] text-center text-gray-500 border border-dashed border-slate-200 dark:border-slate-700">
+                      Identity protected for review integrity.
                     </div>
                   )
                 ) : (
-                  <Link href="/login" className="block w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-medium text-center text-[15px] transition-colors hover:bg-gray-800 dark:hover:bg-gray-100">
-                    Log in to Contact
+                  <Link href="/login" className="flex items-center justify-center gap-2 w-full py-3.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-colors">
+                    <Zap className="w-4 h-4" /> Sign in to contact
                   </Link>
                 )}
               </div>
             </div>
 
-            {/* College Distance Calculator (Sidebar Version) */}
             {userProfile?.role === 'STUDENT' && shouldMoveToSidebar && (
-            <div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
-              <CommuteDistanceModule />
-            </div>
+              <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
+                <CommuteDistanceModule />
+              </div>
             )}
           </div>
         </div>
 
         {/* Reviews Section */}
-        <div className="pt-12">
-          <div className="flex items-center gap-4 mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              {reviews.length} {reviews.length === 1 ? 'Review' : 'Reviews'}
+        <div className="pt-20">
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+              Reviews <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded-md text-sm">{reviews.length}</span>
             </h2>
-            <div className="flex items-center gap-1.5 text-[10px] font-semibold text-gray-900 dark:text-white bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded-md">
-              <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Location Verified
-            </div>
           </div>
 
-          {canReview ? (
-            <form onSubmit={handleReviewSubmit} className="mb-10 bg-gray-50 dark:bg-slate-900 rounded-xl p-6 border border-gray-200 dark:border-slate-800">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Leave a review</h3>
-              {reviewError && <p className="text-red-500 text-sm mb-4 font-medium">{reviewError}</p>}
-              <div className="mb-4">
-                <label className="block text-[15px] font-medium text-gray-700 dark:text-slate-300 mb-2">Rating</label>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button key={star} type="button" onClick={() => setNewReview({ ...newReview, rating: star })} className={`text-2xl focus:outline-none transition-colors ${star <= newReview.rating ? 'text-accent-amber' : 'text-gray-200 dark:text-slate-700'}`}>★</button>
-                  ))}
-                </div>
+          {canReview && (
+            <form onSubmit={handleReviewSubmit} className="mb-12 bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-8 border border-slate-200 dark:border-slate-800">
+              <h3 className="text-lg font-bold mb-6 text-gray-900 dark:text-white">Write a review</h3>
+              <div className="flex gap-2 mb-8">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button key={star} type="button" onClick={() => setNewReview({ ...newReview, rating: star })} className={`text-3xl transition-transform hover:scale-110 ${star <= newReview.rating ? 'text-amber-500' : 'text-slate-200'}`}><Star className={`w-8 h-8 ${star <= newReview.rating ? 'fill-current' : ''}`} /></button>
+                ))}
               </div>
-              <div className="mb-6">
-                <label className="block text-[15px] font-medium text-gray-700 dark:text-slate-300 mb-2">Feedback</label>
-                <textarea required value={newReview.comment} onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })} className="w-full px-4 py-3 bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-white text-gray-900 dark:text-white resize-none text-[15px]" placeholder="Share your experience..." rows={3} />
-              </div>
-              <button type="submit" disabled={reviewLoading} className="px-6 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-[15px] font-medium hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 transition-colors">
-                {reviewLoading ? 'Verifying...' : 'Submit Review'}
+              <textarea required value={newReview.comment} onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })} className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none ring-primary-500 focus:ring-2 mb-6 text-gray-900 dark:text-white" placeholder="Your experience..." rows={4} />
+              <button type="submit" disabled={reviewLoading} className="bg-primary-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-primary-500/20 disabled:opacity-50">
+                Post Review
               </button>
             </form>
-          ) : userProfile?.role === 'OWNER' ? (
-            <div className="mb-10 p-4 bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800 text-gray-500 text-[15px]">Owners cannot interact with the review system.</div>
-          ) : userProfile?.role === 'STUDENT' && !userProfile.verified ? (
-            <div className="mb-10 p-4 bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800 text-gray-500 text-[15px]">Please verify your college email to add a review.</div>
-          ) : null}
+          )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-            {reviews.length > 0 ? (
-              reviews.map((review) => (
-                <div key={review._id} className="flex flex-col">
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="w-10 h-10 bg-gray-200 dark:bg-slate-700 rounded-full flex items-center justify-center text-gray-500 dark:text-slate-400 font-semibold text-lg">
-                      A
-                    </div>
-                    <div>
-                      <div className="font-semibold text-[15px] text-gray-900 dark:text-white flex items-center gap-2">
-                        Anonymous
-                        {review.geofenceVerified && <span className="text-[10px] bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded-md font-medium text-gray-600 dark:text-slate-300">Verified Location</span>}
-                      </div>
-                      <div className="text-[13px] text-gray-500 dark:text-slate-400 mt-0.5">
-                        {new Date(review.createdAt).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
-                      </div>
-                    </div>
+          <div className="grid gap-8">
+            {reviews.map((review) => (
+              <div key={review._id} className="bg-white dark:bg-slate-950/40 p-6 rounded-2xl border border-slate-100 dark:border-slate-900 shadow-sm">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400"><Users className="w-6 h-6" /></div>
+                  <div>
+                    <div className="font-bold flex items-center gap-2 text-gray-900 dark:text-white">Anonymous {review.geofenceVerified && <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />}</div>
+                    <div className="text-xs text-slate-400">{new Date(review.createdAt).toLocaleDateString()}</div>
                   </div>
-                  <div className="flex text-accent-amber mb-2 text-sm">
-                    {[...Array(5)].map((_, i) => (<span key={i} className={i < review.rating ? 'opacity-100' : 'opacity-20'}>★</span>))}
-                  </div>
-                  <p className="text-gray-700 dark:text-slate-300 text-[15px] leading-relaxed">
-                    {review.comment}
-                  </p>
                 </div>
-              ))
-            ) : (
-              <p className="text-gray-500 dark:text-slate-400 text-[15px]">No reviews yet.</p>
-            )}
+                <div className="flex text-amber-500 mb-3 gap-0.5">
+                  {[...Array(5)].map((_, i) => (<Star key={i} className={`w-4 h-4 ${i < review.rating ? 'fill-current' : 'opacity-20'}`} />))}
+                </div>
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{review.comment}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

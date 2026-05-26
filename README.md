@@ -1,43 +1,52 @@
-# Verisite - Task List & Project Requirements
+# Verisite - Student Housing Marketplace & Truth Ledger
 
-This document outlines the core functional requirements and user roles for the Verisite student hostel and PG management platform.
+Verisite is a secure, professional platform designed for students to discover verified accommodations and share honest experiences. It bridges the gap between PG owners and students while providing a "Truth Ledger" for transparent room handovers and roommate searches.
 
-## 🔑 Core Login Methods & User Roles
+## 🌟 Key Features
 
-### 1. PG Owner Login
-*   **Purpose:** For landlords and PG management.
-*   **Capabilities:**
-    *   List PG details (e.g., number of available rooms, specific facilities, pricing).
-    *   Manage and update listing information.
-*   **Restrictions:**
-    *   **Strictly prohibited** from providing reviews or ratings for any listed rooms or PGs (including their own).
+### 🏢 Accommodation Discovery
+*   **Verified Marketplace:** Direct listings from PG owners with detailed specs (available rooms, total capacity).
+*   **Student Truth Ledger:** Anonymous reviews and ratings from students who have actually lived in the properties.
+*   **Room Handover:** Students can list their current rooms and items (mattresses, coolers, etc.) for the next tenant.
+*   **Roommate Finder:** Dedicated mode for finding compatible roommates with direct email contact.
 
-### 2. Student Login (School Gmail Only)
-*   **Purpose:** For verified students.
-*   **Requirements:** Must authenticate using a school-issued Gmail account (`.edu` or institutional domain).
-*   **Capabilities:**
-    *   List rooms (e.g., for handover or finding roommates).
-    *   Rate and review rooms/PGs they have lived in that were posted by PG Owners.
+### 🗺️ Precision Search & Mapping
+*   **Interactive Map Picker:** Precise pin-dropping using Leaflet to mark exact room locations.
+*   **Smart Proximity Filter:** Instantly sort listings by their distance to your specific college or university.
+*   **Advanced Filtering:** Sort by "Newest", "Lowest Price", or "Proximity to Institution".
 
-### 3. Guest Login
-*   **Purpose:** For casual browsing.
-*   **Capabilities:**
-    *   View all listed rooms and PGs.
-    *   View ratings and reviews.
-*   **Restrictions:**
-    *   Read-only access; cannot list rooms or post reviews.
+### 📸 Visual & Professional UI
+*   **Compressed Room Images:** Upload up to 3 room images, automatically optimized and compressed using Sharp and stored on Cloudinary.
+*   **Full-Screen Viewer:** Immersive lightbox for viewing room details in high resolution.
+*   **Modern Branding:** Clean, circular branding and professional Lucide iconography.
+*   **Dark Mode Support:** Fully responsive and optimized for both light and dark environments.
+
+## 🔑 User Roles & Security
+
+### 1. Students (Educational Email Required)
+*   **Verification:** Must use a valid `.edu.in`, `.ac.in`, or `.edu` email.
+*   **Capabilities:** Post room handovers, find roommates, and contribute to the "Truth Ledger" (PG ratings).
+*   **Privacy:** Identity is protected for PG ratings but visible for room-sharing to facilitate contact.
+
+### 2. PG Owners
+*   **Capabilities:** List properties, manage availability, and showcase amenities.
+*   **Restrictions:** Strictly prohibited from providing reviews or ratings to ensure marketplace integrity.
+
+### 3. Guests
+*   **Capabilities:** Browse all listings and read student reviews with read-only access.
 
 ---
 
-## 🔒 Privacy & Anonymous Reviews
-*   **Anonymity:** When displaying reviews and ratings, the system must **never** show the name or identity of the user who provided the review.
-*   **Visibility:** All users (Owners, Students, and Guests) can see the feedback content, but the author remains anonymous to everyone.
+## 🔒 Security & Performance
+*   **JWT Authentication:** Secure sessions with an extended 30-day token expiry.
+*   **Backend Compression:** High-performance image processing with Sharp.
+*   **Data Integrity:** Unique location enforcement to prevent duplicate property listings.
+*   **Privacy First:** Strict anonymity for student review authors.
 
----
-
-## 🛠️ Implementation TODOs
-- [ ] Implement OAuth2 for Google (School Gmail) authentication.
-- [ ] Create Role-Based Access Control (RBAC) middleware for Owner, Student, and Guest.
-- [ ] Develop listing forms with fields for room count and facilities.
-- [ ] Build the review/rating system with "Anonymous" author masking.
-- [ ] Implement logic to prevent Owners from accessing review submission endpoints.
+## 🛠️ Tech Stack
+*   **Frontend:** Next.js 16 (Webpack), React 19, Tailwind CSS.
+*   **Backend:** Next.js API Routes, Node.js.
+*   **Database:** MongoDB Atlas with Mongoose ORM.
+*   **Storage:** Cloudinary (Optimized Image CDN).
+*   **Mapping:** Leaflet & OpenStreetMap.
+*   **Icons:** Lucide React.

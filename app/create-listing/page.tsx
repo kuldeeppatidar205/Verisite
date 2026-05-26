@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ClientOnly from '@/components/ClientOnly';
 import ThemeToggle from '@/components/ThemeToggle';
+import LocationPicker from '@/components/LocationPicker';
 
 function CreateListingForm() {
   const router = useRouter();
@@ -15,6 +16,9 @@ function CreateListingForm() {
   const [error, setError] = useState('');
   const [token, setToken] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<'STUDENT' | 'OWNER'>('STUDENT');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [showMap, setShowMap] = useState(false);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     pgName: '',
     roomDetails: '',
@@ -32,7 +36,13 @@ function CreateListingForm() {
     lng: null as number | null,
     totalRooms: '',
     availableRooms: '',
-    studentListingType: 'RATING' as 'RATING' | 'HANDOVER',
+    studentListingType: 'RATING' as 'RATING' | 'HANDOVER' | 'ROOMMATE',
+    sharingType: '',
+    foodIncluded: false,
+    billsIncluded: false,
+    genderCategory: '' as 'boys' | 'girls' | 'both' | '',
+    rating: 0,
+    comment: '',
   });
 
   useEffect(() => {
@@ -100,6 +110,33 @@ function CreateListingForm() {
     }
   };
 
+  const handleMapChange = async (lat: number, lng: number) => {
+    setFormData(prev => ({ ...prev, lat, lng }));
+    try {
+      const res = await fetch(`/api/geocode?lat=${lat}&lon=${lng}`);
+      const data = await res.json();
+      
+      if (res.ok && data) {
+        const addressParts = [];
+        if (data.street) addressParts.push(data.street);
+        if (data.locality && data.locality !== data.city) addressParts.push(data.locality);
+        if (data.city) addressParts.push(data.city);
+        if (data.state) addressParts.push(data.state);
+        
+        const detectedAddress = addressParts.filter(Boolean).join(', ');
+        
+        if (detectedAddress) {
+          setFormData(prev => ({
+            ...prev,
+            baseAddress: detectedAddress
+          }));
+        }
+      }
+    } catch (error) {
+      console.warn("Error reverse geocoding map selection:", error);
+    }
+  };
+
   const fetchUserRole = async (t: string) => {
     try {
       const res = await fetch('/api/users/me', {
@@ -121,13 +158,16 @@ function CreateListingForm() {
       const data = await res.json();
       
       const hasHandoverItems = data.legacyBundle?.mattress || data.legacyBundle?.cooler || data.legacyBundle?.shelf || data.legacyBundle?.lamp || !!data.legacyBundle?.other;
-      const isHandover = data.listingType === 'handover' || data.handoverMode || hasHandoverItems;
+      let sType: 'RATING' | 'HANDOVER' | 'ROOMMATE' = 'RATING';
+      if (data.listingType === 'roommate') sType = 'ROOMMATE';
+      else if (data.listingType === 'handover' || data.handoverMode || hasHandoverItems) sType = 'HANDOVER';
 
-      setFormData({
+      setFormData(prev => ({
+        ...prev,
         pgName: data.pgName || '',
-        roomDetails: data.roomDetails,
-        price: data.price.toString(),
-        availableDate: new Date(data.availableDate).toISOString().split('T')[0],
+        roomDetails: data.roomDetails || '',
+        price: data.price ? data.price.toString() : '',
+        availableDate: data.availableDate ? new Date(data.availableDate).toISOString().split('T')[0] : '',
         mattress: data.legacyBundle?.mattress || false,
         cooler: data.legacyBundle?.cooler || false,
         shelf: data.legacyBundle?.shelf || false,
@@ -140,15 +180,37 @@ function CreateListingForm() {
         lng: data.coordinates?.lng || null,
         totalRooms: data.totalRooms?.toString() || '',
         availableRooms: data.availableRooms?.toString() || '',
-        studentListingType: isHandover ? 'HANDOVER' : 'RATING',
-      });
+        studentListingType: sType,
+        sharingType: data.sharingType || '',
+        foodIncluded: data.foodIncluded || false,
+        billsIncluded: data.billsIncluded || false,
+      }));
+      setExistingImages(data.images || []);
+
+      // If it's a student rating, fetch the review content too
+      if (data.listingType === 'pg' && userRole === 'STUDENT') {
+        try {
+          const reviewRes = await fetch(`/api/reviews?listingId=${id}`);
+          const reviewData = await reviewRes.json();
+          const myReview = reviewData.data?.find((r: any) => r.isMyReview); 
+          if (myReview) {
+            setFormData(prev => ({
+              ...prev,
+              rating: myReview.rating,
+              comment: myReview.comment
+            }));
+          }
+        } catch (e) {
+          console.warn("Failed to fetch review for editing:", e);
+        }
+      }
     } catch (error) {
       console.error('Failed to fetch listing:', error);
       setError('Failed to load listing');
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
     setFormData({
       ...formData,
@@ -167,17 +229,33 @@ function CreateListingForm() {
 
     setLoading(true);
 
-    const price = parseFloat(formData.price);
-    if (isNaN(price)) {
-      setError('Please enter a valid price');
-      setLoading(false);
-      return;
-    }
+    const isRating = userRole === 'STUDENT' && formData.studentListingType === 'RATING';
+    
+    let price: number | undefined = undefined;
+    if (!isRating) {
+      price = parseInt(formData.price, 10);
+      if (isNaN(price)) {
+        setError('Please enter a valid price');
+        setLoading(false);
+        return;
+      }
 
-    if (!formData.roomDetails) {
-      setError('Please fill in the property details');
-      setLoading(false);
-      return;
+      if (!formData.roomDetails) {
+        setError('Please fill in the property details');
+        setLoading(false);
+        return;
+      }
+    } else {
+      if (!formData.rating || formData.rating < 1 || formData.rating > 5) {
+         setError('Please provide a valid rating between 1 and 5');
+         setLoading(false);
+         return;
+      }
+      if (!formData.comment || formData.comment.length < 5) {
+         setError('Please provide a review comment of at least 5 characters');
+         setLoading(false);
+         return;
+      }
     }
 
     if (userRole === 'OWNER' && !formData.availableDate) {
@@ -187,18 +265,47 @@ function CreateListingForm() {
     }
 
     try {
+      let uploadedImageUrls: string[] = [];
+
+      // Only process images if not a rating
+      if (!isRating && selectedFiles.length > 0) {
+        const imageFormData = new FormData();
+        selectedFiles.forEach((file) => {
+          imageFormData.append('images', file);
+        });
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: imageFormData,
+        });
+
+        const uploadData = await uploadRes.json();
+
+        if (!uploadRes.ok) {
+          setError(uploadData.error || 'Failed to upload images.');
+          setLoading(false);
+          return;
+        }
+
+        uploadedImageUrls = uploadData.urls;
+      }
+
       const finalAddress = formData.addressPrefix 
         ? `${formData.addressPrefix.trim()}, ${formData.baseAddress}` 
         : formData.baseAddress;
 
       const payload: any = {
         pgName: formData.pgName,
-        roomDetails: formData.roomDetails,
+        roomDetails: isRating ? undefined : formData.roomDetails,
         price: price,
         availableDate: formData.availableDate ? new Date(formData.availableDate).toISOString() : undefined,
         address: finalAddress,
         lat: formData.lat,
         lng: formData.lng,
+        images: uploadedImageUrls.length > 0 ? uploadedImageUrls : existingImages,
       };
 
       if (userRole === 'STUDENT') {
@@ -212,10 +319,23 @@ function CreateListingForm() {
             lamp: formData.lamp,
             other: formData.other || undefined,
           };
+          payload.sharingType = formData.sharingType;
+          payload.foodIncluded = formData.foodIncluded;
+          payload.billsIncluded = formData.billsIncluded;
+        } else if (formData.studentListingType === 'ROOMMATE') {
+          payload.listingType = 'roommate';
+          payload.handoverMode = false;
+          payload.legacyBundle = {};
+          payload.sharingType = formData.sharingType;
+          payload.foodIncluded = formData.foodIncluded;
+          payload.billsIncluded = formData.billsIncluded;
         } else {
+          // RATING
           payload.listingType = 'pg';
           payload.handoverMode = false;
           payload.legacyBundle = {};
+          payload.rating = formData.rating;
+          payload.comment = formData.comment;
         }
       } else {
         payload.listingType = 'pg';
@@ -250,7 +370,7 @@ function CreateListingForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || (editId ? 'Failed to update listing' : 'Failed to create listing'));
+        setError(data.error || 'Failed to save listing');
         setLoading(false);
         return;
       }
@@ -262,6 +382,8 @@ function CreateListingForm() {
       setLoading(false);
     }
   };
+
+  const isRatingMode = userRole === 'STUDENT' && formData.studentListingType === 'RATING';
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 sm:p-8 transition-colors duration-200">
@@ -284,20 +406,25 @@ function CreateListingForm() {
           )}
 
           {userRole === 'STUDENT' && (
-            <div className="flex flex-col gap-2 mb-6">
+            <div className={`flex flex-col gap-2 mb-6 ${editId ? 'opacity-60 pointer-events-none' : ''}`}>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                What kind of post are you making?
+                What kind of post are you making? {editId && <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded ml-2 font-normal text-slate-500">Locked after creation</span>}
               </label>
               <div className="flex flex-col sm:flex-row gap-4">
                 <label className={`flex-1 p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.studentListingType === 'RATING' ? 'border-primary-600 bg-primary-50/50 dark:bg-primary-900/10' : 'border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700'}`}>
-                  <input type="radio" name="studentListingType" value="RATING" checked={formData.studentListingType === 'RATING'} onChange={handleChange} className="hidden" />
+                  <input type="radio" name="studentListingType" value="RATING" checked={formData.studentListingType === 'RATING'} onChange={handleChange} className="hidden" disabled={!!editId} />
                   <div className="font-semibold text-slate-900 dark:text-white">Rate Current Accommodation</div>
                   <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Share an honest review of your PG/Hostel without any handover.</div>
                 </label>
                 <label className={`flex-1 p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.studentListingType === 'HANDOVER' ? 'border-primary-600 bg-primary-50/50 dark:bg-primary-900/10' : 'border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700'}`}>
-                  <input type="radio" name="studentListingType" value="HANDOVER" checked={formData.studentListingType === 'HANDOVER'} onChange={handleChange} className="hidden" />
+                  <input type="radio" name="studentListingType" value="HANDOVER" checked={formData.studentListingType === 'HANDOVER'} onChange={handleChange} className="hidden" disabled={!!editId} />
                   <div className="font-semibold text-slate-900 dark:text-white">Handover Room</div>
                   <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Pass your room and items to another student.</div>
+                </label>
+                <label className={`flex-1 p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.studentListingType === 'ROOMMATE' ? 'border-primary-600 bg-primary-50/50 dark:bg-primary-900/10' : 'border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700'}`}>
+                  <input type="radio" name="studentListingType" value="ROOMMATE" checked={formData.studentListingType === 'ROOMMATE'} onChange={handleChange} className="hidden" disabled={!!editId} />
+                  <div className="font-semibold text-slate-900 dark:text-white">Find Roommate</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Looking for a roommate to share your flat/room.</div>
                 </label>
               </div>
             </div>
@@ -305,7 +432,7 @@ function CreateListingForm() {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              PG / Hostel Name *
+              PG / Hostel / Building Name *
             </label>
             <input
               type="text"
@@ -316,24 +443,6 @@ function CreateListingForm() {
               className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white text-sm"
               placeholder="e.g. Skyline PG or Raman Hostel"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              {userRole === 'STUDENT' ? 'Property Details * (provide honest details for the community)' : 'Property Details * (marketing description)'}
-            </label>
-            <textarea
-              name="roomDetails"
-              value={formData.roomDetails}
-              onChange={handleChange}
-              required
-              rows={5}
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm"
-              placeholder={userRole === 'STUDENT' ? "Be honest about the pros and cons..." : "Highlight the best features of your property..."}
-            />
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
-              Minimum 10 characters
-            </p>
           </div>
 
           <div>
@@ -354,84 +463,217 @@ function CreateListingForm() {
                 <span className="text-slate-900 dark:text-white text-sm font-medium truncate">
                   {formData.baseAddress || "Waiting for location..."}
                 </span>
+                {formData.lat && formData.lng && (
+                  <button 
+                    type="button" 
+                    onClick={() => setShowMap(!showMap)}
+                    className="ml-auto text-xs font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 whitespace-nowrap"
+                  >
+                    {showMap ? 'Hide Map' : 'Edit on Map'}
+                  </button>
+                )}
               </div>
+              
+              {showMap && formData.lat && formData.lng && (
+                <div className="mt-2 animate-in fade-in slide-in-from-top-2">
+                  <LocationPicker 
+                    lat={formData.lat} 
+                    lng={formData.lng} 
+                    onChange={handleMapChange} 
+                  />
+                </div>
+              )}
             </div>
             <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
-              The base location is auto-captured based on your current coordinates.
+              The base location is auto-captured based on your current coordinates. You can click "Edit on Map" to refine the exact pin location.
             </p>
           </div>
 
-          {userRole === 'OWNER' && (
+          {isRatingMode ? (
             <>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Rating *</label>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button 
+                      key={star} 
+                      type="button" 
+                      onClick={() => setFormData(prev => ({ ...prev, rating: star }))} 
+                      className={`text-3xl focus:outline-none transition-colors ${star <= formData.rating ? 'text-accent-amber' : 'text-gray-200 dark:text-slate-700'}`}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Review / Feedback *</label>
+                <textarea
+                  name="comment"
+                  value={formData.comment}
+                  onChange={handleChange}
+                  required
+                  rows={4}
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm"
+                  placeholder="Share your honest experience..."
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Property Details * 
+                </label>
+                <textarea
+                  name="roomDetails"
+                  value={formData.roomDetails}
+                  onChange={handleChange}
+                  required
+                  rows={5}
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm"
+                  placeholder={userRole === 'STUDENT' ? "Be honest about the pros and cons..." : "Highlight the best features of your property..."}
+                />
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+                  Minimum 10 characters
+                </p>
+              </div>
+
+              {userRole === 'OWNER' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Total Rooms *
+                    </label>
+                    <input
+                      type="number"
+                      name="totalRooms"
+                      value={formData.totalRooms}
+                      onChange={handleChange}
+                      required={userRole === 'OWNER'}
+                      min="1"
+                      className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Available Rooms *
+                    </label>
+                    <input
+                      type="number"
+                      name="availableRooms"
+                      value={formData.availableRooms}
+                      onChange={handleChange}
+                      required={userRole === 'OWNER'}
+                      min="0"
+                      className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Total Rooms *
+                    Monthly Rent (₹) *
                   </label>
                   <input
                     type="number"
-                    name="totalRooms"
-                    value={formData.totalRooms}
+                    name="price"
+                    value={formData.price}
                     onChange={handleChange}
-                    required={userRole === 'OWNER'}
+                    required
                     min="1"
                     className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white text-sm"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Available Rooms *
-                  </label>
-                  <input
-                    type="number"
-                    name="availableRooms"
-                    value={formData.availableRooms}
-                    onChange={handleChange}
-                    required={userRole === 'OWNER'}
-                    min="0"
-                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white text-sm"
-                  />
+
+                {(userRole === 'OWNER' || formData.studentListingType === 'HANDOVER' || formData.studentListingType === 'ROOMMATE') && (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Available From {userRole === 'OWNER' ? '*' : '(Optional)'}
+                    </label>
+                    <input
+                      type="date"
+                      name="availableDate"
+                      value={formData.availableDate}
+                      onChange={handleChange}
+                      required={userRole === 'OWNER'}
+                      className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white text-sm"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {userRole === 'STUDENT' && (formData.studentListingType === 'HANDOVER' || formData.studentListingType === 'ROOMMATE') && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Category *</label>
+                    <div className="flex flex-wrap gap-3">
+                      {['boys', 'girls', 'both'].map((cat) => (
+                        <label 
+                          key={cat}
+                          className={`px-4 py-2 rounded-lg border-2 cursor-pointer transition-all text-sm font-semibold capitalize ${
+                            formData.genderCategory === cat 
+                              ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300' 
+                              : 'border-slate-100 dark:border-slate-800 text-slate-500 hover:border-slate-200'
+                          }`}
+                        >
+                          <input 
+                            type="radio" 
+                            name="genderCategory" 
+                            value={cat} 
+                            checked={formData.genderCategory === cat} 
+                            onChange={handleChange} 
+                            className="hidden" 
+                            required={!isRatingMode}
+                          />
+                          {cat === 'both' ? 'Both (Co-living)' : `${cat} Only`}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Sharing Type</label>
+                    <select
+                      name="sharingType"
+                      value={formData.sharingType}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white text-sm"
+                    >
+                      <option value="">Select Sharing Type</option>
+                      <option value="single">Single Sharing</option>
+                      <option value="double">Double Sharing</option>
+                      <option value="triple">Triple Sharing</option>
+                      <option value="multiple">Multiple (3+)</option>
+                    </select>
+                  </div>
+                  <div className="flex gap-6">
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        name="foodIncluded"
+                        checked={formData.foodIncluded}
+                        onChange={handleChange}
+                        className="w-4 h-4 rounded text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Food Included</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        name="billsIncluded"
+                        checked={formData.billsIncluded}
+                        onChange={handleChange}
+                        className="w-4 h-4 rounded text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Bills Included (Elec, Water)</span>
+                    </label>
+                  </div>
                 </div>
-              </div>
-            </>
-          )}
+              )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Monthly Rent (₹) *
-              </label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                required
-                min="1"
-                className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white text-sm"
-              />
-            </div>
-
-            {(userRole === 'OWNER' || formData.studentListingType === 'HANDOVER') && (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Available From {userRole === 'OWNER' ? '*' : '(Optional)'}
-                </label>
-                <input
-                  type="date"
-                  name="availableDate"
-                  value={formData.availableDate}
-                  onChange={handleChange}
-                  required={userRole === 'OWNER'}
-                  className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white text-sm"
-                />
-              </div>
-            )}
-          </div>
-
-          {userRole === 'STUDENT' ? (
-            <>
-              {formData.studentListingType === 'HANDOVER' && (
+              {userRole === 'STUDENT' && formData.studentListingType === 'HANDOVER' && (
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-4 uppercase tracking-widest text-[10px]">
                     Included Items (Handover)
@@ -490,21 +732,74 @@ function CreateListingForm() {
                   </div>
                 </div>
               )}
+
+              {userRole === 'OWNER' && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Amenities (comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    name="amenities"
+                    value={formData.amenities}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white text-sm"
+                    placeholder="WiFi, AC, Food, Laundry"
+                  />
+                </div>
+              )}
+
+              {/* Image Upload Section */}
+              <div className="border-t border-slate-100 dark:border-slate-800 pt-6 mt-6">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Room Images (Up to 3) <span className="text-slate-400 font-normal ml-1">(Optional but recommended)</span>
+                </label>
+                <div className="flex flex-col gap-4">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        const files = Array.from(e.target.files);
+                        if (files.length > 3) {
+                          alert('Maximum 3 images allowed.');
+                          e.target.value = '';
+                          return;
+                        }
+                        // Validation
+                        for (const file of files) {
+                          if (!file.type.startsWith('image/')) {
+                            alert(`File "${file.name}" is not an image.`);
+                            e.target.value = '';
+                            return;
+                          }
+                          if (file.size > 5 * 1024 * 1024) {
+                            alert(`File "${file.name}" exceeds the 5MB limit.`);
+                            e.target.value = '';
+                            return;
+                          }
+                        }
+                        setSelectedFiles(files);
+                      }
+                    }}
+                    className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900/20 dark:file:text-primary-400 transition"
+                  />
+                  {selectedFiles.length > 0 ? (
+                    <div className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                      Selected {selectedFiles.length} {selectedFiles.length === 1 ? 'image' : 'images'}
+                    </div>
+                  ) : existingImages.length > 0 ? (
+                    <div className="text-xs font-medium text-accent-emerald">
+                      Keeping {existingImages.length} existing {existingImages.length === 1 ? 'image' : 'images'}
+                    </div>
+                  ) : null}
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2">
+                  Supported formats: JPG, PNG, WEBP. Max size 5MB each.
+                </p>
+              </div>
             </>
-          ) : (
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Amenities (comma separated)
-              </label>
-              <input
-                type="text"
-                name="amenities"
-                value={formData.amenities}
-                onChange={handleChange}
-                className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white text-sm"
-                placeholder="WiFi, AC, Food, Laundry"
-              />
-            </div>
           )}
 
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -535,8 +830,9 @@ export default function CreateListingPage() {
       <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 transition-colors duration-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold transition-transform group-hover:scale-105">
-              PP
+            <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-105">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
             </div>
             <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Verisite</h1>
           </Link>

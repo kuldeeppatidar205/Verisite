@@ -81,7 +81,10 @@ export default function Chatbot() {
         {/* Header */}
         <div className="flex items-center justify-between p-4 bg-blue-600 text-white">
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5" />
+            <div className="w-6 h-6 flex items-center justify-center bg-white rounded-full p-0.5">
+               {/* eslint-disable-next-line @next/next/no-img-element */}
+               <img src="/logo image short.png" alt="Logo" className="w-full h-full object-cover rounded-full" />
+            </div>
             <h3 className="font-semibold">Verisite Assistant</h3>
           </div>
           <button

@@ -10,10 +10,10 @@ interface LegacyBundle {
 
 export interface IListing extends Document {
   userId: mongoose.Types.ObjectId;
-  listingType: 'handover' | 'pg';
+  listingType: 'handover' | 'pg' | 'roommate';
   pgName?: string;
-  roomDetails: string;
-  price: number;
+  roomDetails?: string;
+  price?: number;
   availableDate: Date;
   legacyBundle?: LegacyBundle;
   address?: string;
@@ -28,6 +28,11 @@ export interface IListing extends Document {
   isOwnerListing: boolean;
   handoverMode: boolean;
   reviewCount: number;
+  sharingType?: 'single' | 'double' | 'triple' | 'multiple' | '';
+  foodIncluded?: boolean;
+  billsIncluded?: boolean;
+  genderCategory?: 'boys' | 'girls' | 'both' | '';
+  images?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,10 +40,10 @@ export interface IListing extends Document {
 const listingSchema = new Schema<IListing>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    listingType: { type: String, enum: ['handover', 'pg'], default: 'handover', required: true },
+    listingType: { type: String, enum: ['handover', 'pg', 'roommate'], default: 'handover', required: true },
     pgName: { type: String },
-    roomDetails: { type: String, required: true },
-    price: { type: Number, required: true },
+    roomDetails: { type: String },
+    price: { type: Number },
     availableDate: { type: Date, required: true },
     legacyBundle: {
       type: {
@@ -66,6 +71,11 @@ const listingSchema = new Schema<IListing>(
     isOwnerListing: { type: Boolean, default: false },
     handoverMode: { type: Boolean, default: false },
     reviewCount: { type: Number, default: 0 },
+    sharingType: { type: String, enum: ['single', 'double', 'triple', 'multiple', ''] },
+    foodIncluded: { type: Boolean, default: false },
+    billsIncluded: { type: Boolean, default: false },
+    genderCategory: { type: String, enum: ['boys', 'girls', 'both', ''], default: '' },
+    images: { type: [String], default: [] },
   },
   { timestamps: true }
 );

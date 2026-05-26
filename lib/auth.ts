@@ -14,7 +14,7 @@ export function signToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string {
     throw new Error('JWT_SECRET is not defined');
   }
 
-  const expiresIn = (process.env.JWT_EXPIRES_IN || '7d') as any;
+  const expiresIn = (process.env.JWT_EXPIRES_IN || '30d') as any;
   return jwt.sign(payload, secret, { expiresIn });
 }
 

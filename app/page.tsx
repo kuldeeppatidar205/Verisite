@@ -7,12 +7,13 @@ import ThemeToggle from '@/components/ThemeToggle';
 
 interface Listing {
   _id: string;
-  listingType: 'handover' | 'pg';
+  listingType: 'handover' | 'pg' | 'roommate';
   pgName?: string;
   roomDetails: string;
   price: number;
   availableDate: string;
   address?: string;
+  images?: string[];
   userId: {
     name: string;
     hostelName?: string;
@@ -63,8 +64,9 @@ export default function Home() {
       <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold transition-transform group-hover:scale-105">
-              PP
+            <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-105">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
             </div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Verisite</h1>
           </Link>
@@ -130,13 +132,13 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center relative">
-        <h2 className="text-5xl sm:text-6xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight leading-tight animate-fade-in">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32 text-center relative">
+        <h2 className="text-5xl sm:text-7xl font-extrabold text-gray-900 dark:text-white mb-8 tracking-tighter leading-[1.1] animate-fade-in">
           Find your next place <br className="hidden sm:block" />
-          <span className="text-primary-600">near campus.</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-500">near campus.</span>
         </h2>
         <p className="text-lg text-gray-500 dark:text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          Verisite - A True PGvault. The secure platform for verified students to discover and hand over hostel rooms, and for owners to list PGs.
+          Verisite - A True PGvault. The secure platform for verified students to discover,list rooms, and for owners to list PGs.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <button
@@ -188,12 +190,22 @@ export default function Home() {
               >
                 {/* Minimal Card Header/Image placeholder */}
                 <div className="w-full aspect-4/3 bg-gray-100 dark:bg-slate-800 rounded-xl flex flex-col items-center justify-center relative overflow-hidden border border-gray-200 dark:border-slate-700/50">
-                  <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-xs font-semibold text-gray-900 dark:text-white backdrop-blur-sm shadow-sm">
-                     {listing.listingType === 'handover' ? 'Handover' : 'PG'}
+                  <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-xs font-semibold text-gray-900 dark:text-white backdrop-blur-sm shadow-sm z-10">
+                     {listing.listingType === 'handover' ? 'Handover' : listing.listingType === 'roommate' ? 'Roommate' : 'PG'}
                   </div>
-                  <span className="text-5xl opacity-40 group-hover:scale-110 transition-transform duration-300">
-                    {listing.listingType === 'handover' ? '🎓' : '🏠'}
-                  </span>
+                  
+                  {listing.images && listing.images.length > 0 ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img 
+                      src={listing.images[0]} 
+                      alt="Room Preview" 
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <span className="text-5xl opacity-40 group-hover:scale-110 transition-transform duration-300">
+                      {listing.listingType === 'handover' ? '🎓' : listing.listingType === 'roommate' ? '👥' : '🏠'}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex flex-col mt-1">
@@ -208,9 +220,11 @@ export default function Home() {
                   <p className="text-[15px] text-gray-500 dark:text-slate-400 mt-0.5">
                     {listing.userId?.name ? listing.userId.name.split(' ')[0] : 'Anonymous'}
                   </p>
-                  <p className="text-[15px] font-medium text-gray-900 dark:text-white mt-1">
-                    <span className="font-semibold">₹{listing.price.toLocaleString('en-IN')}</span> month
-                  </p>
+                  {listing.price !== undefined && (
+                    <p className="text-[15px] font-medium text-gray-900 dark:text-white mt-1">
+                      <span className="font-semibold">₹{listing.price.toLocaleString('en-IN')}</span> month
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
@@ -266,8 +280,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
-                 <div className="w-6 h-6 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center text-white dark:text-gray-900 font-bold text-xs">
-                  PP
+                 <div className="w-8 h-8 flex items-center justify-center">
+                   {/* eslint-disable-next-line @next/next/no-img-element */}
+                   <img src="/logo image short.png" alt="Verisite" className="w-full h-full object-contain" />
                 </div>
                 <span className="font-semibold text-gray-900 dark:text-white text-sm">Verisite</span>
             </div>

@@ -10,9 +10,10 @@ interface Listing {
   roomDetails: string;
   price: number;
   availableDate: string;
-  listingType: 'handover' | 'pg';
+  listingType: 'handover' | 'pg' | 'roommate';
   pgName?: string;
   address?: string;
+  images?: string[];
   coordinates?: {
     lat: number;
     lng: number;
@@ -37,6 +38,8 @@ export default function BrowsePage() {
   const [totalPages, setTotalPages] = useState(1);
   const [activeStream, setActiveStream] = useState<'STUDENT' | 'OWNER' | null>(null);
   const [userRole, setUserRole] = useState<'STUDENT' | 'OWNER' | null>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [sortBy, setSortBy] = useState<'newest' | 'price' | 'proximity'>('newest');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -48,11 +51,12 @@ export default function BrowsePage() {
     // Fetch user role to set default stream
     const fetchUserRole = async () => {
       try {
-        const res = await fetch('/api/users/me', {
+        const res = await fetch('/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        const role = data.user?.role?.toUpperCase();
+        setUserProfile(data);
+        const role = data.role?.toUpperCase();
         setUserRole(role);
         if (role === 'OWNER') {
           setActiveStream('OWNER');
@@ -72,7 +76,7 @@ export default function BrowsePage() {
     if (activeStream) {
       fetchListings(page, activeStream);
     }
-  }, [page, activeStream]);
+  }, [page, activeStream, sortBy]);
 
   const fetchListings = async (pageNum: number, stream: string) => {
     setLoading(true);
@@ -80,7 +84,34 @@ export default function BrowsePage() {
       const isOwnerListing = stream === 'OWNER';
       const res = await fetch(`/api/listings?page=${pageNum}&limit=12&isOwnerListing=${isOwnerListing}`);
       const data = await res.json();
-      setListings(data.data || []);
+      let fetchedListings = data.data || [];
+
+      // Client-side sorting/filtering
+      if (sortBy === 'price') {
+        fetchedListings.sort((a: Listing, b: Listing) => a.price - b.price);
+      } else if (sortBy === 'proximity' && userProfile?.favoriteCollege?.lat) {
+        const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+          const R = 6371e3;
+          const φ1 = lat1 * Math.PI/180;
+          const φ2 = lat2 * Math.PI/180;
+          const Δφ = (lat2-lat1) * Math.PI/180;
+          const Δλ = (lon2-lon1) * Math.PI/180;
+          const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                  Math.cos(φ1) * Math.cos(φ2) *
+                  Math.sin(Δλ/2) * Math.sin(Δλ/2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+          return R * c;
+        };
+
+        fetchedListings.sort((a: Listing, b: Listing) => {
+          if (!a.coordinates || !b.coordinates) return 0;
+          const distA = calculateDistance(a.coordinates.lat, a.coordinates.lng, userProfile.favoriteCollege.lat, userProfile.favoriteCollege.lng);
+          const distB = calculateDistance(b.coordinates.lat, b.coordinates.lng, userProfile.favoriteCollege.lat, userProfile.favoriteCollege.lng);
+          return distA - distB;
+        });
+      }
+
+      setListings(fetchedListings);
       setTotalPages(data.pagination.pages);
       setLoading(false);
     } catch (error) {
@@ -102,8 +133,9 @@ export default function BrowsePage() {
       <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold transition-transform group-hover:scale-105">
-              PP
+            <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-105">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
             </div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Verisite</h1>
           </Link>
@@ -147,19 +179,44 @@ export default function BrowsePage() {
                  : 'Direct listings from PG owners'}
              </p>
           </div>
-          <div className="flex bg-gray-100 dark:bg-slate-800 p-1.5 rounded-lg">
-             <button 
-               onClick={() => setActiveStream('STUDENT')}
-               className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${activeStream === 'STUDENT' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'}`}
-             >
-               Student Verified
-             </button>
-             <button 
-               onClick={() => setActiveStream('OWNER')}
-               className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${activeStream === 'OWNER' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'}`}
-             >
-               Owner Listings
-             </button>
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+             <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
+                <button 
+                  onClick={() => setSortBy('newest')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${sortBy === 'newest' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
+                >
+                  Newest
+                </button>
+                <button 
+                  onClick={() => setSortBy('price')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${sortBy === 'price' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
+                >
+                  Price: Low to High
+                </button>
+                {userProfile?.favoriteCollege?.lat && (
+                  <button 
+                    onClick={() => setSortBy('proximity')}
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${sortBy === 'proximity' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
+                  >
+                    Near Institution
+                  </button>
+                )}
+             </div>
+
+             <div className="flex bg-gray-100 dark:bg-slate-800 p-1.5 rounded-lg">
+                <button 
+                  onClick={() => setActiveStream('STUDENT')}
+                  className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${activeStream === 'STUDENT' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'}`}
+                >
+                  Student Verified
+                </button>
+                <button 
+                  onClick={() => setActiveStream('OWNER')}
+                  className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${activeStream === 'OWNER' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'}`}
+                >
+                  Owner Listings
+                </button>
+             </div>
           </div>
         </div>
 
@@ -179,12 +236,12 @@ export default function BrowsePage() {
                   className="group flex flex-col gap-3 cursor-pointer transition-transform duration-300 hover:-translate-y-1"
                 >
                   <div className="w-full aspect-4/3 bg-gray-100 dark:bg-slate-800 rounded-xl flex flex-col items-center justify-center relative overflow-hidden border border-gray-200 dark:border-slate-700/50">
-                    <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-xs font-semibold text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center gap-1.5">
+                    <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-xs font-semibold text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center gap-1.5 z-10">
                        {activeStream === 'STUDENT' && <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>}
-                       {listing.listingType === 'handover' ? 'Handover' : 'PG'}
+                       {listing.listingType === 'handover' ? 'Handover' : listing.listingType === 'roommate' ? 'Roommate' : 'PG'}
                     </div>
                     {listing.coordinates && (
-                      <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-[11px] font-semibold text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center">
+                      <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-[11px] font-semibold text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center z-10">
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${listing.coordinates.lat},${listing.coordinates.lng}`}
                           target="_blank"
@@ -196,9 +253,19 @@ export default function BrowsePage() {
                         </a>
                       </div>
                     )}
-                    <span className="text-5xl opacity-40 group-hover:scale-110 transition-transform duration-300">
-                      {listing.listingType === 'handover' ? '🎓' : '🏠'}
-                    </span>
+                    
+                    {listing.images && listing.images.length > 0 ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img 
+                        src={listing.images[0]} 
+                        alt="Room Preview" 
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <span className="text-5xl opacity-40 group-hover:scale-110 transition-transform duration-300">
+                        {listing.listingType === 'handover' ? '🎓' : listing.listingType === 'roommate' ? '👥' : '🏠'}
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex flex-col mt-1">
@@ -215,9 +282,11 @@ export default function BrowsePage() {
                     <p className="text-[15px] text-gray-500 dark:text-slate-400 line-clamp-1 mb-0.5">
                       {listing.roomDetails}
                     </p>
-                    <p className="text-[15px] font-medium text-gray-900 dark:text-white mt-1 mb-1.5">
-                      <span className="font-semibold">₹{listing.price.toLocaleString('en-IN')}</span> month
-                    </p>
+                    {listing.price !== undefined && (
+                      <p className="text-[15px] font-medium text-gray-900 dark:text-white mt-1 mb-1.5">
+                        <span className="font-semibold">₹{listing.price.toLocaleString('en-IN')}</span> month
+                      </p>
+                    )}
                     <div className="flex items-center gap-2">
                       <p className="text-[13px] text-gray-500 dark:text-slate-400">
                         {new Date(listing.availableDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}

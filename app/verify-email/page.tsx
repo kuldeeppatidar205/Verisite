@@ -14,8 +14,9 @@ function VerifyEmailContent() {
     <div className="w-full max-w-md animate-scale-in">
       <div className="text-center mb-8 animate-slide-down">
         <Link href="/" className="flex items-center justify-center gap-2 mb-4 group">
-          <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white font-bold transition-transform group-hover:scale-105">
-            PP
+          <div className="w-12 h-12 flex items-center justify-center transition-transform group-hover:scale-105">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
           </div>
           <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Verisite</span>
         </Link>

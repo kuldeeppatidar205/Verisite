@@ -48,11 +48,3 @@ export async function connectToDatabase() {
   return cached.conn;
 }
 
-export async function disconnectFromDatabase(): Promise<void> {
-  if (cached.conn) {
-    await mongoose.disconnect();
-    cached.conn = null;
-    cached.promise = null;
-    console.log('✓ MongoDB disconnected');
-  }
-}
