@@ -10,16 +10,19 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   const user = process.env.GMAIL_USER;
   const pass = process.env.GMAIL_APP_PASSWORD;
 
-  if (!user || !pass) {
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS) {
     console.warn('⚠️ Gmail credentials not configured. Email not sent.');
-    console.warn('📧 To: ' + options.to);
-    console.warn('📝 Subject: ' + options.subject);
-    const urlMatch = options.html.match(/href="([^"]+)"/);
-    if (urlMatch) {
-      console.warn('🔗 Verification Link: ' + urlMatch[1]);
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('📧 To: ' + options.to);
+      console.warn('📝 Subject: ' + options.subject);
+      const urlMatch = options.html.match(/href="([^"]+)"/);
+      if (urlMatch) {
+        console.warn('🔗 Verification Link: ' + urlMatch[1]);
+      }
     }
     return false;
   }
+
 
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -38,8 +41,10 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     return true;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error('❌ Email send failed:', errorMessage);
-    console.error('📧 Failed to send to:', options.to);
+    console.error('❌ Email send failed');
+    if (process.env.NODE_ENV === 'development') {
+      console.error('📧 Failed to send to:', options.to);
+    }
     console.error('💡 Check Gmail credentials in .env.local');
     return false;
   }

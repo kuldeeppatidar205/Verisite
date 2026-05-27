@@ -51,8 +51,9 @@ export async function POST(req: NextRequest) {
     const uploadedUrls: string[] = [];
 
     for (const file of files) {
-      if (!file.type.startsWith('image/')) {
-        return NextResponse.json({ error: `File ${file.name} is not an image.` }, { status: 400 });
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        return NextResponse.json({ error: `File ${file.name} is not a supported image type. Use JPG, PNG or WebP.` }, { status: 400 });
       }
 
       const arrayBuffer = await file.arrayBuffer();

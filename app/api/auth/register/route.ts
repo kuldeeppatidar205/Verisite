@@ -104,7 +104,9 @@ export async function POST(req: NextRequest) {
 
       if (!emailSent) {
         console.warn('⚠️ Email sending failed for user:', newUser._id);
-        console.warn('💡 Verification link for manual testing:', verifyUrl);
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('💡 Verification link for manual testing:', verifyUrl);
+        }
       }
     }
 

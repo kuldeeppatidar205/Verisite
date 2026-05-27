@@ -24,14 +24,14 @@ export async function POST(req: NextRequest) {
     });
 
     if (!user) {
-      console.warn(`⚠️ Login attempt with non-existent email: ${emailLower}`);
+      console.warn('⚠️ Login attempt with non-existent email');
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(validated.password, user.passwordHash);
     if (!isPasswordValid) {
-      console.warn(`⚠️ Login attempt with wrong password for: ${emailLower}`);
+      console.warn('⚠️ Login attempt with wrong password');
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
