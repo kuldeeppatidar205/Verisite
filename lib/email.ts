@@ -8,9 +8,9 @@ export interface EmailOptions {
 
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
   const user = process.env.GMAIL_USER;
-  const pass = process.env.GMAIL_APP_PASSWORD;
+  const pass = process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS;
 
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS) {
+  if (!user || !pass) {
     console.warn('⚠️ Gmail credentials not configured. Email not sent.');
     if (process.env.NODE_ENV === 'development') {
       console.warn('📧 To: ' + options.to);

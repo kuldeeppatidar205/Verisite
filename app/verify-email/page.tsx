@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -8,7 +8,36 @@ import ClientOnly from '@/components/ClientOnly';
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
+  const [resending, setResending] = useState(false);
+  const [resendStatus, setResendStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const email = searchParams.get('email') || 'your college email';
+
+  const handleResend = async () => {
+    setResending(true);
+    setResendStatus(null);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setResendStatus({ type: 'error', message: 'Please log in again to resend verification.' });
+        return;
+      }
+
+      const res = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setResendStatus({ type: 'success', message: 'Verification email resent! Check your inbox.' });
+      } else {
+        setResendStatus({ type: 'error', message: data.error || 'Failed to resend email.' });
+      }
+    } catch (err) {
+      setResendStatus({ type: 'error', message: 'An error occurred. Please try again.' });
+    } finally {
+      setResending(false);
+    }
+  };
 
   return (
     <div className="w-full max-w-md animate-scale-in">
@@ -36,6 +65,14 @@ function VerifyEmailContent() {
           <p className="text-[15px] font-semibold text-primary-600 dark:text-primary-400">{email}</p>
         </div>
 
+        {resendStatus && (
+          <div className={`mb-6 p-3 rounded-lg text-sm font-medium ${
+            resendStatus.type === 'success' ? 'bg-accent-emerald/10 text-accent-emerald' : 'bg-red-50 dark:bg-red-900/20 text-red-600'
+          }`}>
+            {resendStatus.message}
+          </div>
+        )}
+
         <div className="space-y-4">
           <Link
             href="/login"
@@ -48,10 +85,11 @@ function VerifyEmailContent() {
             <p className="text-[13px] text-slate-500 dark:text-slate-400">
               Didn't receive the email? Check your spam folder or{' '}
               <button 
-                onClick={() => window.location.reload()} 
-                className="text-primary-600 dark:text-primary-400 font-semibold hover:underline"
+                onClick={handleResend}
+                disabled={resending}
+                className="text-primary-600 dark:text-primary-400 font-semibold hover:underline disabled:opacity-50"
               >
-                click here to resend
+                {resending ? 'Sending...' : 'click here to resend'}
               </button>
             </p>
           </div>

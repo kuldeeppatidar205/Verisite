@@ -75,6 +75,13 @@ export default function ProfilePage() {
       }
 
       const data = await res.json();
+      
+      if (!data.verified) {
+        const email = data.role === 'STUDENT' ? data.collegeEmail : data.email;
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        return;
+      }
+
       setProfile(data);
       setEditData({
         name: data.name,
@@ -262,13 +269,13 @@ export default function ProfilePage() {
                       <span className="px-3 py-1 rounded-md text-[11px] font-semibold bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 uppercase tracking-wider">
                         {profile.role}
                       </span>
-                      {profile.role === 'STUDENT' && (
+                      {profile.role !== 'GUEST' && (
                         <span className={`px-3 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wider ${
                           profile.verified
                             ? 'bg-accent-emerald/10 text-accent-emerald'
                             : 'bg-accent-amber/10 text-accent-amber'
                         }`}>
-                          {profile.verified ? '✓ Verified Student' : '⏳ Verification Pending'}
+                          {profile.verified ? `✓ Verified ${profile.role === 'OWNER' ? 'Owner' : 'Student'}` : '⏳ Verification Pending'}
                         </span>
                       )}
                     </div>
@@ -471,17 +478,18 @@ export default function ProfilePage() {
             )}
 
             {/* Verification Status */}
-            {profile.role === 'STUDENT' && !profile.verified && (
+            {profile.role !== 'GUEST' && !profile.verified && (
               <div className="bg-accent-amber/5 dark:bg-accent-amber/10 border border-accent-amber/20 rounded-2xl p-6 sm:p-8 transition-colors duration-200">
                 <h3 className="text-lg font-semibold text-accent-amber mb-2">
                   ⏳ Verification Required
                 </h3>
                 <p className="text-slate-600 dark:text-slate-300/80 mb-4 text-[15px]">
-                  Check your college email (<span className="font-semibold">{profile.collegeEmail}</span>) for the verification link.
+                  Check your inbox at <span className="font-semibold">{profile.role === 'STUDENT' ? profile.collegeEmail : profile.email}</span> for the verification link.
                 </p>
                 <div className="space-y-1 text-[13px] text-slate-500 dark:text-slate-400 font-medium">
-                  <p>• Only institutional emails are accepted</p>
+                  {profile.role === 'STUDENT' && <p>• Only institutional emails are accepted</p>}
                   <p>• Check your spam/junk folder if missing</p>
+                  <p>• You must verify your email to create listings</p>
                 </div>
               </div>
             )}
@@ -494,7 +502,7 @@ export default function ProfilePage() {
                     Account Settings
                   </h3>
                   <p className="text-[15px] text-slate-500 dark:text-slate-400">
-                    Your student identity and data are encrypted.
+                    Your identity and data are encrypted.
                   </p>
                 </div>
                 <div className="w-full md:w-auto">

@@ -86,15 +86,21 @@ export async function POST(req: NextRequest) {
 
     const newUser = new User(userObj);
     await newUser.save();
+    console.log('👤 User created successfully:', newUser._id);
 
     let emailSent = false;
     let verifyUrl = '';
 
     // Only send verification email for non-GUEST users
     if (validated.role !== 'GUEST') {
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+      console.log('🌐 Using Base URL for verification:', baseUrl);
+      
       // Send verification email
-      verifyUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/verify-email?token=${verificationToken}`;
+      verifyUrl = `${baseUrl}/api/auth/verify-email?token=${verificationToken}`;
       const emailToVerify = validated.role === 'STUDENT' ? validated.collegeEmail! : validated.email;
+      
+      console.log(`📧 Attempting to send verification email to: ${emailToVerify}`);
       
       emailSent = await sendEmail({
         to: emailToVerify,
@@ -103,10 +109,10 @@ export async function POST(req: NextRequest) {
       });
 
       if (!emailSent) {
-        console.warn('⚠️ Email sending failed for user:', newUser._id);
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('💡 Verification link for manual testing:', verifyUrl);
-        }
+        console.warn('❌ Email sending failed (sendEmail returned false) for user:', newUser._id);
+        console.warn('💡 MANUAL VERIFICATION LINK:', verifyUrl);
+      } else {
+        console.log('✅ Verification email sent successfully to:', emailToVerify);
       }
     }
 

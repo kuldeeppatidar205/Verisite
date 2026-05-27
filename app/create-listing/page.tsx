@@ -144,6 +144,11 @@ function CreateListingForm() {
       });
       const data = await res.json();
       if (data.user) {
+        if (!data.user.verified) {
+          const email = data.user.role === 'STUDENT' ? data.user.collegeEmail : data.user.email;
+          router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+          return;
+        }
         const normalizedRole = data.user.role?.toUpperCase() || 'STUDENT';
         setUserRole(normalizedRole as 'STUDENT' | 'OWNER');
       }

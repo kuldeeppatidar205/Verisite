@@ -32,11 +32,32 @@ export default function Home() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
+  const [isVerified, setIsVerified] = useState<boolean>(false);
+  const [userEmail, setUserEmail] = useState<string>('');
 
   useEffect(() => {
-    setToken(localStorage.getItem('token'));
+    const t = localStorage.getItem('token');
+    setToken(t);
     fetchListings();
+    if (t) {
+      checkVerification(t);
+    }
   }, []);
+
+  const checkVerification = async (authToken: string) => {
+    try {
+      const res = await fetch('/api/users/profile', {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setIsVerified(data.verified);
+        setUserEmail(data.role === 'STUDENT' ? data.collegeEmail : data.email);
+      }
+    } catch (error) {
+      console.error('Failed to check verification:', error);
+    }
+  };
 
   const fetchListings = async () => {
     try {
@@ -53,6 +74,8 @@ export default function Home() {
   const handleProtectedAction = (href: string) => {
     if (!token) {
       router.push('/login');
+    } else if (!isVerified) {
+      router.push(`/verify-email?email=${encodeURIComponent(userEmail)}`);
     } else {
       router.push(href);
     }
@@ -81,19 +104,19 @@ export default function Home() {
               </button>
               {token ? (
                 <>
-                  <Link
-                    href="/create-listing"
+                  <button
+                    onClick={() => handleProtectedAction('/create-listing')}
                     className="text-md font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white transition-colors"
                   >
                     Post Room
-                  </Link>
-                  <Link
-                    href="/profile"
+                  </button>
+                  <button
+                    onClick={() => handleProtectedAction('/profile')}
                     className="w-9 h-9 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-sm hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
                     title="Profile"
                   >
                     👤
-                  </Link>
+                  </button>
                 </>
               ) : (
                 <>
@@ -118,9 +141,9 @@ export default function Home() {
                   <span className="text-lg">🔍</span>
                </button>
                {token ? (
-                 <Link href="/profile" className="p-2 text-gray-600 dark:text-slate-300">
+                 <button onClick={() => handleProtectedAction('/profile')} className="p-2 text-gray-600 dark:text-slate-300">
                    <span className="text-lg">👤</span>
-                 </Link>
+                 </button>
                ) : (
                  <Link href="/login" className="p-2 text-gray-600 dark:text-slate-300">
                    <span className="text-lg">🔑</span>

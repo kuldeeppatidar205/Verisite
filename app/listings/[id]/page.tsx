@@ -262,6 +262,11 @@ export default function ListingDetailPage() {
       });
       const data = await res.json();
       if (res.ok) {
+        if (!data.verified) {
+          const email = data.role === 'STUDENT' ? data.collegeEmail : data.email;
+          router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+          return;
+        }
         setUserProfile(data);
       }
     } catch (error) {

@@ -86,11 +86,9 @@ export default function RegisterPage() {
         return;
       }
 
-      if (formData.role === 'STUDENT') {
-        router.push(`/verify-email?email=${encodeURIComponent(formData.collegeEmail)}`);
-      } else {
-        setSuccess('Registration successful! Redirecting to login...');
-        setTimeout(() => router.push('/login'), 2000);
+      if (res.ok) {
+        const emailToVerify = formData.role === 'STUDENT' ? formData.collegeEmail : formData.email;
+        router.push(`/verify-email?email=${encodeURIComponent(emailToVerify)}`);
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -121,7 +119,7 @@ export default function RegisterPage() {
             <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Verisite</span>
           </Link>
           <h1 className="text-3xl font-semibold text-slate-900 dark:text-white mb-2 tracking-tight">Create Account</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-[15px]">Join the verified student community</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-[15px]">Join the verified community</p>
         </div>
 
         <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 sm:p-8 backdrop-blur-md animate-slide-up">
