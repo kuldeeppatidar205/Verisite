@@ -135,7 +135,7 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32 text-center relative">
         <h2 className="text-5xl sm:text-7xl font-extrabold text-gray-900 dark:text-white mb-8 tracking-tighter leading-[1.1] animate-fade-in">
           Find your next place <br className="hidden sm:block" />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-500">near campus.</span>
+          <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-600 to-indigo-500">near campus.</span>
         </h2>
         <p className="text-lg text-gray-500 dark:text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.1s' }}>
           Verisite - A True PGvault. The secure platform for verified students to discover,list rooms, and for owners to list PGs.
