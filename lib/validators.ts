@@ -16,14 +16,12 @@ export const registerSchema = z.object({
 }).refine((data) => {
   if (data.role === 'STUDENT' && data.collegeEmail) {
     const domain = data.collegeEmail.split('@')[1].toLowerCase();
-    return domain.endsWith('.edu.in') || 
-           domain.endsWith('.ac.in') || 
-           domain.endsWith('.edu') || 
-           domain.endsWith('.res.in');
+    const allowedEndings = ['.edu.in', '.ac.in', '.edu', '.res.in'];
+    return allowedEndings.some(ending => domain.endsWith(ending));
   }
   return true;
 }, {
-  message: 'Students must use a valid educational email (.edu.in, .ac.in, .edu, etc.)',
+  message: 'Students must use a valid institutional email (.edu.in, .ac.in, .edu, or .res.in)',
   path: ['collegeEmail'],
 });
 
