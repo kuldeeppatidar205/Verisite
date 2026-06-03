@@ -6,6 +6,28 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import ClientOnly from '@/components/ClientOnly';
 import ThemeToggle from '@/components/ThemeToggle';
 import LocationPicker from '@/components/LocationPicker';
+import { 
+  ArrowLeft, 
+  MapPin, 
+  Star, 
+  Upload, 
+  Image as ImageIcon, 
+  CheckCircle2, 
+  AlertCircle, 
+  ChevronRight, 
+  Plus,
+  Trash2,
+  Lock
+} from 'lucide-react';
+
+const STOCK_IMAGES = [
+  { id: 'stock-1', url: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=800', label: 'Single Room' },
+  { id: 'stock-2', url: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=800', label: 'Living Space' },
+  { id: 'stock-3', url: 'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&q=80&w=800', label: 'Shared Room' },
+  { id: 'stock-4', url: 'https://images.unsplash.com/photo-1631679706909-1844bbd07221?auto=format&fit=crop&q=80&w=800', label: 'Modern Suite' },
+  { id: 'stock-5', url: 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=800', label: 'Luxury PG' },
+  { id: 'stock-6', url: 'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?auto=format&fit=crop&q=80&w=800', label: 'Compact Room' },
+];
 
 function CreateListingForm() {
   const router = useRouter();
@@ -19,6 +41,8 @@ function CreateListingForm() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [showMap, setShowMap] = useState(false);
   const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [selectedStockImages, setSelectedStockImages] = useState<string[]>([]);
+  const [showStockLibrary, setShowStockLibrary] = useState(false);
   const [formData, setFormData] = useState({
     pgName: '',
     roomDetails: '',
@@ -756,52 +780,110 @@ function CreateListingForm() {
 
               {/* Image Upload Section */}
               <div className="border-t border-slate-100 dark:border-slate-800 pt-6 mt-6">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Room Images (Up to 3) <span className="text-slate-400 font-normal ml-1">(Optional but recommended)</span>
-                </label>
+                <div className="flex justify-between items-center mb-4">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Room Images <span className="text-slate-400 font-normal ml-1">(Up to 3)</span>
+                  </label>
+                  <button 
+                    type="button"
+                    onClick={() => setShowStockLibrary(!showStockLibrary)}
+                    className="text-xs font-bold text-primary-600 hover:text-primary-700 dark:text-primary-400 flex items-center gap-1.5 transition-colors"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    {showStockLibrary ? 'Hide Library' : 'Use Stock Photos'}
+                  </button>
+                </div>
+
+                {showStockLibrary && (
+                  <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800 animate-in fade-in slide-in-from-top-2">
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Select professional photos</p>
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                      {STOCK_IMAGES.map((img) => (
+                        <button
+                          key={img.id}
+                          type="button"
+                          onClick={() => {
+                            if (selectedStockImages.includes(img.url)) {
+                              setSelectedStockImages(selectedStockImages.filter(u => u !== img.url));
+                            } else {
+                              if (selectedStockImages.length + selectedFiles.length >= 3) {
+                                alert('Maximum 3 images allowed total.');
+                                return;
+                              }
+                              setSelectedStockImages([...selectedStockImages, img.url]);
+                            }
+                          }}
+                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${selectedStockImages.includes(img.url) ? 'border-primary-600 scale-95 ring-2 ring-primary-500/20' : 'border-transparent hover:border-slate-300'}`}
+                        >
+                          <img src={img.url} alt={img.label} className="w-full h-full object-cover" title={img.label} />
+                          {selectedStockImages.includes(img.url) && (
+                            <div className="absolute inset-0 bg-primary-600/20 flex items-center justify-center">
+                              <CheckCircle2 className="w-5 h-5 text-white fill-primary-600" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-4">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => {
-                      if (e.target.files) {
-                        const files = Array.from(e.target.files);
-                        if (files.length > 3) {
-                          alert('Maximum 3 images allowed.');
-                          e.target.value = '';
-                          return;
-                        }
-                        // Validation
-                        for (const file of files) {
-                          if (!file.type.startsWith('image/')) {
-                            alert(`File "${file.name}" is not an image.`);
+                  <div className="relative group">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          const files = Array.from(e.target.files);
+                          if (files.length + selectedStockImages.length > 3) {
+                            alert('Maximum 3 images allowed total.');
                             e.target.value = '';
                             return;
                           }
-                          if (file.size > 5 * 1024 * 1024) {
-                            alert(`File "${file.name}" exceeds the 5MB limit.`);
-                            e.target.value = '';
-                            return;
+                          // Validation
+                          for (const file of files) {
+                            if (!file.type.startsWith('image/')) {
+                              alert(`File "${file.name}" is not an image.`);
+                              e.target.value = '';
+                              return;
+                            }
+                            if (file.size > 5 * 1024 * 1024) {
+                              alert(`File "${file.name}" exceeds the 5MB limit.`);
+                              e.target.value = '';
+                              return;
+                            }
                           }
+                          setSelectedFiles(files);
                         }
-                        setSelectedFiles(files);
-                      }
-                    }}
-                    className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900/20 dark:file:text-primary-400 transition"
-                  />
-                  {selectedFiles.length > 0 ? (
-                    <div className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                      Selected {selectedFiles.length} {selectedFiles.length === 1 ? 'image' : 'images'}
+                      }}
+                      className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900/20 dark:file:text-primary-400 transition"
+                    />
+                  </div>
+                  
+                  {(selectedFiles.length > 0 || selectedStockImages.length > 0) ? (
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <div className="text-[11px] font-bold text-accent-emerald uppercase tracking-wider flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> 
+                        {selectedFiles.length + selectedStockImages.length} selected
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => { setSelectedFiles([]); setSelectedStockImages([]); }}
+                        className="text-[10px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wider ml-auto"
+                      >
+                        Clear All
+                      </button>
                     </div>
                   ) : existingImages.length > 0 ? (
-                    <div className="text-xs font-medium text-accent-emerald">
-                      Keeping {existingImages.length} existing {existingImages.length === 1 ? 'image' : 'images'}
+                    <div className="text-[11px] font-bold text-primary-500 uppercase tracking-wider flex items-center gap-1">
+                      <ImageIcon className="w-3.5 h-3.5" /> 
+                      Keeping {existingImages.length} existing
                     </div>
                   ) : null}
                 </div>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2">
-                  Supported formats: JPG, PNG, WEBP. Max size 5MB each.
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-3 flex items-center gap-1">
+                  <Upload className="w-3 h-3" /> Tip: Mix your own photos with our stock library for the best looking listing.
                 </p>
               </div>
             </>

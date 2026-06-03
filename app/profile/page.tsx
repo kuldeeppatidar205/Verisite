@@ -232,7 +232,7 @@ export default function ProfilePage() {
             </div>
             <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Verisite</h1>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <ThemeToggle />
             <Link
               href="/browse"

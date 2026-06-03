@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
-import { Search, MapPin, SlidersHorizontal, X } from 'lucide-react';
+import { Search, MapPin, SlidersHorizontal, X, PlusCircle, User } from 'lucide-react';
 
 interface Listing {
   _id: string;
