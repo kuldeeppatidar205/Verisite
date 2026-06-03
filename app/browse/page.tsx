@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
+import { Search, MapPin, SlidersHorizontal, X } from 'lucide-react';
 
 interface Listing {
   _id: string;
@@ -40,6 +41,8 @@ export default function BrowsePage() {
   const [userRole, setUserRole] = useState<'STUDENT' | 'OWNER' | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [sortBy, setSortBy] = useState<'newest' | 'price' | 'proximity'>('newest');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -81,15 +84,15 @@ export default function BrowsePage() {
 
   useEffect(() => {
     if (activeStream) {
-      fetchListings(page, activeStream);
+      fetchListings(page, activeStream, searchQuery);
     }
-  }, [page, activeStream, sortBy]);
+  }, [page, activeStream, sortBy, searchQuery]);
 
-  const fetchListings = async (pageNum: number, stream: string) => {
+  const fetchListings = async (pageNum: number, stream: string, search: string) => {
     setLoading(true);
     try {
       const isOwnerListing = stream === 'OWNER';
-      const res = await fetch(`/api/listings?page=${pageNum}&limit=12&isOwnerListing=${isOwnerListing}`);
+      const res = await fetch(`/api/listings?page=${pageNum}&limit=12&isOwnerListing=${isOwnerListing}&search=${encodeURIComponent(search)}`);
       const data = await res.json();
       let fetchedListings = data.data || [];
 
@@ -146,7 +149,27 @@ export default function BrowsePage() {
             </div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Verisite</h1>
           </Link>
+          
+          <div className="hidden md:flex flex-1 max-w-md mx-8">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by name or location..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all text-gray-900 dark:text-white"
+              />
+            </div>
+          </div>
+
           <div className="flex items-center gap-2 sm:gap-4">
+            <button 
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className="md:hidden p-2 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+            >
+              <Search className="w-5 h-5" />
+            </button>
             <ThemeToggle />
             <div className="hidden sm:flex items-center gap-4">
               <Link
@@ -172,6 +195,29 @@ export default function BrowsePage() {
             </div>
           </div>
         </div>
+        
+        {/* Mobile Search Overlay */}
+        {isSearchOpen && (
+          <div className="md:hidden p-4 bg-white dark:bg-slate-950 border-b border-gray-100 dark:border-slate-800 animate-in slide-in-from-top duration-200">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                autoFocus
+                type="text"
+                placeholder="Search by name or location..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-10 py-2.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-gray-900 dark:text-white"
+              />
+              <button 
+                onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -278,7 +324,7 @@ export default function BrowsePage() {
                   <div className="flex flex-col mt-1">
                     <div className="flex justify-between items-start mb-0.5">
                       <p className="text-[15px] font-semibold text-gray-900 dark:text-white truncate">
-                        {listing.pgName || listing.userId?.hostelName || 'Verified Location'}
+                        {listing.pgName || listing.userId?.hostelName || listing.address || 'Verified Location'}
                       </p>
                     </div>
                     {listing.address && (

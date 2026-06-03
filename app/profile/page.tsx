@@ -251,31 +251,31 @@ export default function ProfilePage() {
       </nav>
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
         {profile && (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {/* Profile Card */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 sm:p-8 transition-colors duration-200">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-5 sm:p-8 transition-colors duration-200">
               <div className="flex flex-col sm:flex-row items-start justify-between mb-8 gap-6">
-                <div className="flex items-center gap-6">
-                   <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/20 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400 text-3xl font-bold">
+                <div className="flex items-center gap-4 sm:gap-6">
+                   <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary-50 dark:bg-primary-900/20 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400 text-2xl sm:text-3xl font-bold">
                       {profile.name.charAt(0)}
                    </div>
                    <div>
-                    <h1 className="text-3xl font-semibold text-slate-900 dark:text-white mb-2 tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white mb-2 tracking-tight">
                       {profile.name}
                     </h1>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="px-3 py-1 rounded-md text-[11px] font-semibold bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 uppercase tracking-wider">
+                      <span className="px-3 py-1 rounded-md text-[10px] font-semibold bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 uppercase tracking-wider">
                         {profile.role}
                       </span>
                       {profile.role !== 'GUEST' && (
-                        <span className={`px-3 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wider ${
+                        <span className={`px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider ${
                           profile.verified
                             ? 'bg-accent-emerald/10 text-accent-emerald'
                             : 'bg-accent-amber/10 text-accent-amber'
                         }`}>
-                          {profile.verified ? `✓ Verified ${profile.role === 'OWNER' ? 'Owner' : 'Student'}` : '⏳ Verification Pending'}
+                          {profile.verified ? `✓ Verified` : '⏳ Pending'}
                         </span>
                       )}
                     </div>

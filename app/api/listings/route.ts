@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const listingType = searchParams.get('type');
     const isOwnerListing = searchParams.get('isOwnerListing') === 'true';
+    const search = searchParams.get('search');
     const skip = (page - 1) * limit;
 
     await connectToDatabase();
@@ -27,6 +28,13 @@ export async function GET(req: NextRequest) {
 
     if (listingType) {
       query.listingType = listingType;
+    }
+
+    if (search) {
+      query.$or = [
+        { pgName: { $regex: search, $options: 'i' } },
+        { address: { $regex: search, $options: 'i' } },
+      ];
     }
 
     const listings = await Listing.find(query)

@@ -461,43 +461,43 @@ export default function ListingDetailPage() {
       <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-105">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-transform group-hover:scale-105">
               <img src="/logo image short.png" alt="Logo" className="w-full h-full object-cover rounded-full" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">Verisite</h1>
+            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-gray-900 dark:text-white">Verisite</h1>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <ThemeToggle />
-            <Link href="/browse" className="text-[15px] font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-1">
-              <ArrowLeft className="w-4 h-4" /> Listings
+            <Link href="/browse" className="text-sm sm:text-[15px] font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-1">
+              <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">Listings</span>
             </Link>
           </div>
         </div>
       </nav>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
         {/* Header Section */}
         <div className="mb-8 border-b border-gray-200 dark:border-slate-800 pb-8">
           <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-6">
             <div className="w-full">
-              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-primary-600 dark:text-primary-400 mb-3">
+              <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-primary-600 dark:text-primary-400 mb-3">
                  <span className="px-2 py-0.5 bg-primary-50 dark:bg-primary-900/20 rounded">
                    {listing.listingType === 'roommate' ? 'Roommate Search' : listing.listingType === 'handover' ? 'Room Handover' : 'PG Listing'}
                  </span>
-                 {!listing.isOwnerListing && <span className="text-gray-400">• Verified by Student</span>}
+                 {!listing.isOwnerListing && <span className="text-gray-400 hidden sm:inline">• Verified by Student</span>}
               </div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight leading-tight">
                 {listing.pgName || listing.userId?.hostelName || 'Verified Property'}
               </h1>
-              <div className="flex flex-wrap items-center gap-4 text-[15px] text-gray-600 dark:text-slate-400">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm sm:text-[15px] text-gray-600 dark:text-slate-400">
                 <span className="flex items-center gap-1.5 font-medium">
-                   <MapPin className="w-4 h-4 text-gray-400" /> {listing.address || 'Location Verified'}
+                   <MapPin className="w-4 h-4 text-gray-400 shrink-0" /> <span className="truncate max-w-[200px] sm:max-w-none">{listing.address || 'Location Verified'}</span>
                 </span>
                 {listing.coordinates && (
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${listing.coordinates.lat},${listing.coordinates.lng}`}
                     target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1 hover:underline text-primary-600 font-semibold"
+                    className="flex items-center gap-1 hover:underline text-primary-600 font-semibold whitespace-nowrap"
                   >
                     Google Maps <Info className="w-3.5 h-3.5" />
                   </a>
@@ -517,10 +517,10 @@ export default function ListingDetailPage() {
           </div>
           
           {!isRatingPost && (
-            <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-start sm:items-center justify-between">
               <div className="flex flex-col">
                  <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                   ₹{(listing.price ?? 0).toLocaleString('en-IN')} <span className="text-lg font-normal text-gray-500">/ month</span>
+                   ₹{(listing.price ?? 0).toLocaleString('en-IN')} <span className="text-base sm:text-lg font-normal text-gray-500">/ month</span>
                  </span>
               </div>
               {listing.isOwnerListing && (
@@ -537,13 +537,13 @@ export default function ListingDetailPage() {
 
         {/* Image Gallery */}
         {listing.images && listing.images.length > 0 && (
-          <div className="mb-12 group">
-            <div className={`grid gap-4 ${listing.images.length === 1 ? 'grid-cols-1' : listing.images.length === 2 ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-3'}`}>
+          <div className="mb-10 sm:mb-12 group">
+            <div className={`grid gap-3 sm:gap-4 ${listing.images.length === 1 ? 'grid-cols-1' : listing.images.length === 2 ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-3'}`}>
               {listing.images.map((imgUrl, index) => (
                 <div 
                   key={index} 
                   onClick={() => setFullScreenImage(imgUrl)}
-                  className={`relative rounded-2xl overflow-hidden bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 cursor-zoom-in shadow-sm transition-all duration-300 hover:shadow-xl ${listing.images!.length === 3 && index === 0 ? 'md:col-span-2 md:row-span-2 aspect-[4/3] md:aspect-auto' : 'aspect-square md:aspect-[4/3]'}`}
+                  className={`relative rounded-xl sm:rounded-2xl overflow-hidden bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 cursor-zoom-in shadow-sm transition-all duration-300 hover:shadow-xl ${listing.images!.length === 3 && index === 0 ? 'md:col-span-2 md:row-span-2 aspect-[16/10] md:aspect-auto' : 'aspect-[16/10] md:aspect-[4/3]'}`}
                 >
                   <img
                     src={imgUrl}
@@ -551,8 +551,8 @@ export default function ListingDetailPage() {
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                     <div className="bg-white/90 p-3 rounded-full shadow-lg transform scale-90 hover:scale-100 transition-transform">
-                        <Maximize2 className="w-6 h-6 text-gray-900" />
+                     <div className="bg-white/90 p-2 sm:p-3 rounded-full shadow-lg transform scale-90 hover:scale-100 transition-transform">
+                        <Maximize2 className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
                      </div>
                   </div>
                 </div>
@@ -570,47 +570,47 @@ export default function ListingDetailPage() {
         )}
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16 pb-12">
-          <div className="md:col-span-2 space-y-12">
-            <div ref={mainContentRef} className="space-y-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 pb-12">
+          <div className="md:col-span-2 space-y-10 md:space-y-12">
+            <div ref={mainContentRef} className="space-y-10 md:space-y-12">
               <section>
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
+                <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
                    <Info className="w-5 h-5 text-primary-500" /> About this place
                 </h2>
-                <p className="text-gray-600 dark:text-slate-300 text-[16px] leading-relaxed whitespace-pre-wrap">{listing.roomDetails}</p>
+                <p className="text-gray-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed whitespace-pre-wrap">{listing.roomDetails}</p>
               </section>
 
               {/* Specs */}
               {(listing.sharingType || listing.foodIncluded || listing.billsIncluded) && (
                 <section>
-                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
+                  <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
                     <Users className="w-5 h-5 text-primary-500" /> Accommodation Details
                   </h2>
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-6">
                     {listing.genderCategory && (
-                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                        <Users className="w-5 h-5 text-gray-400" />
-                        <span className="font-semibold capitalize text-sm">
+                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 sm:p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <Users className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                        <span className="font-semibold capitalize text-xs sm:text-sm">
                           {listing.genderCategory === 'both' ? 'Co-living (Both)' : `${listing.genderCategory} only`}
                         </span>
                       </div>
                     )}
                     {listing.sharingType && (
-                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                        <Users className="w-5 h-5 text-gray-400" />
-                        <span className="font-semibold capitalize text-sm">{listing.sharingType} Sharing</span>
+                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 sm:p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <Users className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                        <span className="font-semibold capitalize text-xs sm:text-sm">{listing.sharingType} Sharing</span>
                       </div>
                     )}
                     {listing.foodIncluded && (
-                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                        <Utensils className="w-5 h-5 text-gray-400" />
-                        <span className="font-semibold text-sm">Food Included</span>
+                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 sm:p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <Utensils className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                        <span className="font-semibold text-xs sm:text-sm">Food Included</span>
                       </div>
                     )}
                     {listing.billsIncluded && (
-                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                        <Zap className="w-5 h-5 text-gray-400" />
-                        <span className="font-semibold text-sm">Bills Included</span>
+                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 sm:p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                        <span className="font-semibold text-xs sm:text-sm">Bills Included</span>
                       </div>
                     )}
                   </div>
@@ -619,21 +619,21 @@ export default function ListingDetailPage() {
 
               {listing.listingType === 'handover' && listing.legacyBundle && (
                   <section>
-                    <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
+                    <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
                       <Package className="w-5 h-5 text-primary-500" /> Handover Items
                     </h2>
-                    <div className="grid grid-cols-2 gap-4">
-                      {listing.legacyBundle.mattress && <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Mattress</div>}
-                      {listing.legacyBundle.cooler && <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Cooler</div>}
-                      {listing.legacyBundle.shelf && <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Shelf</div>}
-                      {listing.legacyBundle.lamp && <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Lamp</div>}
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                      {listing.legacyBundle.mattress && <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 sm:p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Mattress</div>}
+                      {listing.legacyBundle.cooler && <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 sm:p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Cooler</div>}
+                      {listing.legacyBundle.shelf && <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 sm:p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Shelf</div>}
+                      {listing.legacyBundle.lamp && <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 sm:p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Lamp</div>}
                     </div>
                   </section>
               )}
             </div>
 
             {userProfile?.role === 'STUDENT' && !shouldMoveToSidebar && (
-              <section className="pt-10 border-t border-gray-100 dark:border-slate-800">
+              <section className="pt-8 sm:pt-10 border-t border-gray-100 dark:border-slate-800">
                 <CommuteDistanceModule />
               </section>
             )}

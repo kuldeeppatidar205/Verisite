@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
+import { Search, User, Key, ArrowRight, Shield, MapPin, Zap } from 'lucide-react';
 
 interface Listing {
   _id: string;
@@ -115,7 +116,7 @@ export default function Home() {
                     className="w-9 h-9 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-sm hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
                     title="Profile"
                   >
-                    👤
+                    <User className="w-5 h-5" />
                   </button>
                 </>
               ) : (
@@ -136,17 +137,17 @@ export default function Home() {
               )}
             </div>
             {/* Mobile Navigation Icons */}
-            <div className="sm:hidden flex items-center gap-2">
-               <button onClick={() => handleProtectedAction('/browse')} className="p-2 text-gray-600 dark:text-slate-300">
-                  <span className="text-lg">🔍</span>
+            <div className="sm:hidden flex items-center gap-1">
+               <button onClick={() => handleProtectedAction('/browse')} className="p-2.5 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-900 rounded-full transition-colors">
+                  <Search className="w-5 h-5" />
                </button>
                {token ? (
-                 <button onClick={() => handleProtectedAction('/profile')} className="p-2 text-gray-600 dark:text-slate-300">
-                   <span className="text-lg">👤</span>
+                 <button onClick={() => handleProtectedAction('/profile')} className="p-2.5 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-900 rounded-full transition-colors">
+                   <User className="w-5 h-5" />
                  </button>
                ) : (
-                 <Link href="/login" className="p-2 text-gray-600 dark:text-slate-300">
-                   <span className="text-lg">🔑</span>
+                 <Link href="/login" className="p-2.5 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-900 rounded-full transition-colors">
+                   <Key className="w-5 h-5" />
                  </Link>
                )}
             </div>
@@ -155,25 +156,25 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32 text-center relative">
-        <h2 className="text-5xl sm:text-7xl font-extrabold text-gray-900 dark:text-white mb-8 tracking-tighter leading-[1.1] animate-fade-in">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-32 text-center relative">
+        <h2 className="text-4xl sm:text-7xl font-extrabold text-gray-900 dark:text-white mb-6 sm:mb-8 tracking-tighter leading-[1.1] animate-fade-in">
           Find your next place <br className="hidden sm:block" />
           <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-600 to-indigo-500">near campus.</span>
         </h2>
-        <p className="text-lg text-gray-500 dark:text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          Verisite - A True PGvault. The secure platform for verified students to discover,list rooms, and for owners to list PGs.
+        <p className="text-[16px] sm:text-lg text-gray-500 dark:text-slate-400 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          Verisite - A True PGvault. The secure platform for verified students to discover, list rooms, and for owners to list PGs.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <button
             onClick={() => handleProtectedAction('/browse')}
-            className="w-full sm:w-auto px-8 py-3.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium text-base transition-colors flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-3.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-bold text-sm sm:text-base transition-all shadow-lg shadow-primary-500/20 flex items-center justify-center gap-2"
           >
-            Explore Rooms
+            Explore Rooms <ArrowRight className="w-4 h-4" />
           </button>
           {!token && (
             <Link
               href="/register"
-              className="w-full sm:w-auto px-8 py-3.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-gray-900 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 font-medium text-base transition-colors flex items-center justify-center"
+              className="w-full sm:w-auto px-8 py-3.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-gray-900 dark:text-white rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 font-bold text-sm sm:text-base transition-all flex items-center justify-center"
             >
               Sign Up
             </Link>
@@ -182,17 +183,17 @@ export default function Home() {
       </section>
 
       {/* Featured Listings */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="flex flex-col sm:flex-row justify-between items-end mb-10 gap-4 animate-fade-in">
-          <div className="text-left">
-            <h3 className="text-3xl font-semibold text-gray-900 dark:text-white tracking-tight mb-2">Featured Rooms</h3>
-            <p className="text-base text-gray-500 dark:text-slate-400">Handpicked near your institution</p>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end mb-10 gap-4 animate-fade-in">
+          <div className="text-center sm:text-left">
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">Featured Rooms</h3>
+            <p className="text-sm sm:text-base text-gray-500 dark:text-slate-400">Handpicked near your institution</p>
           </div>
           <button 
             onClick={() => handleProtectedAction('/browse')}
-            className="text-sm text-gray-900 dark:text-white font-medium hover:underline flex items-center gap-1"
+            className="text-sm text-primary-600 dark:text-primary-400 font-bold hover:underline flex items-center gap-1 uppercase tracking-wider"
           >
-            View all <span>→</span>
+            View all <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
         
