@@ -98,8 +98,8 @@ function LoginForm() {
             <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
               Password
             </label>
-            <Link href="#" className="text-[10px] font-bold text-primary-600 dark:text-primary-400 uppercase tracking-tighter hover:text-primary-700 transition-colors">
-              {/* Forgot? */}
+            <Link href="/forgot-password" className="text-[10px] font-bold text-primary-600 dark:text-primary-400 uppercase tracking-tighter hover:text-primary-700 transition-colors">
+              Forgot?
             </Link>
           </div>
           <input
@@ -162,7 +162,7 @@ export default function LoginPage() {
         </ClientOnly>
 
         <p className="text-center text-slate-500 dark:text-slate-400 mt-8 font-medium text-[15px]">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/register" className="text-primary-600 dark:text-primary-400 hover:underline font-semibold">
             Register here
           </Link>

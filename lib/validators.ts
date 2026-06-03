@@ -89,3 +89,14 @@ export const profileUpdateSchema = z.object({
     lng: z.number(),
   }).optional(),
 });
+
+// Forgot Password Schema
+export const forgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email format'),
+});
+
+// Reset Password Schema
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Token is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});

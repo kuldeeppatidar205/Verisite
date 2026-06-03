@@ -182,7 +182,7 @@ export default function BrowsePage() {
              </h1>
              <p className="text-gray-500 dark:text-slate-400 text-base">
                {activeStream === 'STUDENT' 
-                 ? 'Verified room handovers from students' 
+                 ? 'Verified room from students' 
                  : 'Direct listings from PG owners'}
              </p>
           </div>

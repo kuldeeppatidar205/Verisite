@@ -17,7 +17,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       console.warn('📝 Subject: ' + options.subject);
       const urlMatch = options.html.match(/href="([^"]+)"/);
       if (urlMatch) {
-        console.warn('🔗 Verification Link: ' + urlMatch[1]);
+        console.warn('🔗 Link: ' + urlMatch[1]);
       }
     }
     return false;
@@ -46,7 +46,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       console.error('📧 Failed to send to:', options.to);
       const urlMatch = options.html.match(/href="([^"]+)"/);
       if (urlMatch) {
-        console.error('🔗 Manual Verification Link:', urlMatch[1]);
+        console.error('🔗 Manual Link:', urlMatch[1]);
       }
     }
     console.error('💡 Check Gmail credentials in .env.local');
@@ -69,6 +69,28 @@ export function generateVerificationEmailHtml(verifyUrl: string, userName: strin
         </p>
         <p>Or copy this link: <code>${verifyUrl}</code></p>
         <p>This link expires in 24 hours.</p>
+        <p>Best regards,<br/>Verisite Team</p>
+      </body>
+    </html>
+  `;
+}
+
+export function generateResetPasswordEmailHtml(resetUrl: string, userName: string): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <body style="font-family: Arial, sans-serif;">
+        <h2>Reset Password - Verisite</h2>
+        <p>Hi ${userName},</p>
+        <p>We received a request to reset your password. Click the button below to set a new password.</p>
+        <p>
+          <a href="${resetUrl}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+            Reset Password
+          </a>
+        </p>
+        <p>Or copy this link: <code>${resetUrl}</code></p>
+        <p>This link expires in 1 hour.</p>
+        <p>If you didn't request this, you can safely ignore this email.</p>
         <p>Best regards,<br/>Verisite Team</p>
       </body>
     </html>
