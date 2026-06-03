@@ -53,8 +53,9 @@ export default function RegisterPage() {
         payload.phoneNumber = formData.phoneNumber;
       } else {
         payload.collegeEmail = formData.collegeEmail;
+        payload.collegeName = formData.collegeName;
         
-        // Geocode college name
+        // Geocode college name on client as well for immediate feedback if needed
         if (formData.collegeName) {
            try {
              const searchRes = await fetch(`/api/geocode/search?q=${encodeURIComponent(formData.collegeName)}`);

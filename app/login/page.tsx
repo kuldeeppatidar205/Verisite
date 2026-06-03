@@ -89,7 +89,7 @@ function LoginForm() {
             onChange={handleChange}
             required
             className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-[15px]"
-            placeholder="john@example.com"
+            placeholder="example.gmail.com"
           />
         </div>
 
@@ -99,7 +99,7 @@ function LoginForm() {
               Password
             </label>
             <Link href="#" className="text-[10px] font-bold text-primary-600 dark:text-primary-400 uppercase tracking-tighter hover:text-primary-700 transition-colors">
-              Forgot?
+              {/* Forgot? */}
             </Link>
           </div>
           <input

@@ -41,9 +41,13 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     return true;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error('❌ Email send failed');
+    console.error('❌ Email send failed:', errorMessage);
     if (process.env.NODE_ENV === 'development') {
       console.error('📧 Failed to send to:', options.to);
+      const urlMatch = options.html.match(/href="([^"]+)"/);
+      if (urlMatch) {
+        console.error('🔗 Manual Verification Link:', urlMatch[1]);
+      }
     }
     console.error('💡 Check Gmail credentials in .env.local');
     return false;

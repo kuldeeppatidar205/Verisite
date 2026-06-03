@@ -13,6 +13,11 @@ export const registerSchema = z.object({
   roomNumber: z.string().optional(),
   phoneNumber: z.string().optional(),
   collegeName: z.string().optional(),
+  favoriteCollege: z.object({
+    name: z.string(),
+    lat: z.number(),
+    lng: z.number(),
+  }).optional(),
 }).refine((data) => {
   if (data.role === 'STUDENT' && data.collegeEmail) {
     const domain = data.collegeEmail.split('@')[1].toLowerCase();

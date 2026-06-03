@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db';
 import { reviewSchema } from '@/lib/validators';
 import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
 import { User } from '@/lib/models/User';
 import { Review } from '@/lib/models/Review';
-import { ZodError } from 'zod';
-
 import { Listing } from '@/lib/models/Listing';
 import { calculateDistance } from '@/lib/utils/geo';
+import { ZodError } from 'zod';
 
 export async function GET(req: NextRequest) {
   try {
@@ -20,9 +20,11 @@ export async function GET(req: NextRequest) {
 
     await connectToDatabase();
 
-    // Do NOT populate userId to maintain anonymity
-    const reviews = await Review.find({ listingId })
-      .select('rating comment createdAt')
+    // Use mongoose.Types.ObjectId to ensure correct querying
+    const reviews = await Review.find({ 
+      listingId: new mongoose.Types.ObjectId(listingId) 
+    })
+      .select('rating comment createdAt geofenceVerified')
       .sort({ createdAt: -1 });
 
     return NextResponse.json({ data: reviews });
@@ -41,32 +43,38 @@ export async function POST(req: NextRequest) {
 
     const payload = verifyToken(token);
     const body = await req.json();
+    
+    // Validate request body
     const validated = reviewSchema.parse(body);
 
     await connectToDatabase();
 
-    // Only verified students can rate
+    // 1. User Validation: Only verified students can rate
     const user = await User.findById(payload.userId);
-    if (!user || !user.verified || user.role !== 'STUDENT') {
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    if (!user.verified) {
+      return NextResponse.json({ error: 'Please verify your email before leaving a review' }, { status: 403 });
+    }
+
+    if (user.role !== 'STUDENT') {
       return NextResponse.json({ error: 'Only verified students can rate listings' }, { status: 403 });
     }
 
-    // Geofence Check
+    // 2. Listing Validation
     const listing = await Listing.findById(validated.listingId);
     if (!listing) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
-    // Prevent owners from being rated/reviewed by themselves? 
-    // Wait, owners are blocked from interacting with the rating system entirely.
-    // "Owners are hard-blocked from interacting with the rating/review system. They cannot rate their own or others' properties."
-    // This is handled by the user.role !== 'STUDENT' check above.
-
-    // Prevent users from rating their own listings
+    // 3. Ownership Check: Prevent users from rating their own listings
     if (listing.userId.toString() === payload.userId) {
       return NextResponse.json({ error: 'You cannot rate your own listing' }, { status: 403 });
     }
 
+    // 4. Geofence Check: Must be within 100m
     const distance = calculateDistance(
       validated.lat,
       validated.lng,
@@ -78,12 +86,14 @@ export async function POST(req: NextRequest) {
 
     if (!isGeofenceVerified) {
       return NextResponse.json(
-        { error: `You must be within 100 meters of the location to leave a review. (Current distance: ${Math.round(distance)}m)` },
+        { 
+          error: `Verification failed: You must be at the property location to leave a review. (Current distance: ${Math.round(distance)}m, required: <100m)`,
+        },
         { status: 403 }
       );
     }
 
-    // Check if student already reviewed this listing
+    // 5. Duplicate Check: One review per user per listing
     const existingReview = await Review.findOne({
       userId: payload.userId,
       listingId: validated.listingId,
@@ -93,7 +103,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'You have already reviewed this listing' }, { status: 400 });
     }
 
-    // Create review
+    // 6. Create Review
     const newReview = new Review({
       userId: payload.userId,
       listingId: validated.listingId,
@@ -104,7 +114,7 @@ export async function POST(req: NextRequest) {
 
     await newReview.save();
 
-    // Update Listing Review Count
+    // 7. Update Listing Analytics
     await Listing.findByIdAndUpdate(validated.listingId, {
       $inc: { reviewCount: 1 }
     });
@@ -114,7 +124,6 @@ export async function POST(req: NextRequest) {
         message: 'Review submitted successfully',
         review: {
           id: newReview._id,
-          listingId: newReview.listingId,
           rating: newReview.rating,
           comment: newReview.comment,
           geofenceVerified: newReview.geofenceVerified,
@@ -124,12 +133,17 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
-    console.error('Review creation error:', error);
+    console.error('Review submission error:', error);
     
     if (error instanceof ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
 
-    return NextResponse.json({ error: 'Failed to submit review' }, { status: 500 });
+    if (error.name === 'CastError') {
+      return NextResponse.json({ error: 'Invalid Listing ID' }, { status: 400 });
+    }
+
+    return NextResponse.json({ error: 'Failed to submit review. Please try again later.' }, { status: 500 });
   }
 }
+

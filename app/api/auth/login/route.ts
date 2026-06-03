@@ -4,6 +4,7 @@ import { connectToDatabase } from '@/lib/db';
 import { loginSchema } from '@/lib/validators';
 import { signToken } from '@/lib/auth';
 import { User } from '@/lib/models/User';
+import { ZodError } from 'zod';
 
 export async function POST(req: NextRequest) {
   try {
@@ -52,15 +53,15 @@ export async function POST(req: NextRequest) {
         role: user.role,
         collegeEmail: user.collegeEmail,
         verified: user.verified,
-        hostelName: user.hostelName,
-        roomNumber: user.roomNumber,
       },
     });
-  } catch (error) {
-    console.error('Login error:', error);
-    if (error instanceof Error && error.message.includes('validation')) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+  } catch (error: any) {
+    console.error('CRITICAL: Login error details:', error);
+    
+    if (error instanceof ZodError) {
+      return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
-    return NextResponse.json({ error: 'Login failed' }, { status: 500 });
+
+    return NextResponse.json({ error: 'Login failed: ' + (error.message || 'Unknown error') }, { status: 500 });
   }
 }

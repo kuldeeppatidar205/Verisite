@@ -715,8 +715,15 @@ export default function ListingDetailPage() {
                 ))}
               </div>
               <textarea required value={newReview.comment} onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })} className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none ring-primary-500 focus:ring-2 mb-6 text-gray-900 dark:text-white" placeholder="Your experience..." rows={4} />
+              
+              {reviewError && (
+                <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium">
+                  {reviewError}
+                </div>
+              )}
+
               <button type="submit" disabled={reviewLoading} className="bg-primary-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-primary-500/20 disabled:opacity-50">
-                Post Review
+                {reviewLoading ? 'Posting...' : 'Post Review'}
               </button>
             </form>
           )}

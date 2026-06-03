@@ -34,10 +34,10 @@ export async function POST(req: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
     const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${verificationToken}`;
-    const emailToVerify = user.role === 'STUDENT' ? user.collegeEmail : user.email;
+    const emailToVerify = (user.role === 'STUDENT' && user.collegeEmail) ? user.collegeEmail : user.email;
 
     const emailSent = await sendEmail({
-      to: emailToVerify!,
+      to: emailToVerify,
       subject: 'Verify your Verisite account',
       html: generateVerificationEmailHtml(verifyUrl, user.name),
     });

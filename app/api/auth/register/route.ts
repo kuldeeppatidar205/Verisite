@@ -7,10 +7,12 @@ import { sendEmail, generateVerificationEmailHtml } from '@/lib/email';
 import { User } from '@/lib/models/User';
 import crypto from 'crypto';
 import { ZodError } from 'zod';
+import { debugLog } from '@/lib/debug';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    debugLog('Registration attempt for: ' + body.email);
     const validated = registerSchema.parse(body);
 
     await connectToDatabase();
@@ -67,21 +69,14 @@ export async function POST(req: NextRequest) {
       if (validated.roomNumber) userObj.roomNumber = validated.roomNumber;
     }
 
-    // Geocode favoriteCollege if provided
-    if (validated.collegeName && validated.role !== 'OWNER') {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/geocode/search?q=${encodeURIComponent(validated.collegeName)}`);
-        const data = await res.json();
-        if (res.ok && data.lat && data.lon) {
-          userObj.favoriteCollege = {
-            name: data.name || validated.collegeName,
-            lat: data.lat,
-            lng: data.lon,
-          };
-        }
-      } catch (err) {
-        console.error('Failed to geocode college during registration:', err);
-      }
+    // Geocode favoriteCollege if not provided but collegeName exists
+    if (validated.favoriteCollege) {
+      userObj.favoriteCollege = validated.favoriteCollege;
+    } else if (validated.collegeName && validated.role !== 'OWNER') {
+      // Avoid self-referencing fetch during build/server-side if possible, 
+      // or at least handle failures gracefully without crashing.
+      console.log('📍 Registration: Skipping internal geocode fetch to prevent port mismatch issues.');
+      // We will rely on the client-side geocoding which was already added to the RegisterPage
     }
 
     const newUser = new User(userObj);
@@ -98,7 +93,9 @@ export async function POST(req: NextRequest) {
       
       // Send verification email
       verifyUrl = `${baseUrl}/api/auth/verify-email?token=${verificationToken}`;
-      const emailToVerify = validated.role === 'STUDENT' ? validated.collegeEmail! : validated.email;
+      const emailToVerify = (validated.role === 'STUDENT' && validated.collegeEmail) 
+        ? validated.collegeEmail 
+        : validated.email;
       
       console.log(`📧 Attempting to send verification email to: ${emailToVerify}`);
       
@@ -110,7 +107,6 @@ export async function POST(req: NextRequest) {
 
       if (!emailSent) {
         console.warn('❌ Email sending failed (sendEmail returned false) for user:', newUser._id);
-        console.warn('💡 MANUAL VERIFICATION LINK:', verifyUrl);
       } else {
         console.log('✅ Verification email sent successfully to:', emailToVerify);
       }
@@ -143,6 +139,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
+    debugLog('CRITICAL: Registration error', error);
     console.error('CRITICAL: Registration error details:', error);
     
     if (error instanceof ZodError) {
@@ -153,6 +150,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Email or College Email already registered' }, { status: 400 });
     }
 
-    return NextResponse.json({ error: 'Registration failed. Please try again later.' }, { status: 500 });
+    return NextResponse.json({ error: 'Registration failed: ' + (error.message || 'Unknown error') }, { status: 500 });
   }
 }

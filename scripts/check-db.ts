@@ -1,10 +1,12 @@
 import path from 'path';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import { connectToDatabase } from '../lib/db';
 
 // Load environment variables from .env.local
-dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+
+// Import after loading env vars
+import { connectToDatabase } from '../lib/db';
 
 async function checkDatabaseConnection() {
   console.log('🔍 Verisite - MongoDB Connection Check');
