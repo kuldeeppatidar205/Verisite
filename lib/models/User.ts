@@ -6,10 +6,6 @@ export interface IUser extends Document {
   passwordHash: string;
   role: 'STUDENT' | 'OWNER' | 'GUEST';
   collegeEmail?: string;
-  studentId?: string;
-  idCardImageUrl?: string;
-  hostelName?: string;
-  roomNumber?: string;
   phoneNumber?: string;
   favoriteCollege?: {
     name: string;
@@ -32,10 +28,6 @@ const userSchema = new Schema<IUser>(
     passwordHash: { type: String, required: true },
     role: { type: String, enum: ['STUDENT', 'OWNER', 'GUEST'], default: 'STUDENT' },
     collegeEmail: { type: String, unique: true, sparse: true, lowercase: true },
-    studentId: { type: String },
-    idCardImageUrl: { type: String },
-    hostelName: { type: String },
-    roomNumber: { type: String },
     phoneNumber: { type: String },
     favoriteCollege: {
       name: String,

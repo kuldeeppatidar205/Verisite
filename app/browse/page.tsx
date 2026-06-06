@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
-import { Search, MapPin, SlidersHorizontal, X, PlusCircle, User } from 'lucide-react';
+import { Search, MapPin, SlidersHorizontal, X, PlusCircle, User, ChevronLeft, ChevronRight, GraduationCap, Users, Home, ExternalLink } from 'lucide-react';
 
 interface Listing {
   _id: string;
@@ -182,15 +182,15 @@ export default function BrowsePage() {
                 href="/profile"
                 className="w-9 h-9 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-sm hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
               >
-                👤
+                <User className="w-5 h-5 text-gray-600 dark:text-slate-300" />
               </Link>
             </div>
             <div className="sm:hidden flex items-center gap-2">
               <Link href="/create-listing" className="p-2 text-gray-600 dark:text-slate-300">
-                <span className="text-lg">✍️</span>
+                <PlusCircle className="w-6 h-6" />
               </Link>
               <Link href="/profile" className="p-2 text-gray-600 dark:text-slate-300">
-                <span className="text-lg">👤</span>
+                <User className="w-6 h-6" />
               </Link>
             </div>
           </div>
@@ -302,24 +302,30 @@ export default function BrowsePage() {
                           onClick={(e) => e.stopPropagation()}
                           className="hover:underline flex items-center gap-1"
                         >
-                          Map ↗
-                        </a>
-                      </div>
-                    )}
-                    
-                    {listing.images && listing.images.length > 0 ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img 
-                        src={listing.images[0]} 
-                        alt="Room Preview" 
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <span className="text-5xl opacity-40 group-hover:scale-110 transition-transform duration-300">
-                        {listing.listingType === 'handover' ? '🎓' : listing.listingType === 'roommate' ? '👥' : '🏠'}
-                      </span>
-                    )}
-                  </div>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
+                  
+                  {listing.images && listing.images.length > 0 ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img 
+                      src={listing.images[0]} 
+                      alt="Room Preview" 
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 opacity-20 group-hover:scale-110 transition-transform duration-300">
+                      {listing.listingType === 'handover' ? (
+                        <GraduationCap className="w-16 h-16" />
+                      ) : listing.listingType === 'roommate' ? (
+                        <Users className="w-16 h-16" />
+                      ) : (
+                        <Home className="w-16 h-16" />
+                      )}
+                    </div>
+                  )}
+                </div>
 
                   <div className="flex flex-col mt-1">
                     <div className="flex justify-between items-start mb-0.5">
@@ -365,7 +371,7 @@ export default function BrowsePage() {
                   disabled={page === 1}
                   className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-slate-800 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors text-sm"
                 >
-                  ←
+                  <ChevronLeft className="w-4 h-4" />
                 </button>
                 <div className="flex gap-1">
                   {[...Array(totalPages)].map((_, i) => (
@@ -387,7 +393,7 @@ export default function BrowsePage() {
                   disabled={page === totalPages}
                   className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-slate-800 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors text-sm"
                 >
-                  →
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             )}

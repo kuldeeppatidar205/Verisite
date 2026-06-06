@@ -7,6 +7,7 @@ import { Listing } from '@/lib/models/Listing';
 import { Review } from '@/lib/models/Review';
 import { ZodError } from 'zod';
 import { calculateDistance } from '@/lib/utils/geo';
+import { generateReviewSummary } from '@/lib/utils/ai';
 
 export async function GET(req: NextRequest) {
   try {
@@ -169,11 +170,28 @@ export async function POST(req: NextRequest) {
 
     // Automatically create a review if this is a PG rating from a student
     if (userRole === 'STUDENT' && validated.listingType === 'pg' && body.rating && body.comment) {
+      const aiSummary = await generateReviewSummary({
+        rating: body.rating,
+        wifiRating: body.wifiRating,
+        foodRating: body.foodRating,
+        securityRating: body.securityRating,
+        behaviorRating: body.behaviorRating,
+        backupRating: body.backupRating,
+        responsivenessRating: body.responsivenessRating,
+      });
+
       const newReview = new Review({
         userId: payload.userId,
         listingId: newListing._id,
         rating: body.rating,
+        wifiRating: body.wifiRating,
+        foodRating: body.foodRating,
+        securityRating: body.securityRating,
+        behaviorRating: body.behaviorRating,
+        backupRating: body.backupRating,
+        responsivenessRating: body.responsivenessRating,
         comment: body.comment,
+        aiSummary: aiSummary || undefined,
         geofenceVerified: true,
       });
       await newReview.save();
@@ -191,7 +209,6 @@ export async function POST(req: NextRequest) {
     );
   } catch (error: any) {
     console.error('Listing creation error:', error);
-    require('fs').writeFileSync('error.log', error.stack || error.toString());
     
     if (error instanceof ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });

@@ -8,6 +8,7 @@ import { Review } from '@/lib/models/Review';
 import { Listing } from '@/lib/models/Listing';
 import { calculateDistance } from '@/lib/utils/geo';
 import { ZodError } from 'zod';
+import { generateReviewSummary } from '@/lib/utils/ai';
 
 export async function GET(req: NextRequest) {
   try {
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
     const reviews = await Review.find({ 
       listingId: new mongoose.Types.ObjectId(listingId) 
     })
-      .select('rating comment createdAt geofenceVerified')
+      .select('rating wifiRating foodRating securityRating behaviorRating backupRating responsivenessRating comment aiSummary createdAt geofenceVerified')
       .sort({ createdAt: -1 });
 
     return NextResponse.json({ data: reviews });
@@ -104,11 +105,28 @@ export async function POST(req: NextRequest) {
     }
 
     // 6. Create Review
+    const aiSummary = await generateReviewSummary({
+      rating: validated.rating,
+      wifiRating: validated.wifiRating,
+      foodRating: validated.foodRating,
+      securityRating: validated.securityRating,
+      behaviorRating: validated.behaviorRating,
+      backupRating: validated.backupRating,
+      responsivenessRating: validated.responsivenessRating,
+    });
+
     const newReview = new Review({
       userId: payload.userId,
       listingId: validated.listingId,
       rating: validated.rating,
+      wifiRating: validated.wifiRating,
+      foodRating: validated.foodRating,
+      securityRating: validated.securityRating,
+      behaviorRating: validated.behaviorRating,
+      backupRating: validated.backupRating,
+      responsivenessRating: validated.responsivenessRating,
       comment: validated.comment,
+      aiSummary: aiSummary || undefined,
       geofenceVerified: isGeofenceVerified,
     });
 
@@ -125,7 +143,14 @@ export async function POST(req: NextRequest) {
         review: {
           id: newReview._id,
           rating: newReview.rating,
+          wifiRating: newReview.wifiRating,
+          foodRating: newReview.foodRating,
+          securityRating: newReview.securityRating,
+          behaviorRating: newReview.behaviorRating,
+          backupRating: newReview.backupRating,
+          responsivenessRating: newReview.responsivenessRating,
           comment: newReview.comment,
+          aiSummary: newReview.aiSummary,
           geofenceVerified: newReview.geofenceVerified,
           createdAt: newReview.createdAt,
         },

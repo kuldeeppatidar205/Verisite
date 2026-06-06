@@ -24,7 +24,9 @@ import {
   Clock,
   ArrowLeft,
   X,
-  Maximize2
+  Maximize2,
+  Bike,
+  Bus
 } from 'lucide-react';
 
 interface Listing {
@@ -72,7 +74,14 @@ interface Listing {
 interface Review {
   _id: string;
   rating: number;
+  wifiRating?: number;
+  foodRating?: number;
+  securityRating?: number;
+  behaviorRating?: number;
+  backupRating?: number;
+  responsivenessRating?: number;
   comment: string;
+  aiSummary?: string;
   geofenceVerified: boolean;
   createdAt: string;
 }
@@ -129,24 +138,139 @@ function DistanceResult({ dist, collegeName, lat, lng, userProfile, listing, onS
       <p className="text-2xl font-semibold text-gray-900 dark:text-white">
         {km} km <span className="text-[15px] font-normal text-gray-500 dark:text-slate-400">away</span>
       </p>
-      <div className="mt-3 space-y-1.5">
-        <p className="text-[14px] text-gray-600 dark:text-slate-300 flex items-center gap-2">
-           <span className="opacity-70 text-base">🛵</span> ~{scootyMins} mins by scooty
-        </p>
-        <p className="text-[14px] text-gray-600 dark:text-slate-300 flex items-center gap-2">
-           <span className="opacity-70 text-base">🚌</span> ~{busMins} mins by bus
-        </p>
+      <div className="mt-3 space-y-2">
+        <div className="text-[13px] text-gray-600 dark:text-slate-300 flex items-center gap-2 font-medium">
+           <Bike className="w-4 h-4 text-primary-500" /> ~{scootyMins} mins by scooty
+        </div>
+        <div className="text-[13px] text-gray-600 dark:text-slate-300 flex items-center gap-2 font-medium">
+           <Bus className="w-4 h-4 text-primary-500" /> ~{busMins} mins by bus
+        </div>
       </div>
-      <p className="text-[13px] text-gray-500 dark:text-slate-400 mt-3 line-clamp-1 italic">{collegeName}</p>
+      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
+        <p className="text-[12px] text-gray-500 dark:text-slate-400 line-clamp-2 italic">{collegeName}</p>
+      </div>
       
       {userProfile && (!userProfile.favoriteCollege || userProfile.favoriteCollege.name !== collegeName) && (
         <button
           onClick={handleSave}
-          className="mt-4 text-[14px] font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1"
+          className="mt-4 text-[13px] font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1"
         >
           Set as default college
         </button>
       )}
+    </div>
+  );
+}
+
+function CommuteDistanceModule({ 
+  autoDist, 
+  showSearch, 
+  setShowSearch, 
+  distLoading, 
+  setDistLoading, 
+  searchResult, 
+  setSearchResult, 
+  listing, 
+  userProfile, 
+  token, 
+  onProfileUpdate 
+}: {
+  autoDist: any;
+  showSearch: boolean;
+  setShowSearch: (v: boolean) => void;
+  distLoading: boolean;
+  setDistLoading: (v: boolean) => void;
+  searchResult: any;
+  setSearchResult: (v: any) => void;
+  listing: Listing;
+  userProfile: any;
+  token: string | null;
+  onProfileUpdate: () => void;
+}) {
+  return (
+    <div className="w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+           <Search className="w-5 h-5 text-primary-500" /> Commute Distance
+        </h2>
+        <button 
+          onClick={() => setShowSearch(!showSearch)} 
+          className="text-[12px] sm:text-[13px] font-bold text-primary-600 dark:text-primary-400 hover:underline uppercase tracking-wider text-left sm:text-right"
+        >
+          {showSearch ? 'Cancel Search' : (autoDist ? 'Change College' : 'Check Distance')}
+        </button>
+      </div>
+      
+      <div className="w-full space-y-4">
+        {autoDist && !showSearch && !searchResult && (
+          <DistanceResult 
+            dist={autoDist.dist} 
+            collegeName={autoDist.name} 
+            lat={autoDist.lat} 
+            lng={autoDist.lng}
+            userProfile={userProfile}
+            listing={listing}
+            onSave={onProfileUpdate}
+          />
+        )}
+
+        {showSearch && (
+          <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search college/university..."
+                disabled={distLoading}
+                className="w-full pl-10 pr-10 py-3 text-[14px] sm:text-[15px] bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-gray-900 dark:text-white shadow-sm"
+                onKeyDown={async (e) => {
+                  if (e.key === 'Enter') {
+                    const query = (e.target as HTMLInputElement).value;
+                    if (!query || !listing?.coordinates) return;
+                    setDistLoading(true);
+                    setSearchResult(null);
+                    try {
+                      const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(query)}`);
+                      const data = await res.json();
+                      if (res.ok && data.lat && data.lon) {
+                        const d = calculateDistance(listing.coordinates.lat, listing.coordinates.lng, data.lat, data.lon);
+                        setSearchResult({ dist: d, name: data.name, lat: data.lat, lng: data.lon });
+                      } else {
+                        alert('College not found.');
+                      }
+                    } catch (err) {
+                      console.error(err);
+                    } finally {
+                      setDistLoading(false);
+                    }
+                  }
+                }}
+              />
+              {distLoading && <div className="absolute right-3 top-1/2 -translate-y-1/2"><div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>}
+            </div>
+            <p className="mt-2 text-[11px] text-gray-500 dark:text-slate-500 pl-1 font-medium">Press Enter to search</p>
+          </div>
+        )}
+
+        {searchResult && (
+          <div className="mt-2">
+            <DistanceResult 
+              dist={searchResult.dist} 
+              collegeName={searchResult.name} 
+              lat={searchResult.lat} 
+              lng={searchResult.lng}
+              userProfile={userProfile}
+              listing={listing}
+              onSave={() => {
+                setSearchResult(null);
+                setShowSearch(false);
+                onProfileUpdate();
+              }}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -159,7 +283,16 @@ export default function ListingDetailPage() {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
-  const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
+  const [newReview, setNewReview] = useState({ 
+    rating: 5, 
+    wifiRating: 5,
+    foodRating: 5,
+    securityRating: 5,
+    behaviorRating: 5,
+    backupRating: 5,
+    responsivenessRating: 5,
+    comment: '',
+  });
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewError, setReviewError] = useState('');
   const [distLoading, setDistLoading] = useState(false);
@@ -174,58 +307,6 @@ export default function ListingDetailPage() {
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   const id = params.id as string;
-
-  useEffect(() => {
-    const t = localStorage.getItem('token');
-    if (!t) {
-      router.push('/login');
-      return;
-    }
-    setToken(t);
-    if (t) fetchUserProfile(t);
-    else setProfileLoading(false);
-    fetchListing();
-    fetchReviews();
-  }, []);
-
-  useEffect(() => {
-    if (loading || profileLoading) return;
-
-    if (listing?.coordinates && userProfile?.favoriteCollege) {
-      const d = calculateDistance(
-        listing.coordinates.lat,
-        listing.coordinates.lng,
-        userProfile.favoriteCollege.lat,
-        userProfile.favoriteCollege.lng
-      );
-      setAutoDist({ 
-        dist: d, 
-        name: userProfile.favoriteCollege.name,
-        lat: userProfile.favoriteCollege.lat,
-        lng: userProfile.favoriteCollege.lng
-      });
-      setShowSearch(false);
-    } else {
-      setShowSearch(true);
-    }
-  }, [listing, userProfile, loading, profileLoading]);
-
-  useLayoutEffect(() => {
-    const calculateLayout = () => {
-      if (!loading && listing && mainContentRef.current && sidebarRef.current) {
-        const mainHeight = mainContentRef.current.offsetHeight;
-        const sidebarHeight = sidebarRef.current.offsetHeight;
-        if (mainHeight > (sidebarHeight * 0.5)) {
-          setShouldMoveToSidebar(true);
-        } else {
-          setShouldMoveToSidebar(false);
-        }
-      }
-    };
-    calculateLayout();
-    window.addEventListener('resize', calculateLayout);
-    return () => window.removeEventListener('resize', calculateLayout);
-  }, [loading, listing]);
 
   const fetchListing = async () => {
     try {
@@ -276,6 +357,45 @@ export default function ListingDetailPage() {
     }
   };
 
+  useEffect(() => {
+    const t = localStorage.getItem('token');
+    if (!t) {
+      router.push('/login');
+      return;
+    }
+    setToken(t);
+    if (t) fetchUserProfile(t);
+    else setProfileLoading(false);
+    fetchListing();
+    fetchReviews();
+  }, []);
+
+  useEffect(() => {
+    if (userProfile?.favoriteCollege && listing?.coordinates) {
+      const d = calculateDistance(
+        listing.coordinates.lat,
+        listing.coordinates.lng,
+        userProfile.favoriteCollege.lat,
+        userProfile.favoriteCollege.lng
+      );
+      setAutoDist({
+        dist: d,
+        name: userProfile.favoriteCollege.name,
+        lat: userProfile.favoriteCollege.lat,
+        lng: userProfile.favoriteCollege.lng,
+      });
+    }
+  }, [userProfile, listing]);
+
+  useLayoutEffect(() => {
+    const handleResize = () => {
+      setShouldMoveToSidebar(window.innerWidth >= 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
@@ -300,6 +420,12 @@ export default function ListingDetailPage() {
             body: JSON.stringify({
               listingId: id,
               rating: newReview.rating,
+              wifiRating: newReview.wifiRating,
+              foodRating: newReview.foodRating,
+              securityRating: newReview.securityRating,
+              behaviorRating: newReview.behaviorRating,
+              backupRating: newReview.backupRating,
+              responsivenessRating: newReview.responsivenessRating,
               comment: newReview.comment,
               lat: position.coords.latitude,
               lng: position.coords.longitude,
@@ -308,7 +434,16 @@ export default function ListingDetailPage() {
 
           const data = await res.json();
           if (res.ok) {
-            setNewReview({ rating: 5, comment: '' });
+            setNewReview({ 
+              rating: 5, 
+              wifiRating: 5,
+              foodRating: 5,
+              securityRating: 5,
+              behaviorRating: 5,
+              backupRating: 5,
+              responsivenessRating: 5,
+              comment: '',
+            });
             fetchReviews();
             fetchListing();
           } else {
@@ -371,97 +506,13 @@ export default function ListingDetailPage() {
   const canReview = userProfile && userProfile.role === 'STUDENT' && userProfile.verified && !isOwner;
   const isRatingPost = listing.listingType === 'pg' && !listing.isOwnerListing;
 
-  const CommuteDistanceModule = () => (
-    <div className="w-full">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-           <Search className="w-5 h-5 text-gray-400" /> Commute Distance
-        </h2>
-        {autoDist && (
-          <button 
-            onClick={() => setShowSearch(!showSearch)} 
-            className="text-[13px] font-medium text-primary-600 dark:text-primary-400 hover:underline"
-          >
-            {showSearch ? 'Cancel' : 'Change Location'}
-          </button>
-        )}
-      </div>
-      
-      <div className="w-full">
-        {autoDist && !showSearch && (
-          <DistanceResult 
-            dist={autoDist.dist} 
-            collegeName={autoDist.name} 
-            lat={autoDist.lat} 
-            lng={autoDist.lng}
-            userProfile={userProfile}
-            listing={listing}
-            onSave={() => fetchUserProfile(token!)}
-          />
-        )}
-
-        {showSearch && (
-          <div>
-            <div className="relative max-w-md">
-              <input
-                type="text"
-                placeholder="Enter college/university name..."
-                disabled={distLoading}
-                className="w-full px-4 py-2.5 text-[15px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
-                onKeyDown={async (e) => {
-                  if (e.key === 'Enter') {
-                    const query = (e.target as HTMLInputElement).value;
-                    if (!query || !listing?.coordinates) return;
-                    setDistLoading(true);
-                    setSearchResult(null);
-                    try {
-                      const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(query)}`);
-                      const data = await res.json();
-                      if (res.ok && data.lat && data.lon) {
-                        const d = calculateDistance(listing.coordinates.lat, listing.coordinates.lng, data.lat, data.lon);
-                        setSearchResult({ dist: d, name: data.name, lat: data.lat, lng: data.lon });
-                      } else {
-                        alert('College not found.');
-                      }
-                    } catch (err) {
-                      console.error(err);
-                    } finally {
-                      setDistLoading(false);
-                    }
-                  }
-                }}
-              />
-              {distLoading && <div className="absolute right-3 top-3"><div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>}
-            </div>
-          </div>
-        )}
-
-        {searchResult && (
-          <div className="mt-4">
-            <DistanceResult 
-              dist={searchResult.dist} 
-              collegeName={searchResult.name} 
-              lat={searchResult.lat} 
-              lng={searchResult.lng}
-              userProfile={userProfile}
-              listing={listing}
-              onSave={() => {
-                setSearchResult(null);
-                fetchUserProfile(token!);
-              }}
-            />
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-500">
       <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-transform group-hover:scale-105">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo image short.png" alt="Logo" className="w-full h-full object-cover rounded-full" />
             </div>
             <h1 className="text-lg sm:text-xl font-bold tracking-tight text-gray-900 dark:text-white">Verisite</h1>
@@ -491,7 +542,7 @@ export default function ListingDetailPage() {
               </h1>
               <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm sm:text-[15px] text-gray-600 dark:text-slate-400">
                 <span className="flex items-center gap-1.5 font-medium">
-                   <MapPin className="w-4 h-4 text-gray-400 shrink-0" /> <span className="truncate max-w-[200px] sm:max-w-none">{listing.address || 'Location Verified'}</span>
+                   <MapPin className="w-4 h-4 text-gray-400 shrink-0" /> <span className="truncate max-w-50 sm:max-w-none">{listing.address || 'Location Verified'}</span>
                 </span>
                 {listing.coordinates && (
                   <a
@@ -543,8 +594,9 @@ export default function ListingDetailPage() {
                 <div 
                   key={index} 
                   onClick={() => setFullScreenImage(imgUrl)}
-                  className={`relative rounded-xl sm:rounded-2xl overflow-hidden bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 cursor-zoom-in shadow-sm transition-all duration-300 hover:shadow-xl ${listing.images!.length === 3 && index === 0 ? 'md:col-span-2 md:row-span-2 aspect-[16/10] md:aspect-auto' : 'aspect-[16/10] md:aspect-[4/3]'}`}
+                  className={`relative rounded-xl sm:rounded-2xl overflow-hidden bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 cursor-zoom-in shadow-sm transition-all duration-300 hover:shadow-xl ${listing.images!.length === 3 && index === 0 ? 'md:col-span-2 md:row-span-2 aspect-16/10 md:aspect-auto' : 'aspect-16/10 md:aspect-4/3'}`}
                 >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={imgUrl}
                     alt={`Room Image ${index + 1}`}
@@ -563,8 +615,9 @@ export default function ListingDetailPage() {
 
         {/* Full Screen Overlay */}
         {fullScreenImage && (
-          <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 animate-in fade-in" onClick={() => setFullScreenImage(null)}>
+          <div className="fixed inset-0 z-100 bg-black/95 flex items-center justify-center p-4 animate-in fade-in" onClick={() => setFullScreenImage(null)}>
             <button className="absolute top-6 right-6 text-white hover:opacity-70 transition-opacity"><X className="w-8 h-8" /></button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={fullScreenImage} alt="Full View" className="max-w-full max-h-full object-contain rounded-lg animate-in zoom-in-95" />
           </div>
         )}
@@ -634,7 +687,19 @@ export default function ListingDetailPage() {
 
             {userProfile?.role === 'STUDENT' && !shouldMoveToSidebar && (
               <section className="pt-8 sm:pt-10 border-t border-gray-100 dark:border-slate-800">
-                <CommuteDistanceModule />
+                <CommuteDistanceModule 
+                  autoDist={autoDist}
+                  showSearch={showSearch}
+                  setShowSearch={setShowSearch}
+                  distLoading={distLoading}
+                  setDistLoading={setDistLoading}
+                  searchResult={searchResult}
+                  setSearchResult={setSearchResult}
+                  listing={listing}
+                  userProfile={userProfile}
+                  token={token}
+                  onProfileUpdate={() => fetchUserProfile(token!)}
+                />
               </section>
             )}
           </div>
@@ -692,7 +757,19 @@ export default function ListingDetailPage() {
 
             {userProfile?.role === 'STUDENT' && shouldMoveToSidebar && (
               <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
-                <CommuteDistanceModule />
+                <CommuteDistanceModule 
+                  autoDist={autoDist}
+                  showSearch={showSearch}
+                  setShowSearch={setShowSearch}
+                  distLoading={distLoading}
+                  setDistLoading={setDistLoading}
+                  searchResult={searchResult}
+                  setSearchResult={setSearchResult}
+                  listing={listing}
+                  userProfile={userProfile}
+                  token={token}
+                  onProfileUpdate={() => fetchUserProfile(token!)}
+                />
               </div>
             )}
           </div>
@@ -709,20 +786,74 @@ export default function ListingDetailPage() {
           {canReview && (
             <form onSubmit={handleReviewSubmit} className="mb-12 bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-8 border border-slate-200 dark:border-slate-800">
               <h3 className="text-lg font-bold mb-6 text-gray-900 dark:text-white">Write a review</h3>
-              <div className="flex gap-2 mb-8">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button key={star} type="button" onClick={() => setNewReview({ ...newReview, rating: star })} className={`text-3xl transition-transform hover:scale-110 ${star <= newReview.rating ? 'text-amber-500' : 'text-slate-200'}`}><Star className={`w-8 h-8 ${star <= newReview.rating ? 'fill-current' : ''}`} /></button>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                 {[
+                  { label: 'Wi-Fi Speed & Reliability', key: 'wifiRating' },
+                  { label: 'Food Quality & Menu Cycle', key: 'foodRating' },
+                  { label: 'Security', key: 'securityRating' },
+                  { label: 'Warden and owner behaviour', key: 'behaviorRating' },
+                  { label: 'Water & Power Backup', key: 'backupRating' },
+                  { label: 'Management Responsiveness', key: 'responsivenessRating' },
+                ].map((field) => (
+                  <div key={field.key} className="space-y-2">
+                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      {field.label}
+                    </label>
+                    <div className="flex bg-white dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
+                      {[1, 2, 3, 4, 5].map((val) => (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setNewReview(prev => ({ ...prev, [field.key]: val }))}
+                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                            (newReview as Record<string, unknown>)[field.key] === val
+                              ? 'bg-primary-600 text-white shadow-sm'
+                              : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+                          }`}
+                        >
+                          {val}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
-              <textarea required value={newReview.comment} onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })} className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none ring-primary-500 focus:ring-2 mb-6 text-gray-900 dark:text-white" placeholder="Your experience..." rows={4} />
+
+              <div className="mb-8 pt-6 border-t border-slate-200 dark:border-slate-800">
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Overall Experience *</label>
+                <div className="flex max-w-xs bg-white dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
+                  {[1, 2, 3, 4, 5].map((val) => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setNewReview({ ...newReview, rating: val })}
+                      className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                        newReview.rating === val
+                          ? 'bg-primary-600 text-white shadow-sm'
+                          : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+                      }`}
+                    >
+                      {val}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Comment *</label>
+                  <textarea required value={newReview.comment} onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })} className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none ring-primary-500 focus:ring-2 text-gray-900 dark:text-white" placeholder="Your experience..." rows={4} />
+                </div>
+              </div>
               
               {reviewError && (
-                <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium">
+                <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium">
                   {reviewError}
                 </div>
               )}
 
-              <button type="submit" disabled={reviewLoading} className="bg-primary-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-primary-500/20 disabled:opacity-50">
+              <button type="submit" disabled={reviewLoading} className="mt-8 bg-primary-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-primary-500/20 disabled:opacity-50">
                 {reviewLoading ? 'Posting...' : 'Post Review'}
               </button>
             </form>
@@ -738,9 +869,57 @@ export default function ListingDetailPage() {
                     <div className="text-xs text-slate-400">{new Date(review.createdAt).toLocaleDateString()}</div>
                   </div>
                 </div>
-                <div className="flex text-amber-500 mb-3 gap-0.5">
-                  {[...Array(5)].map((_, i) => (<Star key={i} className={`w-4 h-4 ${i < review.rating ? 'fill-current' : 'opacity-20'}`} />))}
+                
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-gray-900 dark:text-white">{review.rating}/5</span>
+                    <div className="w-24 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-amber-500 rounded-full" 
+                        style={{ width: `${(review.rating / 5) * 100}%` }}
+                      />
+                    </div>
+                  </div>
                 </div>
+
+                {/* Detailed Metrics */}
+                {(review.wifiRating || review.foodRating || review.securityRating || review.behaviorRating || review.backupRating || review.responsivenessRating) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 p-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                    {[
+                      { label: 'Wi-Fi Speed', val: review.wifiRating },
+                      { label: 'Food Quality', val: review.foodRating },
+                      { label: 'Security', val: review.securityRating },
+                      { label: 'Owner Behavior', val: review.behaviorRating },
+                      { label: 'Power Backup', val: review.backupRating },
+                      { label: 'Responsiveness', val: review.responsivenessRating },
+                    ].map(m => m.val ? (
+                      <div key={m.label} className="space-y-1.5">
+                        <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                          <span>{m.label}</span>
+                          <span className="text-primary-600 dark:text-primary-400">{m.val}/5</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-primary-500 rounded-full" 
+                            style={{ width: `${(m.val / 5) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    ) : null)}
+                  </div>
+                )}
+
+                {review.aiSummary && (
+                  <div className="mb-4 p-3 bg-primary-50/50 dark:bg-primary-900/10 border-l-4 border-primary-500 rounded-r-xl">
+                    <p className="text-sm text-primary-900 dark:text-primary-100 italic leading-relaxed">
+                      " {review.aiSummary} "
+                    </p>
+                    <div className="mt-1 text-[10px] font-bold text-primary-500 uppercase tracking-widest flex items-center gap-1">
+                      <Zap className="w-2.5 h-2.5" /> AI Insight
+                    </div>
+                  </div>
+                )}
+
                 <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{review.comment}</p>
               </div>
             ))}

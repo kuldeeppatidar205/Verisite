@@ -5,6 +5,7 @@ import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
 import { Listing } from '@/lib/models/Listing';
 import { Review } from '@/lib/models/Review';
 import { User } from '@/lib/models/User';
+import { generateReviewSummary } from '@/lib/utils/ai';
 
 import { ZodError } from 'zod';
 
@@ -110,7 +111,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       genderCategory: validated.genderCategory,
     });
 
-    if (validated.images && validated.images.length > 0) {
+    // Update coordinates for owners
+    if (listing.isOwnerListing) {
+      listing.coordinates = {
+        lat: validated.lat,
+        lng: validated.lng,
+      };
+    }
+
+    if (validated.images) {
       listing.images = validated.images;
     }
 
@@ -121,17 +130,41 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const userRole = user?.role?.toUpperCase() || 'STUDENT';
 
     if (userRole === 'STUDENT' && validated.listingType === 'pg' && body.rating && body.comment) {
+      const aiSummary = await generateReviewSummary({
+        rating: body.rating,
+        wifiRating: body.wifiRating,
+        foodRating: body.foodRating,
+        securityRating: body.securityRating,
+        behaviorRating: body.behaviorRating,
+        backupRating: body.backupRating,
+        responsivenessRating: body.responsivenessRating,
+      });
+
       const existingReview = await Review.findOne({ userId: payload.userId, listingId: listing._id });
       if (existingReview) {
         existingReview.rating = body.rating;
+        existingReview.wifiRating = body.wifiRating;
+        existingReview.foodRating = body.foodRating;
+        existingReview.securityRating = body.securityRating;
+        existingReview.behaviorRating = body.behaviorRating;
+        existingReview.backupRating = body.backupRating;
+        existingReview.responsivenessRating = body.responsivenessRating;
         existingReview.comment = body.comment;
+        existingReview.aiSummary = aiSummary || undefined;
         await existingReview.save();
       } else {
         const newReview = new Review({
           userId: payload.userId,
           listingId: listing._id,
           rating: body.rating,
+          wifiRating: body.wifiRating,
+          foodRating: body.foodRating,
+          securityRating: body.securityRating,
+          behaviorRating: body.behaviorRating,
+          backupRating: body.backupRating,
+          responsivenessRating: body.responsivenessRating,
           comment: body.comment,
+          aiSummary: aiSummary || undefined,
           geofenceVerified: true,
         });
         await newReview.save();

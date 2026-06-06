@@ -20,15 +20,6 @@ import {
   Lock
 } from 'lucide-react';
 
-const STOCK_IMAGES = [
-  { id: 'stock-1', url: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=800', label: 'Single Room' },
-  { id: 'stock-2', url: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=800', label: 'Living Space' },
-  { id: 'stock-3', url: 'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&q=80&w=800', label: 'Shared Room' },
-  { id: 'stock-4', url: 'https://images.unsplash.com/photo-1631679706909-1844bbd07221?auto=format&fit=crop&q=80&w=800', label: 'Modern Suite' },
-  { id: 'stock-5', url: 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=800', label: 'Luxury PG' },
-  { id: 'stock-6', url: 'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?auto=format&fit=crop&q=80&w=800', label: 'Compact Room' },
-];
-
 function CreateListingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -41,8 +32,6 @@ function CreateListingForm() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [showMap, setShowMap] = useState(false);
   const [existingImages, setExistingImages] = useState<string[]>([]);
-  const [selectedStockImages, setSelectedStockImages] = useState<string[]>([]);
-  const [showStockLibrary, setShowStockLibrary] = useState(false);
   const [formData, setFormData] = useState({
     pgName: '',
     roomDetails: '',
@@ -65,7 +54,13 @@ function CreateListingForm() {
     foodIncluded: false,
     billsIncluded: false,
     genderCategory: '' as 'boys' | 'girls' | 'both' | '',
-    rating: 0,
+    rating: 5,
+    wifiRating: 0,
+    foodRating: 0,
+    securityRating: 0,
+    behaviorRating: 0,
+    backupRating: 0,
+    responsivenessRating: 0,
     comment: '',
   });
 
@@ -340,7 +335,7 @@ function CreateListingForm() {
       if (userRole === 'STUDENT') {
         if (formData.studentListingType === 'HANDOVER') {
           payload.listingType = 'handover';
-          payload.handoverMode = true; 
+          payload.handoverMode = true;
           payload.legacyBundle = {
             mattress: formData.mattress,
             cooler: formData.cooler,
@@ -364,6 +359,12 @@ function CreateListingForm() {
           payload.handoverMode = false;
           payload.legacyBundle = {};
           payload.rating = formData.rating;
+          payload.wifiRating = formData.wifiRating || undefined;
+          payload.foodRating = formData.foodRating || undefined;
+          payload.securityRating = formData.securityRating || undefined;
+          payload.behaviorRating = formData.behaviorRating || undefined;
+          payload.backupRating = formData.backupRating || undefined;
+          payload.responsivenessRating = formData.responsivenessRating || undefined;
           payload.comment = formData.comment;
         }
       } else {
@@ -495,8 +496,14 @@ function CreateListingForm() {
                 {formData.lat && formData.lng && (
                   <button 
                     type="button" 
-                    onClick={() => setShowMap(!showMap)}
-                    className="ml-auto text-xs font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 whitespace-nowrap"
+                    onClick={() => {
+                      if (editId && userRole === 'STUDENT') {
+                        alert('Location cannot be changed after creation for student listings.');
+                        return;
+                      }
+                      setShowMap(!showMap);
+                    }}
+                    className={`ml-auto text-xs font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 whitespace-nowrap ${editId && userRole === 'STUDENT' ? 'opacity-50' : ''}`}
                   >
                     {showMap ? 'Hide Map' : 'Edit on Map'}
                   </button>
@@ -519,22 +526,60 @@ function CreateListingForm() {
           </div>
 
           {isRatingMode ? (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Rating *</label>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button 
-                      key={star} 
-                      type="button" 
-                      onClick={() => setFormData(prev => ({ ...prev, rating: star }))} 
-                      className={`text-3xl focus:outline-none transition-colors ${star <= formData.rating ? 'text-accent-amber' : 'text-gray-200 dark:text-slate-700'}`}
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  { label: 'Wi-Fi Speed & Reliability', key: 'wifiRating' },
+                  { label: 'Food Quality & Menu Cycle', key: 'foodRating' },
+                  { label: 'Security', key: 'securityRating' },
+                  { label: 'Warden and owner behaviour', key: 'behaviorRating' },
+                  { label: 'Water & Power Backup', key: 'backupRating' },
+                  { label: 'Management Responsiveness', key: 'responsivenessRating' },
+                ].map((field) => (
+                  <div key={field.key} className="space-y-3">
+                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      {field.label}
+                    </label>
+                    <div className="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
+                      {[1, 2, 3, 4, 5].map((val) => (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, [field.key]: val }))}
+                          className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                            (formData as Record<string, unknown>)[field.key] === val
+                              ? 'bg-primary-600 text-white shadow-sm'
+                              : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                          }`}
+                        >
+                          {val}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">Overall Experience Rating *</label>
+                <div className="flex max-w-sm bg-slate-100 dark:bg-slate-900/50 p-1 rounded-2xl border border-slate-200 dark:border-slate-800">
+                  {[1, 2, 3, 4, 5].map((val) => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, rating: val }))}
+                      className={`flex-1 py-3 text-lg font-black rounded-xl transition-all ${
+                        formData.rating === val
+                          ? 'bg-primary-600 text-white shadow-md scale-[1.02]'
+                          : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+                      }`}
                     >
-                      ★
+                      {val}
                     </button>
                   ))}
                 </div>
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Review / Feedback *</label>
                 <textarea
@@ -547,7 +592,9 @@ function CreateListingForm() {
                   placeholder="Share your honest experience..."
                 />
               </div>
-            </>
+
+              
+            </div>
           ) : (
             <>
               <div>
@@ -784,48 +831,7 @@ function CreateListingForm() {
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     Room Images <span className="text-slate-400 font-normal ml-1">(Up to 3)</span>
                   </label>
-                  <button 
-                    type="button"
-                    onClick={() => setShowStockLibrary(!showStockLibrary)}
-                    className="text-xs font-bold text-primary-600 hover:text-primary-700 dark:text-primary-400 flex items-center gap-1.5 transition-colors"
-                  >
-                    <ImageIcon className="w-3.5 h-3.5" />
-                    {showStockLibrary ? 'Hide Library' : 'Use Stock Photos'}
-                  </button>
                 </div>
-
-                {showStockLibrary && (
-                  <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800 animate-in fade-in slide-in-from-top-2">
-                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Select professional photos</p>
-                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                      {STOCK_IMAGES.map((img) => (
-                        <button
-                          key={img.id}
-                          type="button"
-                          onClick={() => {
-                            if (selectedStockImages.includes(img.url)) {
-                              setSelectedStockImages(selectedStockImages.filter(u => u !== img.url));
-                            } else {
-                              if (selectedStockImages.length + selectedFiles.length >= 3) {
-                                alert('Maximum 3 images allowed total.');
-                                return;
-                              }
-                              setSelectedStockImages([...selectedStockImages, img.url]);
-                            }
-                          }}
-                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${selectedStockImages.includes(img.url) ? 'border-primary-600 scale-95 ring-2 ring-primary-500/20' : 'border-transparent hover:border-slate-300'}`}
-                        >
-                          <img src={img.url} alt={img.label} className="w-full h-full object-cover" title={img.label} />
-                          {selectedStockImages.includes(img.url) && (
-                            <div className="absolute inset-0 bg-primary-600/20 flex items-center justify-center">
-                              <CheckCircle2 className="w-5 h-5 text-white fill-primary-600" />
-                            </div>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
                 <div className="flex flex-col gap-4">
                   <div className="relative group">
@@ -836,7 +842,7 @@ function CreateListingForm() {
                       onChange={(e) => {
                         if (e.target.files) {
                           const files = Array.from(e.target.files);
-                          if (files.length + selectedStockImages.length > 3) {
+                          if (files.length > 3) {
                             alert('Maximum 3 images allowed total.');
                             e.target.value = '';
                             return;
@@ -861,15 +867,15 @@ function CreateListingForm() {
                     />
                   </div>
                   
-                  {(selectedFiles.length > 0 || selectedStockImages.length > 0) ? (
+                  {selectedFiles.length > 0 ? (
                     <div className="flex flex-wrap gap-2 items-center">
                       <div className="text-[11px] font-bold text-accent-emerald uppercase tracking-wider flex items-center gap-1">
                         <CheckCircle2 className="w-3.5 h-3.5" /> 
-                        {selectedFiles.length + selectedStockImages.length} selected
+                        {selectedFiles.length} selected
                       </div>
                       <button 
                         type="button" 
-                        onClick={() => { setSelectedFiles([]); setSelectedStockImages([]); }}
+                        onClick={() => { setSelectedFiles([]); }}
                         className="text-[10px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wider ml-auto"
                       >
                         Clear All
@@ -883,7 +889,7 @@ function CreateListingForm() {
                   ) : null}
                 </div>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-3 flex items-center gap-1">
-                  <Upload className="w-3 h-3" /> Tip: Mix your own photos with our stock library for the best looking listing.
+                  <Upload className="w-3 h-3" /> Upload real photos to increase trust and transparency.
                 </p>
               </div>
             </>
@@ -935,7 +941,7 @@ export default function CreateListingPage() {
       {/* Content */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Suspense fallback={
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-8 flex items-center justify-center min-h-[400px] shimmer">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-8 flex items-center justify-center min-h-100 shimmer">
             <div className="text-slate-400 dark:text-slate-600 animate-pulse font-medium">Loading form...</div>
           </div>
         }>

@@ -7,10 +7,6 @@ export const registerSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
   role: z.enum(['STUDENT', 'OWNER', 'GUEST']).default('STUDENT'),
   collegeEmail: z.string().email('Invalid college email format').optional().or(z.literal('')),
-  studentId: z.string().optional().or(z.literal('')),
-  idCardImageUrl: z.string().optional().or(z.literal('')),
-  hostelName: z.string().optional(),
-  roomNumber: z.string().optional(),
   phoneNumber: z.string().optional(),
   collegeName: z.string().optional(),
   favoriteCollege: z.object({
@@ -39,7 +35,7 @@ export const loginSchema = z.object({
 // Listing Schema
 export const listingSchema = z.object({
   listingType: z.enum(['handover', 'pg', 'roommate']).default('handover'),
-  pgName: z.string().min(2, 'PG/Hostel name must be at least 2 characters').optional().or(z.literal('')),
+  pgName: z.string().min(2, 'PG/Hostel name must be at least 2 characters').or(z.literal('')),
   roomDetails: z.string().min(10, 'Room details must be at least 10 characters').optional().or(z.literal('')),
   price: z.number().nonnegative('Price must be valid').optional(),
   availableDate: z.string().refine((val) => !val || !isNaN(Date.parse(val)), {
@@ -58,18 +54,24 @@ export const listingSchema = z.object({
   lng: z.number({ required_error: 'Longitude is required' }),
   totalRooms: z.number().positive().optional(),
   availableRooms: z.number().min(0).optional(),
-  handoverMode: z.boolean().optional().default(false),
   sharingType: z.enum(['single', 'double', 'triple', 'multiple', '']).optional(),
   foodIncluded: z.boolean().optional(),
   billsIncluded: z.boolean().optional(),
   genderCategory: z.enum(['boys', 'girls', 'both', '']).optional(),
   images: z.array(z.string()).max(3, 'Maximum 3 images allowed').optional(),
+  handoverMode: z.boolean().optional(),
 });
 
 // Review Schema
 export const reviewSchema = z.object({
   listingId: z.string().min(1, 'Listing ID is required'),
   rating: z.number().min(1).max(5),
+  wifiRating: z.number().min(1).max(5).optional(),
+  foodRating: z.number().min(1).max(5).optional(),
+  securityRating: z.number().min(1).max(5).optional(),
+  behaviorRating: z.number().min(1).max(5).optional(),
+  backupRating: z.number().min(1).max(5).optional(),
+  responsivenessRating: z.number().min(1).max(5).optional(),
   comment: z.string().min(5, 'Comment must be at least 5 characters'),
   lat: z.number({ required_error: 'Latitude is required to verify your location' }),
   lng: z.number({ required_error: 'Longitude is required to verify your location' }),
