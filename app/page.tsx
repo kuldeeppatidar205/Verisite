@@ -62,9 +62,13 @@ export default function Home() {
 
   const fetchListings = async () => {
     try {
-      const res = await fetch('/api/listings?limit=6');
+      const res = await fetch('/api/listings?limit=20');
       const data = await res.json();
-      setListings(data.data || []);
+      const allListings: Listing[] = data.data || [];
+      // Filter listings to only those that have at least one image
+      const listingsWithImages = allListings.filter(l => l.images && l.images.length > 0);
+      // Take the top 3 (assuming API returns newest first)
+      setListings(listingsWithImages.slice(0, 3));
     } catch (error) {
       console.error('Failed to fetch listings:', error);
     } finally {

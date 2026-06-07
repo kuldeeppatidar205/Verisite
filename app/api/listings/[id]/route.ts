@@ -131,16 +131,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const userRole = user?.role?.toUpperCase() || 'STUDENT';
 
     if (userRole === 'STUDENT' && validated.listingType === 'pg' && body.rating && body.comment) {
-      const aiSummary = await generateReviewSummary({
-        rating: body.rating,
-        wifiRating: body.wifiRating,
-        foodRating: body.foodRating,
-        securityRating: body.securityRating,
-        behaviorRating: body.behaviorRating,
-        backupRating: body.backupRating,
-        responsivenessRating: body.responsivenessRating,
-      });
-
       const existingReview = await Review.findOne({ userId: payload.userId, listingId: listing._id });
       if (existingReview) {
         existingReview.rating = body.rating;
@@ -151,7 +141,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         existingReview.backupRating = body.backupRating;
         existingReview.responsivenessRating = body.responsivenessRating;
         existingReview.comment = body.comment;
-        existingReview.aiSummary = aiSummary || undefined;
         await existingReview.save();
       } else {
         const newReview = new Review({
@@ -165,13 +154,16 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
           backupRating: body.backupRating,
           responsivenessRating: body.responsivenessRating,
           comment: body.comment,
-          aiSummary: aiSummary || undefined,
           geofenceVerified: true,
         });
         await newReview.save();
         listing.reviewCount = (listing.reviewCount || 0) + 1;
-        await listing.save();
       }
+      
+      const allReviews = await Review.find({ listingId: listing._id });
+      const listingAiSummary = await generateReviewSummary(allReviews);
+      listing.aiSummary = listingAiSummary || undefined;
+      await listing.save();
     }
 
     return NextResponse.json({

@@ -33,6 +33,7 @@ export interface IListing extends Document {
   billsIncluded?: boolean;
   genderCategory?: 'boys' | 'girls' | 'both' | '';
   images?: string[];
+  aiSummary?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -76,6 +77,7 @@ const listingSchema = new Schema<IListing>(
     billsIncluded: { type: Boolean, default: false },
     genderCategory: { type: String, enum: ['boys', 'girls', 'both', ''], default: '' },
     images: { type: [String], default: [] },
+    aiSummary: { type: String },
   },
   { timestamps: true }
 );

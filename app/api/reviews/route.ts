@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     const reviews = await Review.find({ 
       listingId: new mongoose.Types.ObjectId(listingId) 
     })
-      .select('rating wifiRating foodRating securityRating behaviorRating backupRating responsivenessRating comment aiSummary createdAt geofenceVerified')
+      .select('rating wifiRating foodRating securityRating behaviorRating backupRating responsivenessRating comment createdAt geofenceVerified')
       .sort({ createdAt: -1 });
 
     return NextResponse.json({ data: reviews });
@@ -105,16 +105,6 @@ export async function POST(req: NextRequest) {
     }
 
     // 6. Create Review
-    const aiSummary = await generateReviewSummary({
-      rating: validated.rating,
-      wifiRating: validated.wifiRating,
-      foodRating: validated.foodRating,
-      securityRating: validated.securityRating,
-      behaviorRating: validated.behaviorRating,
-      backupRating: validated.backupRating,
-      responsivenessRating: validated.responsivenessRating,
-    });
-
     const newReview = new Review({
       userId: payload.userId,
       listingId: validated.listingId,
@@ -126,15 +116,20 @@ export async function POST(req: NextRequest) {
       backupRating: validated.backupRating,
       responsivenessRating: validated.responsivenessRating,
       comment: validated.comment,
-      aiSummary: aiSummary || undefined,
       geofenceVerified: isGeofenceVerified,
     });
 
     await newReview.save();
 
+    // Fetch all reviews for this listing to generate a combined summary
+    const allReviews = await Review.find({ listingId: validated.listingId });
+    
+    const aiSummary = await generateReviewSummary(allReviews);
+
     // 7. Update Listing Analytics
     await Listing.findByIdAndUpdate(validated.listingId, {
-      $inc: { reviewCount: 1 }
+      $inc: { reviewCount: 1 },
+      aiSummary: aiSummary || undefined
     });
 
     return NextResponse.json(
@@ -150,7 +145,6 @@ export async function POST(req: NextRequest) {
           backupRating: newReview.backupRating,
           responsivenessRating: newReview.responsivenessRating,
           comment: newReview.comment,
-          aiSummary: newReview.aiSummary,
           geofenceVerified: newReview.geofenceVerified,
           createdAt: newReview.createdAt,
         },

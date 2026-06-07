@@ -54,6 +54,7 @@ interface Listing {
   foodIncluded?: boolean;
   billsIncluded?: boolean;
   genderCategory?: string;
+  aiSummary?: string;
   legacyBundle?: {
     mattress?: boolean;
     cooler?: boolean;
@@ -731,6 +732,25 @@ export default function ListingDetailPage() {
                   )}
                </div>
 
+               {listing.aiSummary && (
+                 <div className="mb-10 bg-indigo-50/50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 rounded-[2rem] p-6 sm:p-8 relative overflow-hidden group">
+                   <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                     <Zap className="w-12 h-12 text-indigo-500" />
+                   </div>
+                   <div className="relative z-10">
+                     <div className="flex items-center gap-2 mb-3">
+                       <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center">
+                         <Zap className="w-3.5 h-3.5 text-white" />
+                       </div>
+                       <span className="text-micro font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em]">Collective AI Insight</span>
+                     </div>
+                     <p className="text-slate-700 dark:text-indigo-100 text-sm sm:text-base leading-relaxed font-semibold italic">
+                       "{listing.aiSummary}"
+                     </p>
+                   </div>
+                 </div>
+               )}
+
                {canReview && (
                 <form id="review-form" onSubmit={handleReviewSubmit} className="mb-10 bg-slate-50 dark:bg-slate-900/40 rounded-[2rem] p-5 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xl shadow-slate-100 dark:shadow-none">
                   <h3 className="text-micro font-black mb-6 text-gray-900 dark:text-white uppercase tracking-[0.25em]">Rate Your Stay</h3>
@@ -830,27 +850,17 @@ export default function ListingDetailPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                        <div className="md:col-span-3 space-y-4">
-                          {review.aiSummary && (
-                            <div className="p-3.5 bg-brand-primary/5 dark:bg-brand-primary/10 border-l-2 border-brand-primary rounded-r-xl relative overflow-hidden group">
-                              <p className="text-sm text-brand-primary dark:text-brand-primary italic leading-relaxed font-bold">
-                                "{review.aiSummary}"
-                              </p>
-                              <div className="mt-2 text-[9px] font-black text-brand-primary/60 uppercase tracking-widest flex items-center gap-1">
-                                <Zap className="w-2.5 h-2.5" /> AI VERIFIED SUMMARY
-                              </div>
-                            </div>
-                          )}
                           <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-medium">{review.comment}</p>
                        </div>
 
                        <div className="md:col-span-2 bg-slate-50/50 dark:bg-slate-950/20 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-x-4 gap-y-3 h-fit self-start shadow-inner">
                           {[
-                            { label: 'Net', val: review.wifiRating },
+                            { label: 'Network', val: review.wifiRating },
                             { label: 'Food', val: review.foodRating },
-                            { label: 'Safe', val: review.securityRating },
-                            { label: 'Host', val: review.behaviorRating },
-                            { label: 'Power', val: review.backupRating },
-                            { label: 'Resp', val: review.responsivenessRating },
+                            { label: 'Safety', val: review.securityRating },
+                            { label: 'Owner', val: review.behaviorRating },
+                            { label: 'Power backup', val: review.backupRating },
+                            { label: 'Response time', val: review.responsivenessRating },
                           ].map(m => m.val ? (
                             <div key={m.label} className="space-y-1">
                               <div className="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
