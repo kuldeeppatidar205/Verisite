@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
 
     // Automatically create a review if this is a PG rating from a student
     if (userRole === 'STUDENT' && validated.listingType === 'pg' && body.rating && body.comment) {
-      const aiSummary = await generateReviewSummary({
+      const aiSummary = await generateReviewSummary([{
         rating: body.rating,
         wifiRating: body.wifiRating,
         foodRating: body.foodRating,
@@ -178,7 +178,8 @@ export async function POST(req: NextRequest) {
         behaviorRating: body.behaviorRating,
         backupRating: body.backupRating,
         responsivenessRating: body.responsivenessRating,
-      });
+        comment: body.comment,
+      }]);
 
       const newReview = new Review({
         userId: payload.userId,
@@ -191,12 +192,12 @@ export async function POST(req: NextRequest) {
         backupRating: body.backupRating,
         responsivenessRating: body.responsivenessRating,
         comment: body.comment,
-        aiSummary: aiSummary || undefined,
         geofenceVerified: true,
       });
       await newReview.save();
       
       newListing.reviewCount = 1;
+      newListing.aiSummary = aiSummary || undefined;
       await newListing.save();
     }
 

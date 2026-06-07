@@ -246,14 +246,19 @@ export default function BrowsePage() {
                 >
                   Price
                 </button>
-                {userProfile?.favoriteCollege?.lat && (
-                  <button 
-                    onClick={() => setSortBy('proximity')}
-                    className={`px-3 py-1.5 rounded-md text-[10px] uppercase tracking-widest font-black transition-all ${sortBy === 'proximity' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
-                  >
-                    Near
-                  </button>
-                )}
+                <button 
+                  onClick={() => {
+                    if (userProfile?.favoriteCollege?.lat) {
+                      setSortBy('proximity');
+                    } else {
+                      alert('Please set your Campus/Institution in your profile to sort by proximity.');
+                      router.push('/profile');
+                    }
+                  }}
+                  className={`px-3 py-1.5 rounded-md text-[10px] uppercase tracking-widest font-black transition-all ${sortBy === 'proximity' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
+                >
+                  Nearest to College
+                </button>
              </div>
 
              <div className="flex bg-gray-100 dark:bg-slate-800 p-1.5 rounded-lg">

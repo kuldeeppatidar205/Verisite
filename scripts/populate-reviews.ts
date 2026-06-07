@@ -25,7 +25,7 @@ async function populateReviews() {
       review.backupRating = Math.floor(Math.random() * 3) + 3;
       review.responsivenessRating = Math.floor(Math.random() * 3) + 3;
       
-      const summary = await generateReviewSummary({
+      const summary = await generateReviewSummary([{
         rating: review.rating,
         wifiRating: review.wifiRating,
         foodRating: review.foodRating,
@@ -33,7 +33,8 @@ async function populateReviews() {
         behaviorRating: review.behaviorRating,
         backupRating: review.backupRating,
         responsivenessRating: review.responsivenessRating,
-      });
+        comment: review.comment,
+      }]);
       
       review.aiSummary = summary || undefined;
       await review.save();
@@ -67,19 +68,31 @@ async function populateReviews() {
           responsivenessRating: 4,
         };
 
-        const summary = await generateReviewSummary(ratings);
+        const comment = comments[i % comments.length];
+        const summary = await generateReviewSummary([{
+          ...ratings,
+          comment
+        }]);
 
         const newReview = new Review({
           userId: student._id,
           listingId: listings[i]._id,
           ...ratings,
-          comment: comments[i % comments.length],
+          comment,
           aiSummary: summary || undefined,
           geofenceVerified: true,
         });
 
         await newReview.save();
-        await Listing.findByIdAndUpdate(listings[i]._id, { $inc: { reviewCount: 1 } });
+        
+        // Also update listing with combined summary (backfill style)
+        const allReviews = await Review.find({ listingId: listings[i]._id });
+        const listingAiSummary = await generateReviewSummary(allReviews);
+        
+        await Listing.findByIdAndUpdate(listings[i]._id, { 
+          $inc: { reviewCount: 1 },
+          aiSummary: listingAiSummary || undefined
+        });
         console.log(`Added new review for ${listings[i].pgName}`);
       }
     }
