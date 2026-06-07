@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { listingSchema } from '@/lib/validators';
-import { extractTokenFromHeader, verifyToken } from '@/lib/auth';
+import { extractTokenFromHeader, verifyToken, isAdmin } from '@/lib/auth';
 import { Listing } from '@/lib/models/Listing';
 import { Review } from '@/lib/models/Review';
 import { User } from '@/lib/models/User';
@@ -70,26 +70,27 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     await connectToDatabase();
 
-    // Check ownership
+    // Check ownership (Bypass if Admin)
+    const isUserAdmin = await isAdmin(req);
     const listing = await Listing.findById(id);
     if (!listing) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
-    if (listing.userId.toString() !== payload.userId) {
+    if (!isUserAdmin && listing.userId.toString() !== payload.userId) {
       return NextResponse.json({ error: 'You can only edit your own listings' }, { status: 403 });
     }
 
-    // Lock Location for Student Listings
-    if (!listing.isOwnerListing) {
+    // Lock Location for Student Listings (Bypass if Admin)
+    if (!isUserAdmin && !listing.isOwnerListing) {
       // If coordinates changed, block it
       if (validated.lat !== listing.coordinates.lat || validated.lng !== listing.coordinates.lng) {
         return NextResponse.json({ error: 'Address/Location cannot be changed after creation for student listings.' }, { status: 403 });
       }
     }
 
-    // Prevent changing listingType after creation
-    if (validated.listingType !== listing.listingType) {
+    // Prevent changing listingType after creation (Bypass if Admin)
+    if (!isUserAdmin && validated.listingType !== listing.listingType) {
       return NextResponse.json({ error: 'Listing type cannot be changed after creation.' }, { status: 400 });
     }
 

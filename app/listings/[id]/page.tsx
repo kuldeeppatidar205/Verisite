@@ -13,7 +13,6 @@ import {
   Edit3, 
   Mail, 
   Phone, 
-  ChevronLeft, 
   Users, 
   Utensils, 
   Zap, 
@@ -26,7 +25,9 @@ import {
   X,
   Maximize2,
   Bike,
-  Bus
+  Bus,
+  ExternalLink,
+  ShieldCheck
 } from 'lucide-react';
 
 interface Listing {
@@ -84,9 +85,12 @@ interface Review {
   aiSummary?: string;
   geofenceVerified: boolean;
   createdAt: string;
+  userId?: {
+    name: string;
+  };
 }
 
-function DistanceResult({ dist, collegeName, lat, lng, userProfile, listing, onSave }: { 
+function DistanceResult({ dist, collegeName, lat, lng, userProfile, onSave }: { 
   dist: number; 
   collegeName: string; 
   lat: number; 
@@ -126,36 +130,36 @@ function DistanceResult({ dist, collegeName, lat, lng, userProfile, listing, onS
   };
 
   return (
-    <div className={`p-4 rounded-xl border animate-in fade-in slide-in-from-top-2 bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-900 dark:text-white`}>
+    <div className={`p-4 rounded-2xl border animate-in fade-in slide-in-from-top-2 bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-900 dark:text-white`}>
       <div className="flex justify-between items-start mb-2">
-        <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Distance</p>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Commute</p>
         {badge && (
-          <span className="flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-md">
-            <CheckCircle2 className="w-3 h-3" /> {badge}
+          <span className="flex items-center gap-1 text-[9px] font-black uppercase px-2 py-0.5 bg-accent-emerald/10 text-accent-emerald rounded">
+            {badge}
           </span>
         )}
       </div>
-      <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-        {km} km <span className="text-[15px] font-normal text-gray-500 dark:text-slate-400">away</span>
+      <p className="text-xl font-black text-gray-900 dark:text-white">
+        {km} km <span className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider ml-1">away</span>
       </p>
       <div className="mt-3 space-y-2">
-        <div className="text-[13px] text-gray-600 dark:text-slate-300 flex items-center gap-2 font-medium">
-           <Bike className="w-4 h-4 text-primary-500" /> ~{scootyMins} mins by scooty
+        <div className="text-[12px] text-gray-600 dark:text-slate-400 flex items-center gap-2 font-bold uppercase tracking-tight">
+           <Bike className="w-3.5 h-3.5 text-primary-500" /> ~{scootyMins}m scooty
         </div>
-        <div className="text-[13px] text-gray-600 dark:text-slate-300 flex items-center gap-2 font-medium">
-           <Bus className="w-4 h-4 text-primary-500" /> ~{busMins} mins by bus
+        <div className="text-[12px] text-gray-600 dark:text-slate-400 flex items-center gap-2 font-bold uppercase tracking-tight">
+           <Bus className="w-3.5 h-3.5 text-primary-500" /> ~{busMins}m bus
         </div>
       </div>
-      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
-        <p className="text-[12px] text-gray-500 dark:text-slate-400 line-clamp-2 italic">{collegeName}</p>
+      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800">
+        <p className="text-[11px] text-gray-500 dark:text-slate-500 line-clamp-1 italic font-medium">{collegeName}</p>
       </div>
       
       {userProfile && (!userProfile.favoriteCollege || userProfile.favoriteCollege.name !== collegeName) && (
         <button
           onClick={handleSave}
-          className="mt-4 text-[13px] font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1"
+          className="mt-3 text-[11px] font-black text-primary-600 dark:text-primary-400 hover:underline uppercase tracking-widest"
         >
-          Set as default college
+          Set Default
         </button>
       )}
     </div>
@@ -172,7 +176,6 @@ function CommuteDistanceModule({
   setSearchResult, 
   listing, 
   userProfile, 
-  token, 
   onProfileUpdate 
 }: {
   autoDist: any;
@@ -189,15 +192,15 @@ function CommuteDistanceModule({
 }) {
   return (
     <div className="w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2">
-        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-           <Search className="w-5 h-5 text-primary-500" /> Commute Distance
+      <div className="flex items-center justify-between mb-4 gap-2">
+        <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+           <Search className="w-3.5 h-3.5 text-primary-500" /> Commute Distance
         </h2>
         <button 
           onClick={() => setShowSearch(!showSearch)} 
-          className="text-[12px] sm:text-[13px] font-bold text-primary-600 dark:text-primary-400 hover:underline uppercase tracking-wider text-left sm:text-right"
+          className="text-[10px] font-black text-primary-600 dark:text-primary-400 hover:underline uppercase tracking-widest"
         >
-          {showSearch ? 'Cancel Search' : (autoDist ? 'Change College' : 'Check Distance')}
+          {showSearch ? 'Cancel' : (autoDist ? 'Change' : 'Check')}
         </button>
       </div>
       
@@ -215,15 +218,15 @@ function CommuteDistanceModule({
         )}
 
         {showSearch && (
-          <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="animate-in fade-in slide-in-from-top-1 duration-300">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
                 autoFocus
-                placeholder="Search college/university..."
+                placeholder="College name..."
                 disabled={distLoading}
-                className="w-full pl-10 pr-10 py-3 text-[14px] sm:text-[15px] bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-gray-900 dark:text-white shadow-sm"
+                className="w-full pl-10 pr-10 py-2.5 text-xs font-bold bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-gray-900 dark:text-white"
                 onKeyDown={async (e) => {
                   if (e.key === 'Enter') {
                     const query = (e.target as HTMLInputElement).value;
@@ -237,7 +240,7 @@ function CommuteDistanceModule({
                         const d = calculateDistance(listing.coordinates.lat, listing.coordinates.lng, data.lat, data.lon);
                         setSearchResult({ dist: d, name: data.name, lat: data.lat, lng: data.lon });
                       } else {
-                        alert('College not found.');
+                        alert('Not found.');
                       }
                     } catch (err) {
                       console.error(err);
@@ -247,9 +250,8 @@ function CommuteDistanceModule({
                   }
                 }}
               />
-              {distLoading && <div className="absolute right-3 top-1/2 -translate-y-1/2"><div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>}
+              {distLoading && <div className="absolute right-3 top-1/2 -translate-y-1/2"><div className="w-3.5 h-3.5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>}
             </div>
-            <p className="mt-2 text-[11px] text-gray-500 dark:text-slate-500 pl-1 font-medium">Press Enter to search</p>
           </div>
         )}
 
@@ -497,7 +499,7 @@ export default function ListingDetailPage() {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col items-center justify-center px-4 text-center">
         <h1 className="text-3xl font-semibold mb-4 text-gray-900 dark:text-white">Listing not found</h1>
-        <Link href="/browse" className="bg-primary-600 text-white px-6 py-3 rounded-lg font-bold">Back to listings</Link>
+        <Link href="/browse" className="bg-primary-600 text-white px-6 py-3 rounded-lg font-bold transition-all active:scale-95">Back to listings</Link>
       </div>
     );
   }
@@ -509,76 +511,80 @@ export default function ListingDetailPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-500">
       <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-transform group-hover:scale-105">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+            <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center transition-transform group-hover:scale-105">
               <img src="/logo image short.png" alt="Logo" className="w-full h-full object-cover rounded-full" />
             </div>
             <h1 className="text-lg sm:text-xl font-bold tracking-tight text-gray-900 dark:text-white">Verisite</h1>
           </Link>
           <div className="flex items-center gap-3 sm:gap-4">
             <ThemeToggle />
-            <Link href="/browse" className="text-sm sm:text-[15px] font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-1">
-              <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">Listings</span>
+            <Link href="/browse" className="text-sm font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-1">
+              <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">Browse</span>
             </Link>
           </div>
         </div>
       </nav>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
-        {/* Header Section */}
-        <div className="mb-8 border-b border-gray-200 dark:border-slate-800 pb-8">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* Header Section - High Density */}
+        <div className="mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="w-full">
-              <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-primary-600 dark:text-primary-400 mb-3">
-                 <span className="px-2 py-0.5 bg-primary-50 dark:bg-primary-900/20 rounded">
-                   {listing.listingType === 'roommate' ? 'Roommate Search' : listing.listingType === 'handover' ? 'Room Handover' : 'PG Listing'}
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                 <span className="px-2 py-0.5 bg-primary-50 dark:bg-primary-900/30 text-[9px] font-black uppercase tracking-widest text-primary-600 dark:text-primary-400 rounded">
+                   {listing.listingType === 'roommate' ? 'Roommate Search' : listing.listingType === 'handover' ? 'Room Handover' : 'Student Rating'}
                  </span>
-                 {!listing.isOwnerListing && <span className="text-gray-400 hidden sm:inline">• Verified by Student</span>}
+                 {!listing.isOwnerListing && (
+                   <span className="flex items-center gap-1 text-[9px] font-black text-accent-emerald uppercase tracking-widest bg-accent-emerald/5 px-2 py-0.5 rounded border border-accent-emerald/10">
+                     <ShieldCheck className="w-2.5 h-2.5" /> Verified Truth
+                   </span>
+                 )}
               </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight leading-tight">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-2 tracking-tight leading-tight">
                 {listing.pgName || listing.userId?.hostelName || 'Verified Property'}
               </h1>
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm sm:text-[15px] text-gray-600 dark:text-slate-400">
-                <span className="flex items-center gap-1.5 font-medium">
-                   <MapPin className="w-4 h-4 text-gray-400 shrink-0" /> <span className="truncate max-w-50 sm:max-w-none">{listing.address || 'Location Verified'}</span>
+              <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">
+                <span className="flex items-center gap-1.5 max-w-[200px] sm:max-w-none">
+                   <MapPin className="w-3.5 h-3.5 text-primary-500 shrink-0" /> <span className="truncate">{listing.address || 'Location Verified'}</span>
                 </span>
                 {listing.coordinates && (
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${listing.coordinates.lat},${listing.coordinates.lng}`}
                     target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1 hover:underline text-primary-600 font-semibold whitespace-nowrap"
+                    className="flex items-center gap-1 text-primary-600 dark:text-primary-400 hover:underline transition-colors whitespace-nowrap"
                   >
-                    Google Maps <Info className="w-3.5 h-3.5" />
+                    View Map <ExternalLink className="w-3 h-3" />
                   </a>
                 )}
               </div>
             </div>
             {isOwner && (
-              <div className="flex gap-2 w-full md:w-auto">
-                <Link href={`/create-listing?id=${id}`} className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 transition-colors text-center text-sm font-semibold flex items-center justify-center gap-2 text-gray-900 dark:text-white">
-                  <Edit3 className="w-4 h-4" /> Edit
+              <div className="flex gap-2 w-full md:w-auto shrink-0 mt-2 md:mt-0">
+                <Link href={`/create-listing?id=${id}`} className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 transition-colors text-center text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 text-gray-900 dark:text-white">
+                  <Edit3 className="w-3.5 h-3.5" /> Edit
                 </Link>
-                <button onClick={handleDeleteListing} disabled={!listing.isOwnerListing && listing.reviewCount > 1} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-30">
-                  <Trash2 className="w-5 h-5" />
+                <button onClick={handleDeleteListing} disabled={!listing.isOwnerListing && listing.reviewCount > 1} className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-30">
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             )}
           </div>
           
           {!isRatingPost && (
-            <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-start sm:items-center justify-between">
-              <div className="flex flex-col">
-                 <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                   ₹{(listing.price ?? 0).toLocaleString('en-IN')} <span className="text-base sm:text-lg font-normal text-gray-500">/ month</span>
+            <div className="flex flex-wrap gap-4 items-center justify-between py-3 mt-4 border-y border-slate-100 dark:border-slate-800">
+              <div className="flex items-baseline gap-1">
+                 <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tighter">
+                   ₹{(listing.price ?? 0).toLocaleString('en-IN')}
                  </span>
+                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">/ month</span>
               </div>
               {listing.isOwnerListing && (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-900 rounded-full border border-slate-100 dark:border-slate-800">
-                   <Users className="w-4 h-4 text-primary-500" />
-                   <span className="text-xs font-bold text-gray-700 dark:text-slate-300">
-                     {listing.availableRooms}/{listing.totalRooms} Rooms Available
+                <div className="flex items-center gap-2 px-3 py-1 bg-primary-50 dark:bg-primary-900/20 rounded-full border border-primary-100 dark:border-primary-900/30">
+                   <Users className="w-3.5 h-3.5 text-primary-500" />
+                   <span className="text-[10px] font-black text-primary-700 dark:text-primary-400 uppercase tracking-widest">
+                     {listing.availableRooms}/{listing.totalRooms} Available
                    </span>
                 </div>
               )}
@@ -586,177 +592,114 @@ export default function ListingDetailPage() {
           )}
         </div>
 
-        {/* Image Gallery */}
-        {listing.images && listing.images.length > 0 && (
-          <div className="mb-10 sm:mb-12 group">
-            <div className={`grid gap-3 sm:gap-4 ${listing.images.length === 1 ? 'grid-cols-1' : listing.images.length === 2 ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-3'}`}>
-              {listing.images.map((imgUrl, index) => (
-                <div 
-                  key={index} 
-                  onClick={() => setFullScreenImage(imgUrl)}
-                  className={`relative rounded-xl sm:rounded-2xl overflow-hidden bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 cursor-zoom-in shadow-sm transition-all duration-300 hover:shadow-xl ${listing.images!.length === 3 && index === 0 ? 'md:col-span-2 md:row-span-2 aspect-16/10 md:aspect-auto' : 'aspect-16/10 md:aspect-4/3'}`}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={imgUrl}
-                    alt={`Room Image ${index + 1}`}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                     <div className="bg-white/90 p-2 sm:p-3 rounded-full shadow-lg transform scale-90 hover:scale-100 transition-transform">
-                        <Maximize2 className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
-                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Full Screen Overlay */}
-        {fullScreenImage && (
-          <div className="fixed inset-0 z-100 bg-black/95 flex items-center justify-center p-4 animate-in fade-in" onClick={() => setFullScreenImage(null)}>
-            <button className="absolute top-6 right-6 text-white hover:opacity-70 transition-opacity"><X className="w-8 h-8" /></button>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={fullScreenImage} alt="Full View" className="max-w-full max-h-full object-contain rounded-lg animate-in zoom-in-95" />
-          </div>
-        )}
-
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 pb-12">
-          <div className="md:col-span-2 space-y-10 md:space-y-12">
-            <div ref={mainContentRef} className="space-y-10 md:space-y-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-8 space-y-6">
+            {/* Image Gallery - Highly Space Efficient */}
+            {listing.images && listing.images.length > 0 && (
+              <div className="group relative">
+                <div className={`grid gap-1.5 ${listing.images.length === 1 ? 'grid-cols-1' : listing.images.length === 2 ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-4 md:grid-rows-2 h-[280px] sm:h-[380px]'}`}>
+                  {listing.images.map((imgUrl, index) => (
+                    <div 
+                      key={index} 
+                      onClick={() => setFullScreenImage(imgUrl)}
+                      className={`relative rounded-xl overflow-hidden bg-gray-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 cursor-zoom-in group/img ${
+                        listing.images!.length >= 3 
+                          ? index === 0 ? 'md:col-span-3 md:row-span-2' : 'hidden md:block'
+                          : 'aspect-16/10'
+                      }`}
+                    >
+                      <img
+                        src={imgUrl}
+                        alt={`Room Image ${index + 1}`}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                         <div className="bg-white/90 p-2 rounded-full shadow-lg transform scale-90 group-hover/img:scale-100 transition-transform">
+                            <Maximize2 className="w-4 h-4 text-gray-900" />
+                         </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {listing.images.length > 3 && (
+                   <button onClick={() => setFullScreenImage(listing.images![0])} className="absolute bottom-3 right-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-200 dark:border-slate-800 shadow-xl flex items-center gap-2 hover:bg-white transition-all">
+                      <Maximize2 className="w-3 h-3" /> All Photos
+                   </button>
+                )}
+              </div>
+            )}
+
+            <div className="space-y-6">
+              {/* Description - More Compact */}
               <section>
-                <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
-                   <Info className="w-5 h-5 text-primary-500" /> About this place
+                <h2 className="text-[10px] font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-[0.2em]">
+                   <Info className="w-3.5 h-3.5 text-primary-500" /> Description
                 </h2>
-                <p className="text-gray-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed whitespace-pre-wrap">{listing.roomDetails}</p>
+                <div className="bg-slate-50/50 dark:bg-slate-900/30 p-4 sm:p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
+                  <p className="text-gray-600 dark:text-slate-300 text-[14px] leading-relaxed whitespace-pre-wrap">{listing.roomDetails}</p>
+                </div>
               </section>
 
-              {/* Specs */}
-              {(listing.sharingType || listing.foodIncluded || listing.billsIncluded) && (
-                <section>
-                  <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
-                    <Users className="w-5 h-5 text-primary-500" /> Accommodation Details
-                  </h2>
-                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-6">
-                    {listing.genderCategory && (
-                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 sm:p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                        <Users className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                        <span className="font-semibold capitalize text-xs sm:text-sm">
-                          {listing.genderCategory === 'both' ? 'Co-living (Both)' : `${listing.genderCategory} only`}
-                        </span>
-                      </div>
-                    )}
-                    {listing.sharingType && (
-                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 sm:p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                        <Users className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                        <span className="font-semibold capitalize text-xs sm:text-sm">{listing.sharingType} Sharing</span>
-                      </div>
-                    )}
-                    {listing.foodIncluded && (
-                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 sm:p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                        <Utensils className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                        <span className="font-semibold text-xs sm:text-sm">Food Included</span>
-                      </div>
-                    )}
-                    {listing.billsIncluded && (
-                      <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-3 sm:p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                        <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                        <span className="font-semibold text-xs sm:text-sm">Bills Included</span>
-                      </div>
-                    )}
-                  </div>
-                </section>
-              )}
-
-              {listing.listingType === 'handover' && listing.legacyBundle && (
+              {/* Combined Specs Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {(listing.sharingType || listing.foodIncluded || listing.billsIncluded) && (
                   <section>
-                    <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
-                      <Package className="w-5 h-5 text-primary-500" /> Handover Items
+                    <h2 className="text-[10px] font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-[0.2em]">
+                      <Users className="w-3.5 h-3.5 text-primary-500" /> Specifications
                     </h2>
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                      {listing.legacyBundle.mattress && <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 sm:p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Mattress</div>}
-                      {listing.legacyBundle.cooler && <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 sm:p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Cooler</div>}
-                      {listing.legacyBundle.shelf && <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 sm:p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Shelf</div>}
-                      {listing.legacyBundle.lamp && <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 sm:p-3 rounded-lg border border-slate-100 dark:border-slate-800">✅ Lamp</div>}
+                    <div className="grid grid-cols-2 gap-2">
+                      {listing.genderCategory && (
+                        <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs flex flex-col gap-1">
+                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Gender</span>
+                          <span className="font-black text-[12px] capitalize truncate">{listing.genderCategory === 'both' ? 'Mixed' : listing.genderCategory}</span>
+                        </div>
+                      )}
+                      {listing.sharingType && (
+                        <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs flex flex-col gap-1">
+                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Sharing</span>
+                          <span className="font-black text-[12px] capitalize truncate">{listing.sharingType}</span>
+                        </div>
+                      )}
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs flex flex-col gap-1">
+                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Food</span>
+                        <span className={`text-[12px] font-black ${listing.foodIncluded ? 'text-accent-emerald' : 'text-slate-400'}`}>{listing.foodIncluded ? 'Yes' : 'No'}</span>
+                      </div>
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs flex flex-col gap-1">
+                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Bills</span>
+                        <span className={`text-[12px] font-black ${listing.billsIncluded ? 'text-accent-emerald' : 'text-slate-400'}`}>{listing.billsIncluded ? 'Yes' : 'No'}</span>
+                      </div>
                     </div>
                   </section>
-              )}
-            </div>
+                )}
 
-            {userProfile?.role === 'STUDENT' && !shouldMoveToSidebar && (
-              <section className="pt-8 sm:pt-10 border-t border-gray-100 dark:border-slate-800">
-                <CommuteDistanceModule 
-                  autoDist={autoDist}
-                  showSearch={showSearch}
-                  setShowSearch={setShowSearch}
-                  distLoading={distLoading}
-                  setDistLoading={setDistLoading}
-                  searchResult={searchResult}
-                  setSearchResult={setSearchResult}
-                  listing={listing}
-                  userProfile={userProfile}
-                  token={token}
-                  onProfileUpdate={() => fetchUserProfile(token!)}
-                />
-              </section>
-            )}
-          </div>
-
-          <div ref={sidebarRef} className="space-y-6">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm  top-24">
-              <div className="mb-6">
-                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Availability</h3>
-                 <div className="flex items-center gap-2 text-[15px] font-bold text-gray-900 dark:text-white">
-                   <Calendar className="w-4 h-4 text-primary-500" />
-                   {listing.availableDate ? new Date(listing.availableDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Ready Now'}
-                 </div>
-              </div>
-              
-              <div className="pt-6 border-t border-gray-200 dark:border-slate-800">
-                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Listed by</h3>
-                <p className="text-gray-900 dark:text-white font-bold mb-1 text-[16px]">
-                  {listing.isOwnerListing || listing.handoverMode || listing.listingType === 'roommate' ? listing.userId?.name || 'Verified User' : 'Anonymous Student'}
-                </p>
-                <div className="flex items-center gap-1.5 text-[13px] text-gray-500 dark:text-slate-400 mb-6">
-                   <Clock className="w-3.5 h-3.5" /> Since {new Date(listing.createdAt).getFullYear()}
-                </div>
-
-                {token ? (
-                  (listing.isOwnerListing || listing.handoverMode || listing.listingType === 'roommate') ? (
-                    listing.userId?.email ? (
-                      <div className="space-y-3">
-                        <a href={`mailto:${listing.userId.email}`} className="flex items-center justify-center gap-2 w-full py-3.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-500/20">
-                          <Mail className="w-4 h-4" /> Send Email
-                        </a>
-                        <div className="text-[14px] space-y-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                          <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300 font-medium">
-                             <Mail className="w-4 h-4 opacity-50" /> {listing.userId.email}
-                          </div>
-                          {listing.userId.phoneNumber && (
-                             <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300 font-medium">
-                                <Phone className="w-4 h-4 opacity-50" /> {listing.userId.phoneNumber}
-                             </div>
-                          )}
+                {listing.listingType === 'handover' && listing.legacyBundle && (
+                  <section>
+                    <h2 className="text-[10px] font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-[0.2em]">
+                      <Package className="w-3.5 h-3.5 text-primary-500" /> Bundle
+                    </h2>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { label: 'Mattress', active: listing.legacyBundle.mattress },
+                        { label: 'Cooler', active: listing.legacyBundle.cooler },
+                        { label: 'Shelf', active: listing.legacyBundle.shelf },
+                        { label: 'Lamp', active: listing.legacyBundle.lamp },
+                      ].map(item => (
+                        <div key={item.label} className={`flex items-center justify-between p-2.5 rounded-xl border transition-colors ${item.active ? 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 shadow-xs' : 'bg-slate-50/50 dark:bg-slate-900/10 border-transparent opacity-20'}`}>
+                           <span className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-tighter">{item.label}</span>
+                           {item.active && <CheckCircle2 className="w-3 h-3 text-accent-emerald" />}
                         </div>
-                      </div>
-                    ) : null
-                  ) : (
-                    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-[13px] text-center text-gray-500 border border-dashed border-slate-200 dark:border-slate-700">
-                      Identity protected for review integrity.
+                      ))}
                     </div>
-                  )
-                ) : (
-                  <Link href="/login" className="flex items-center justify-center gap-2 w-full py-3.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-colors">
-                    <Zap className="w-4 h-4" /> Sign in to contact
-                  </Link>
+                  </section>
                 )}
               </div>
             </div>
 
-            {userProfile?.role === 'STUDENT' && shouldMoveToSidebar && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
+            {/* Commute Module */}
+            {userProfile?.role === 'STUDENT' && !shouldMoveToSidebar && (
+              <section className="pt-6 border-t border-slate-100 dark:border-slate-800">
                 <CommuteDistanceModule 
                   autoDist={autoDist}
                   showSearch={showSearch}
@@ -770,159 +713,245 @@ export default function ListingDetailPage() {
                   token={token}
                   onProfileUpdate={() => fetchUserProfile(token!)}
                 />
-              </div>
+              </section>
             )}
-          </div>
-        </div>
 
-        {/* Reviews Section */}
-        <div className="pt-20">
-          <div className="flex items-center justify-between mb-10">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-              Reviews <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded-md text-sm">{reviews.length}</span>
-            </h2>
-          </div>
+            {/* Reviews Section - Modern & Spaced Efficiently */}
+            <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
+               <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-3">
+                    Verified Truth
+                    <span className="bg-primary-600 text-white px-2 py-0.5 rounded-md text-[10px] font-black">{reviews.length}</span>
+                  </h2>
+                  {canReview && !isRatingPost && (
+                    <button onClick={() => {
+                      const form = document.getElementById('review-form');
+                      form?.scrollIntoView({ behavior: 'smooth' });
+                    }} className="text-[10px] font-black text-primary-600 uppercase tracking-widest hover:underline">Write One</button>
+                  )}
+               </div>
 
-          {canReview && (
-            <form onSubmit={handleReviewSubmit} className="mb-12 bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-8 border border-slate-200 dark:border-slate-800">
-              <h3 className="text-lg font-bold mb-6 text-gray-900 dark:text-white">Write a review</h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-                 {[
-                  { label: 'Wi-Fi Speed & Reliability', key: 'wifiRating' },
-                  { label: 'Food Quality & Menu Cycle', key: 'foodRating' },
-                  { label: 'Security', key: 'securityRating' },
-                  { label: 'Warden and owner behaviour', key: 'behaviorRating' },
-                  { label: 'Water & Power Backup', key: 'backupRating' },
-                  { label: 'Management Responsiveness', key: 'responsivenessRating' },
-                ].map((field) => (
-                  <div key={field.key} className="space-y-2">
-                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                      {field.label}
-                    </label>
-                    <div className="flex bg-white dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
-                      {[1, 2, 3, 4, 5].map((val) => (
-                        <button
-                          key={val}
-                          type="button"
-                          onClick={() => setNewReview(prev => ({ ...prev, [field.key]: val }))}
-                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                            (newReview as Record<string, unknown>)[field.key] === val
-                              ? 'bg-primary-600 text-white shadow-sm'
-                              : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
-                          }`}
-                        >
-                          {val}
-                        </button>
-                      ))}
+               {canReview && (
+                <form id="review-form" onSubmit={handleReviewSubmit} className="mb-10 bg-slate-50 dark:bg-slate-900/40 rounded-[2rem] p-5 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xl shadow-slate-100 dark:shadow-none">
+                  <h3 className="text-xs font-black mb-6 text-gray-900 dark:text-white uppercase tracking-[0.25em]">Rate Your Stay</h3>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                     {[
+                      { label: 'Wi-Fi', key: 'wifiRating' },
+                      { label: 'Food', key: 'foodRating' },
+                      { label: 'Safe', key: 'securityRating' },
+                      { label: 'Host', key: 'behaviorRating' },
+                      { label: 'Power', key: 'backupRating' },
+                      { label: 'Resp', key: 'responsivenessRating' },
+                    ].map((field) => (
+                      <div key={field.key} className="bg-white dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+                        <label className="block text-[7px] font-black text-slate-400 uppercase tracking-tighter mb-1.5 px-1">
+                          {field.label}
+                        </label>
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map((val) => (
+                            <button
+                              key={val}
+                              type="button"
+                              onClick={() => setNewReview(prev => ({ ...prev, [field.key]: val }))}
+                              className={`flex-1 py-1 text-[9px] font-black rounded-md transition-all ${
+                                (newReview as Record<string, unknown>)[field.key] === val
+                                  ? 'bg-primary-600 text-white'
+                                  : 'text-slate-300 hover:text-primary-600'
+                              }`}
+                            >
+                              {val}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-6 items-start mb-6">
+                    <div className="shrink-0">
+                      <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Overall Score *</label>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((val) => (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() => setNewReview({ ...newReview, rating: val })}
+                            className={`w-9 h-9 flex items-center justify-center rounded-xl text-xs font-black transition-all ${
+                              newReview.rating === val
+                                ? 'bg-amber-500 text-white scale-105 shadow-lg shadow-amber-500/30'
+                                : 'bg-white dark:bg-slate-950 text-slate-400 border border-slate-200 dark:border-slate-800'
+                            }`}
+                          >
+                            {val}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex-1 w-full space-y-2">
+                      <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Commentary *</label>
+                      <textarea required value={newReview.comment} onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })} className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none ring-primary-500 focus:ring-1 text-gray-900 dark:text-white text-xs font-medium shadow-xs" placeholder="Be honest about your experience..." rows={3} />
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    {reviewError && (
+                      <div className="text-[10px] font-black text-red-500 uppercase tracking-widest flex items-center gap-2">
+                        <ShieldCheck className="w-3 h-3" /> {reviewError}
+                      </div>
+                    )}
+                    <button type="submit" disabled={reviewLoading} className="w-full sm:w-auto bg-primary-600 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 disabled:opacity-50 ml-auto">
+                      {reviewLoading ? 'VERIFYING...' : 'Post Verified Review'}
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <div key={review._id} className="bg-white dark:bg-slate-900/60 p-5 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 shadow-xs hover:shadow-md transition-all">
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-primary-50 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600 font-black text-[10px] uppercase">
+                          {review.userId?.name?.charAt(0) || 'S'}
+                        </div>
+                        <div>
+                          <div className="font-black text-[10px] flex items-center gap-1.5 text-gray-900 dark:text-white uppercase tracking-widest leading-none">
+                            Verified Student {review.geofenceVerified && <ShieldCheck className="w-2.5 h-2.5 text-accent-emerald" />}
+                          </div>
+                          <div className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">{new Date(review.createdAt).toLocaleDateString()}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 bg-amber-500/10 dark:bg-amber-500/5 px-3 py-1 rounded-full border border-amber-500/20">
+                         <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                         <span className="text-[11px] font-black text-amber-600 dark:text-amber-400">{review.rating}</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                       <div className="md:col-span-3 space-y-3">
+                          {review.aiSummary && (
+                            <div className="p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border-l-2 border-indigo-500 rounded-r-xl">
+                              <p className="text-[11px] text-indigo-950 dark:text-indigo-200 italic leading-relaxed font-bold">
+                                "{review.aiSummary}"
+                              </p>
+                            </div>
+                          )}
+                          <p className="text-slate-600 dark:text-slate-300 text-[13px] leading-relaxed font-medium">{review.comment}</p>
+                       </div>
+
+                       <div className="md:col-span-2 bg-slate-50/50 dark:bg-slate-950/20 p-3 rounded-xl border border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-x-4 gap-y-2 h-fit self-start">
+                          {[
+                            { label: 'Net', val: review.wifiRating },
+                            { label: 'Food', val: review.foodRating },
+                            { label: 'Safe', val: review.securityRating },
+                            { label: 'Host', val: review.behaviorRating },
+                            { label: 'Power', val: review.backupRating },
+                            { label: 'Resp', val: review.responsivenessRating },
+                          ].map(m => m.val ? (
+                            <div key={m.label} className="space-y-0.5">
+                              <div className="flex justify-between items-center text-[7px] font-black text-slate-400 uppercase tracking-tighter">
+                                <span>{m.label}</span>
+                                <span className="text-primary-600">{m.val}</span>
+                              </div>
+                              <div className="w-full h-0.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full rounded-full ${m.val >= 4 ? 'bg-accent-emerald' : m.val >= 3 ? 'bg-amber-500' : 'bg-red-500'}`} 
+                                  style={{ width: `${(m.val / 5) * 100}%` }}
+                                />
+                              </div>
+                            </div>
+                          ) : null)}
+                       </div>
                     </div>
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
 
-              <div className="mb-8 pt-6 border-t border-slate-200 dark:border-slate-800">
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Overall Experience *</label>
-                <div className="flex max-w-xs bg-white dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
-                  {[1, 2, 3, 4, 5].map((val) => (
-                    <button
-                      key={val}
-                      type="button"
-                      onClick={() => setNewReview({ ...newReview, rating: val })}
-                      className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
-                        newReview.rating === val
-                          ? 'bg-primary-600 text-white shadow-sm'
-                          : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
-                      }`}
-                    >
-                      {val}
-                    </button>
-                  ))}
+          {/* Sidebar */}
+          <div ref={sidebarRef} className="lg:col-span-4 space-y-4">
+            <div className="sticky top-20 space-y-4">
+              <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] p-5 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-none transition-all">
+                <div className="flex items-center justify-between mb-5">
+                   <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em]">Status</h3>
+                   <div className="flex gap-1">
+                      <div className="w-1.5 h-1.5 bg-accent-emerald rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-accent-emerald rounded-full opacity-30 animate-pulse"></div>
+                   </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                     <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center shadow-lg shadow-primary-500/30 shrink-0">
+                        <Calendar className="w-4 h-4 text-white" />
+                     </div>
+                     <div>
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Availability</p>
+                        <p className="text-[12px] font-black text-gray-900 dark:text-white">
+                          {listing.availableDate ? new Date(listing.availableDate).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Ready Now'}
+                        </p>
+                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                     <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0">
+                        <Users className="w-4 h-4 text-white" />
+                     </div>
+                     <div className="flex-1 min-w-0">
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Posted By</p>
+                        <p className="text-[12px] font-black text-gray-900 dark:text-white truncate uppercase tracking-tighter">
+                          {listing.isOwnerListing || listing.handoverMode || listing.listingType === 'roommate' ? listing.userId?.name || 'Verified User' : 'Anonymous'}
+                        </p>
+                     </div>
+                  </div>
+
+                  {token ? (
+                    (listing.isOwnerListing || listing.handoverMode || listing.listingType === 'roommate') ? (
+                      listing.userId?.email ? (
+                        <div className="grid grid-cols-1 gap-2 pt-2">
+                          <a href={`mailto:${listing.userId.email}`} className="flex items-center justify-center gap-2 w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[9px] transition-all shadow-lg shadow-primary-500/25 active:scale-95">
+                            <Mail className="w-3.5 h-3.5" /> Email
+                          </a>
+                          {listing.userId.phoneNumber && (
+                             <a href={`tel:${listing.userId.phoneNumber}`} className="flex items-center justify-center gap-2 w-full py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-gray-900 dark:text-white rounded-xl font-black uppercase tracking-[0.15em] text-[9px] transition-all hover:bg-slate-50 dark:hover:bg-slate-700">
+                                <Phone className="w-3.5 h-3.5" /> Call Student
+                             </a>
+                          )}
+                        </div>
+                      ) : null
+                    ) : (
+                      <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-[8px] font-black text-center text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 mt-2 uppercase tracking-[0.15em] leading-relaxed">
+                        Student Identity <br/> Protected for Truth Ledger
+                      </div>
+                    )
+                  ) : (
+                    <Link href="/login" className="flex items-center justify-center gap-2 w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black uppercase tracking-[0.2em] text-[9px] transition-colors">
+                      <Zap className="w-3.5 h-3.5" /> Login to Access
+                    </Link>
+                  )}
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Comment *</label>
-                  <textarea required value={newReview.comment} onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })} className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none ring-primary-500 focus:ring-2 text-gray-900 dark:text-white" placeholder="Your experience..." rows={4} />
-                </div>
-              </div>
-              
-              {reviewError && (
-                <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium">
-                  {reviewError}
+              {userProfile?.role === 'STUDENT' && shouldMoveToSidebar && (
+                <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] p-5 border border-slate-200 dark:border-slate-800 shadow-sm transition-all">
+                  <CommuteDistanceModule 
+                    autoDist={autoDist}
+                    showSearch={showSearch}
+                    setShowSearch={setShowSearch}
+                    distLoading={distLoading}
+                    setDistLoading={setDistLoading}
+                    searchResult={searchResult}
+                    setSearchResult={setSearchResult}
+                    listing={listing}
+                    userProfile={userProfile}
+                    token={token}
+                    onProfileUpdate={() => fetchUserProfile(token!)}
+                  />
                 </div>
               )}
-
-              <button type="submit" disabled={reviewLoading} className="mt-8 bg-primary-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-primary-500/20 disabled:opacity-50">
-                {reviewLoading ? 'Posting...' : 'Post Review'}
-              </button>
-            </form>
-          )}
-
-          <div className="grid gap-8">
-            {reviews.map((review) => (
-              <div key={review._id} className="bg-white dark:bg-slate-950/40 p-6 rounded-2xl border border-slate-100 dark:border-slate-900 shadow-sm">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400"><Users className="w-6 h-6" /></div>
-                  <div>
-                    <div className="font-bold flex items-center gap-2 text-gray-900 dark:text-white">Anonymous {review.geofenceVerified && <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />}</div>
-                    <div className="text-xs text-slate-400">{new Date(review.createdAt).toLocaleDateString()}</div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-gray-900 dark:text-white">{review.rating}/5</span>
-                    <div className="w-24 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-amber-500 rounded-full" 
-                        style={{ width: `${(review.rating / 5) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Detailed Metrics */}
-                {(review.wifiRating || review.foodRating || review.securityRating || review.behaviorRating || review.backupRating || review.responsivenessRating) && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 p-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                    {[
-                      { label: 'Wi-Fi Speed', val: review.wifiRating },
-                      { label: 'Food Quality', val: review.foodRating },
-                      { label: 'Security', val: review.securityRating },
-                      { label: 'Owner Behavior', val: review.behaviorRating },
-                      { label: 'Power Backup', val: review.backupRating },
-                      { label: 'Responsiveness', val: review.responsivenessRating },
-                    ].map(m => m.val ? (
-                      <div key={m.label} className="space-y-1.5">
-                        <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                          <span>{m.label}</span>
-                          <span className="text-primary-600 dark:text-primary-400">{m.val}/5</span>
-                        </div>
-                        <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-primary-500 rounded-full" 
-                            style={{ width: `${(m.val / 5) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    ) : null)}
-                  </div>
-                )}
-
-                {review.aiSummary && (
-                  <div className="mb-4 p-3 bg-primary-50/50 dark:bg-primary-900/10 border-l-4 border-primary-500 rounded-r-xl">
-                    <p className="text-sm text-primary-900 dark:text-primary-100 italic leading-relaxed">
-                      " {review.aiSummary} "
-                    </p>
-                    <div className="mt-1 text-[10px] font-bold text-primary-500 uppercase tracking-widest flex items-center gap-1">
-                      <Zap className="w-2.5 h-2.5" /> AI Insight
-                    </div>
-                  </div>
-                )}
-
-                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{review.comment}</p>
-              </div>
-            ))}
+            </div>
           </div>
         </div>
       </div>

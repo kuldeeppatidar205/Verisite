@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
-import { Search, User, Key, ArrowRight, Shield, MapPin, Zap } from 'lucide-react';
+import { Search, User, Key, ArrowRight, Shield, MapPin, Zap, GraduationCap, Users, Home as HomeIcon } from 'lucide-react';
 
 interface Listing {
   _id: string;
@@ -226,9 +226,15 @@ export default function Home() {
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
-                    <span className="text-5xl opacity-40 group-hover:scale-110 transition-transform duration-300">
-                      {listing.listingType === 'handover' ? '🎓' : listing.listingType === 'roommate' ? '👥' : '🏠'}
-                    </span>
+                    <div className="flex flex-col items-center gap-2 opacity-20 group-hover:scale-110 transition-transform duration-300 text-gray-500">
+                      {listing.listingType === 'handover' ? (
+                        <GraduationCap className="w-16 h-16" />
+                      ) : listing.listingType === 'roommate' ? (
+                        <Users className="w-16 h-16" />
+                      ) : (
+                        <HomeIcon className="w-16 h-16" />
+                      )}
+                    </div>
                   )}
                 </div>
 
@@ -279,12 +285,12 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 sm:gap-16">
             {[
-              { icon: '🛡️', title: 'Verified Identity', desc: 'We use institutional email verification to ensure every user is a legitimate student at your campus.' },
-              { icon: '📍', title: 'Geofenced Reviews', desc: 'Reviews are only accepted if you\'re physically near the property, ensuring 100% authentic feedback.' },
-              { icon: '⚡', title: 'Instant Listing', desc: 'Post your room handover items in under 60 seconds with our optimized student-focused interface.' }
+              { icon: <Shield className="w-8 h-8 text-primary-500" />, title: 'Verified Identity', desc: 'We use institutional email verification to ensure every user is a legitimate student at your campus.' },
+              { icon: <MapPin className="w-8 h-8 text-primary-500" />, title: 'Geofenced Reviews', desc: 'Reviews are only accepted if you\'re physically near the property, ensuring 100% authentic feedback.' },
+              { icon: <Zap className="w-8 h-8 text-primary-500" />, title: 'Instant Listing', desc: 'Post your room handover items in under 60 seconds with our optimized student-focused interface.' }
             ].map((feature, idx) => (
               <div key={idx} className="group animate-fade-in" style={{ animationDelay: `${idx * 0.1}s` }}>
-                <div className="text-3xl mb-6">
+                <div className="mb-6">
                   {feature.icon}
                 </div>
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 tracking-tight">

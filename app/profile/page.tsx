@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
+import { ShieldCheck, CheckCircle2, Clock } from 'lucide-react';
 
 interface UserProfile {
   id: string;
   name: string;
   email: string;
-  role: 'STUDENT' | 'OWNER' | 'GUEST';
+  role: 'STUDENT' | 'OWNER' | 'GUEST' | 'ADMIN';
   phoneNumber?: string;
   collegeEmail: string;
   verified: boolean;
@@ -269,13 +270,25 @@ export default function ProfilePage() {
                       <span className="px-3 py-1 rounded-md text-[10px] font-semibold bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 uppercase tracking-wider">
                         {profile.role}
                       </span>
-                      {profile.role !== 'GUEST' && (
-                        <span className={`px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider ${
+                      {profile.role === 'ADMIN' && (
+                        <Link 
+                          href="/admin"
+                          className="px-3 py-1 rounded-md text-[10px] font-bold bg-amber-500 text-white uppercase tracking-wider hover:bg-amber-600 transition-colors flex items-center gap-1 shadow-sm"
+                        >
+                          <ShieldCheck className="w-3 h-3" /> Admin Panel
+                        </Link>
+                      )}
+                      {profile.role !== 'GUEST' && profile.role !== 'ADMIN' && (
+                        <span className={`px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1 ${
                           profile.verified
                             ? 'bg-accent-emerald/10 text-accent-emerald'
                             : 'bg-accent-amber/10 text-accent-amber'
                         }`}>
-                          {profile.verified ? `✓ Verified` : '⏳ Pending'}
+                          {profile.verified ? (
+                            <><CheckCircle2 className="w-3 h-3" /> Verified</>
+                          ) : (
+                            <><Clock className="w-3 h-3" /> Pending</>
+                          )}
                         </span>
                       )}
                     </div>

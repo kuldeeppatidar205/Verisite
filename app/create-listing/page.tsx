@@ -28,10 +28,11 @@ function CreateListingForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [token, setToken] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<'STUDENT' | 'OWNER'>('STUDENT');
+  const [userRole, setUserRole] = useState<'STUDENT' | 'OWNER' | 'ADMIN'>('STUDENT');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [showMap, setShowMap] = useState(false);
   const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [originalListingType, setOriginalListingType] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     pgName: '',
     roomDetails: '',
@@ -169,7 +170,7 @@ function CreateListingForm() {
           return;
         }
         const normalizedRole = data.user.role?.toUpperCase() || 'STUDENT';
-        setUserRole(normalizedRole as 'STUDENT' | 'OWNER');
+        setUserRole(normalizedRole as 'STUDENT' | 'OWNER' | 'ADMIN');
       }
     } catch (error) {
       console.error('Failed to fetch user role:', error);
@@ -181,10 +182,10 @@ function CreateListingForm() {
       const res = await fetch(`/api/listings/${id}`);
       const data = await res.json();
       
-      const hasHandoverItems = data.legacyBundle?.mattress || data.legacyBundle?.cooler || data.legacyBundle?.shelf || data.legacyBundle?.lamp || !!data.legacyBundle?.other;
       let sType: 'RATING' | 'HANDOVER' | 'ROOMMATE' = 'RATING';
       if (data.listingType === 'roommate') sType = 'ROOMMATE';
-      else if (data.listingType === 'handover' || data.handoverMode || hasHandoverItems) sType = 'HANDOVER';
+      else if (data.listingType === 'handover') sType = 'HANDOVER';
+      else if (data.listingType === 'pg') sType = 'RATING';
 
       setFormData(prev => ({
         ...prev,
@@ -208,7 +209,11 @@ function CreateListingForm() {
         sharingType: data.sharingType || '',
         foodIncluded: data.foodIncluded || false,
         billsIncluded: data.billsIncluded || false,
+        genderCategory: data.genderCategory || '',
+        rating: 5,
+        comment: '',
       }));
+      setOriginalListingType(data.listingType);
       setExistingImages(data.images || []);
 
       // If it's a student rating, fetch the review content too
@@ -253,7 +258,8 @@ function CreateListingForm() {
 
     setLoading(true);
 
-    const isRating = userRole === 'STUDENT' && formData.studentListingType === 'RATING';
+    const isStudent = userRole === 'STUDENT';
+    const isRating = isStudent && formData.studentListingType === 'RATING';
     
     let price: number | undefined = undefined;
     if (!isRating) {
@@ -330,6 +336,7 @@ function CreateListingForm() {
         lat: formData.lat,
         lng: formData.lng,
         images: uploadedImageUrls.length > 0 ? uploadedImageUrls : existingImages,
+        listingType: editId ? (originalListingType || 'pg') : undefined
       };
 
       if (userRole === 'STUDENT') {
@@ -367,7 +374,7 @@ function CreateListingForm() {
           payload.responsivenessRating = formData.responsivenessRating || undefined;
           payload.comment = formData.comment;
         }
-      } else {
+      } else if (userRole === 'OWNER') {
         payload.listingType = 'pg';
         payload.address = finalAddress;
         payload.amenities = formData.amenities.split(',').map(s => s.trim()).filter(s => s !== '');
@@ -383,6 +390,9 @@ function CreateListingForm() {
         } else if (!isNaN(totalRooms)) {
           payload.availableRooms = totalRooms;
         }
+      } else if (userRole === 'ADMIN' && !editId) {
+         // Admins creating new listings default to PG
+         payload.listingType = 'pg';
       }
 
       const url = editId ? `/api/listings/${editId}` : '/api/listings';

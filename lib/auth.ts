@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 export interface JWTPayload {
   userId: string;
   email?: string;
-  role: 'STUDENT' | 'OWNER' | 'GUEST';
+  role: 'STUDENT' | 'OWNER' | 'GUEST' | 'ADMIN';
   iat?: number;
   exp?: number;
 }
@@ -36,4 +36,23 @@ export function extractTokenFromHeader(authHeader: string | null | undefined): s
     return null;
   }
   return authHeader.substring(7);
+}
+
+export async function isAdmin(req: Request) {
+  const authHeader = req.headers.get('authorization');
+  const token = extractTokenFromHeader(authHeader);
+  if (!token) return false;
+
+  try {
+    const payload = verifyToken(token);
+    // Hardcoded safety check for the specific admin email
+    if (payload.email === 'admin@verisitee.com') return true;
+
+    // Dynamic role check
+    if (payload.role === 'ADMIN') return true;
+
+    return false;
+  } catch (error) {
+    return false;
+  }
 }
