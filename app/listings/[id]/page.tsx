@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import { calculateDistance } from '@/lib/utils/geo';
@@ -488,8 +489,21 @@ export default function ListingDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center">
-        <div className="text-gray-400 dark:text-slate-600 animate-pulse font-medium text-lg text-body">Loading...</div>
+      <div className="min-h-screen bg-white dark:bg-slate-950">
+        <nav className="h-16 border-b border-gray-100 dark:border-slate-800 animate-pulse" />
+        <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+          <div className="space-y-4">
+            <div className="h-10 w-3/4 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse" />
+            <div className="h-4 w-1/2 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-8 space-y-6">
+              <div className="aspect-16/10 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />
+              <div className="h-32 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />
+            </div>
+            <div className="lg:col-span-4 h-96 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -512,8 +526,14 @@ export default function ListingDetailPage() {
       <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center transition-transform group-hover:scale-105">
-              <img src="/logo image short.png" alt="Logo" className="w-full h-full object-cover rounded-full" />
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 transition-transform group-hover:scale-105 overflow-hidden rounded-full">
+              <Image 
+                src="/logo image short.png" 
+                alt="Logo" 
+                fill
+                priority
+                className="object-cover" 
+              />
             </div>
             <h1 className="text-card-title font-black tracking-tighter text-gray-900 dark:text-white">Verisite</h1>
           </Link>
@@ -609,10 +629,13 @@ export default function ListingDetailPage() {
                           : 'aspect-16/10'
                       }`}
                     >
-                      <img
+                      <Image
                         src={imgUrl}
                         alt={`Room Image ${index + 1}`}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-105"
+                        fill
+                        priority={index === 0}
+                        sizes={index === 0 ? "(max-width: 768px) 100vw, 75vw" : "25vw"}
+                        className="object-cover transition-transform duration-700 group-hover/img:scale-105"
                       />
                       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
                          <div className="bg-white/90 p-2 rounded-full shadow-lg transform scale-90 group-hover/img:scale-100 transition-transform">

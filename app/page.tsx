@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import { Search, User, Key, ArrowRight, Shield, MapPin, Zap, GraduationCap, Users, Home as HomeIcon } from 'lucide-react';
@@ -92,9 +93,14 @@ export default function Home() {
       <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-105">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
+            <div className="relative w-10 h-10 transition-transform group-hover:scale-105 overflow-hidden rounded-full">
+              <Image 
+                src="/logo image short.png" 
+                alt="Verisite Logo" 
+                fill
+                priority
+                className="object-cover" 
+              />
             </div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Verisite</h1>
           </Link>
@@ -204,7 +210,12 @@ export default function Home() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-gray-100 dark:bg-slate-800/50 rounded-xl h-72 animate-pulse" />
+              <div key={i} className="flex flex-col gap-3">
+                <div className="w-full aspect-4/3 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse" />
+                <div className="h-4 w-2/3 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+                <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+                <div className="h-3 w-1/4 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+              </div>
             ))}
           </div>
         ) : listings.length > 0 ? (
@@ -223,11 +234,12 @@ export default function Home() {
                   </div>
                   
                   {listing.images && listing.images.length > 0 ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img 
+                    <Image 
                       src={listing.images[0]} 
                       alt="Room Preview" 
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
                     <div className="flex flex-col items-center gap-2 opacity-20 group-hover:scale-110 transition-transform duration-300 text-gray-500">
@@ -314,9 +326,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
-                 <div className="w-8 h-8 flex items-center justify-center">
-                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                   <img src="/logo image short.png" alt="Verisite" className="w-full h-full object-contain" />
+                 <div className="relative w-8 h-8 overflow-hidden rounded-full">
+                   <Image 
+                     src="/logo image short.png" 
+                     alt="Verisite" 
+                     fill
+                     className="object-contain" 
+                   />
                 </div>
                 <span className="font-semibold text-gray-900 dark:text-white text-sm">Verisite</span>
             </div>
