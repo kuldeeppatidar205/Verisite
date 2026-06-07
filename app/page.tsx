@@ -157,11 +157,11 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-32 text-center relative">
-        <h2 className="text-4xl sm:text-7xl font-extrabold text-gray-900 dark:text-white mb-6 sm:mb-8 tracking-tighter leading-[1.1] animate-fade-in">
+        <h2 className="text-4xl sm:text-7xl font-black text-gray-900 dark:text-white mb-6 sm:mb-8 tracking-tighter leading-[1.1] animate-fade-in">
           Find your next place <br className="hidden sm:block" />
           <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-600 to-indigo-500">near campus.</span>
         </h2>
-        <p className="text-[16px] sm:text-lg text-gray-500 dark:text-slate-400 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        <p className="text-base sm:text-lg text-gray-500 dark:text-slate-400 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed font-medium animate-fade-in" style={{ animationDelay: '0.1s' }}>
           Verisite - A True PGvault. The secure platform for verified students to discover, list rooms, and for owners to list PGs.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 animate-fade-in" style={{ animationDelay: '0.2s' }}>
@@ -186,12 +186,12 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end mb-10 gap-4 animate-fade-in">
           <div className="text-center sm:text-left">
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">Featured Rooms</h3>
-            <p className="text-sm sm:text-base text-gray-500 dark:text-slate-400">Handpicked near your institution</p>
+            <h3 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-2">Featured Rooms</h3>
+            <p className="text-xs sm:text-xs uppercase tracking-widest font-bold text-gray-500 dark:text-slate-400">Handpicked near your institution</p>
           </div>
           <button 
             onClick={() => handleProtectedAction('/browse')}
-            className="text-sm text-primary-600 dark:text-primary-400 font-bold hover:underline flex items-center gap-1 uppercase tracking-wider"
+            className="text-xs text-primary-600 dark:text-primary-400 font-black hover:underline flex items-center gap-1 uppercase tracking-widest"
           >
             View all <ArrowRight className="w-3.5 h-3.5" />
           </button>
@@ -214,7 +214,7 @@ export default function Home() {
               >
                 {/* Minimal Card Header/Image placeholder */}
                 <div className="w-full aspect-4/3 bg-gray-100 dark:bg-slate-800 rounded-xl flex flex-col items-center justify-center relative overflow-hidden border border-gray-200 dark:border-slate-700/50">
-                  <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-xs font-semibold text-gray-900 dark:text-white backdrop-blur-sm shadow-sm z-10">
+                  <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-[10px] uppercase tracking-widest font-black text-gray-900 dark:text-white backdrop-blur-sm shadow-sm z-10">
                      {listing.listingType === 'handover' ? 'Handover' : listing.listingType === 'roommate' ? 'Roommate' : 'PG'}
                   </div>
                   
@@ -240,19 +240,19 @@ export default function Home() {
 
                 <div className="flex flex-col mt-1">
                   <div className="flex justify-between items-start">
-                    <p className="text-[15px] font-semibold text-gray-900 dark:text-white truncate">
+                    <p className="text-base font-bold text-gray-900 dark:text-white truncate">
                       {listing.pgName || listing.userId?.hostelName || listing.address || 'Verified Location'}
                     </p>
                   </div>
-                  <p className="text-[15px] text-gray-500 dark:text-slate-400 line-clamp-1 mt-0.5">
+                  <p className="text-sm font-medium text-gray-500 dark:text-slate-400 line-clamp-1 mt-0.5">
                     {listing.roomDetails}
                   </p>
-                  <p className="text-[15px] text-gray-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mt-0.5">
                     {listing.userId?.name ? listing.userId.name.split(' ')[0] : 'Anonymous'}
                   </p>
                   {listing.price !== undefined && (
-                    <p className="text-[15px] font-medium text-gray-900 dark:text-white mt-1">
-                      <span className="font-semibold">₹{listing.price.toLocaleString('en-IN')}</span> month
+                    <p className="text-base font-bold text-gray-900 dark:text-white mt-1">
+                      ₹{listing.price.toLocaleString('en-IN')} <span className="text-xs font-bold uppercase tracking-widest text-slate-400">/ month</span>
                     </p>
                   )}
                 </div>
@@ -276,10 +276,10 @@ export default function Home() {
       <section className="bg-white dark:bg-slate-950 py-24 sm:py-32 border-t border-gray-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-16 animate-fade-in">
-            <h3 className="text-3xl sm:text-4xl font-semibold text-gray-900 dark:text-white tracking-tight mb-4">
+            <h3 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
               Engineered for Students
             </h3>
-            <p className="text-gray-500 dark:text-slate-400 text-lg">
+            <p className="text-gray-500 dark:text-slate-400 text-lg font-medium leading-relaxed">
               Built to solve the friction of finding verified accommodation.
             </p>
           </div>
@@ -293,10 +293,10 @@ export default function Home() {
                 <div className="mb-6">
                   {feature.icon}
                 </div>
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 tracking-tight">
+                <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
                   {feature.title}
                 </h4>
-                <p className="text-gray-500 dark:text-slate-400 leading-relaxed text-sm">
+                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm font-medium">
                   {feature.desc}
                 </p>
               </div>

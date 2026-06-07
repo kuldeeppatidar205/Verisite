@@ -223,10 +223,10 @@ export default function BrowsePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-6">
           <div className="text-center sm:text-left">
-             <h1 className="text-3xl sm:text-4xl font-semibold text-gray-900 dark:text-white tracking-tight mb-2">
+             <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">
                {activeStream === 'STUDENT' ? 'Student Listings' : 'Owner Listings'}
              </h1>
-             <p className="text-gray-500 dark:text-slate-400 text-base">
+             <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                {activeStream === 'STUDENT' 
                  ? 'Verified room from students' 
                  : 'Direct listings from PG owners'}
@@ -236,22 +236,22 @@ export default function BrowsePage() {
              <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
                 <button 
                   onClick={() => setSortBy('newest')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-all ${sortBy === 'newest' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
+                  className={`px-3 py-1.5 rounded-md text-[10px] uppercase tracking-widest font-black transition-all ${sortBy === 'newest' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
                 >
                   Newest
                 </button>
                 <button 
                   onClick={() => setSortBy('price')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-all ${sortBy === 'price' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
+                  className={`px-3 py-1.5 rounded-md text-[10px] uppercase tracking-widest font-black transition-all ${sortBy === 'price' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
                 >
-                  Price: Low to High
+                  Price
                 </button>
                 {userProfile?.favoriteCollege?.lat && (
                   <button 
                     onClick={() => setSortBy('proximity')}
-                    className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-all ${sortBy === 'proximity' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
+                    className={`px-3 py-1.5 rounded-md text-[10px] uppercase tracking-widest font-black transition-all ${sortBy === 'proximity' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
                   >
-                    Near Institution
+                    Near
                   </button>
                 )}
              </div>
@@ -259,13 +259,13 @@ export default function BrowsePage() {
              <div className="flex bg-gray-100 dark:bg-slate-800 p-1.5 rounded-lg">
                 <button 
                   onClick={() => setActiveStream('STUDENT')}
-                  className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${activeStream === 'STUDENT' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'}`}
+                  className={`px-4 py-2 rounded-md font-black text-[10px] uppercase tracking-widest transition-all ${activeStream === 'STUDENT' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'}`}
                 >
                   Student Verified
                 </button>
                 <button 
                   onClick={() => setActiveStream('OWNER')}
-                  className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${activeStream === 'OWNER' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'}`}
+                  className={`px-4 py-2 rounded-md font-black text-[10px] uppercase tracking-widest transition-all ${activeStream === 'OWNER' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'}`}
                 >
                   Owner Listings
                 </button>
@@ -289,12 +289,12 @@ export default function BrowsePage() {
                   className="group flex flex-col gap-3 cursor-pointer transition-transform duration-300 hover:-translate-y-1"
                 >
                   <div className="w-full aspect-4/3 bg-gray-100 dark:bg-slate-800 rounded-xl flex flex-col items-center justify-center relative overflow-hidden border border-gray-200 dark:border-slate-700/50">
-                    <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-sm font-semibold text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center gap-1.5 z-10">
+                    <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-[10px] uppercase tracking-widest font-black text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center gap-1.5 z-10">
                        {activeStream === 'STUDENT' && <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>}
                        {listing.listingType === 'handover' ? 'Handover' : listing.listingType === 'roommate' ? 'Roommate' : 'PG'}
                     </div>
                     {listing.coordinates && (
-                      <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-[14px] font-semibold text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center z-10">
+                      <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-[10px] font-black text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center z-10">
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${listing.coordinates.lat},${listing.coordinates.lng}`}
                           target="_blank"
@@ -329,31 +329,31 @@ export default function BrowsePage() {
 
                   <div className="flex flex-col mt-1">
                     <div className="flex justify-between items-start mb-0.5">
-                      <p className="text-[19px] font-semibold text-gray-900 dark:text-white truncate">
+                      <p className="text-lg font-bold text-gray-900 dark:text-white truncate">
                         {listing.pgName || listing.userId?.hostelName || listing.address || 'Verified Location'}
                       </p>
                     </div>
                     {listing.address && (
-                      <p className="text-[16px] text-gray-500 dark:text-slate-400 truncate mb-0.5">
+                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate mb-0.5">
                         {listing.address}
                       </p>
                     )}
-                    <p className="text-[19px] text-gray-500 dark:text-slate-400 line-clamp-1 mb-0.5">
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 line-clamp-1 mb-0.5">
                       {listing.roomDetails}
                     </p>
                     {listing.price !== undefined && (
-                      <p className="text-[19px] font-medium text-gray-900 dark:text-white mt-1 mb-1.5">
-                        <span className="font-semibold">₹{listing.price.toLocaleString('en-IN')}</span> month
+                      <p className="text-lg font-black text-gray-900 dark:text-white mt-1 mb-1.5">
+                        ₹{listing.price.toLocaleString('en-IN')} <span className="text-[10px] uppercase tracking-widest text-slate-400">/ month</span>
                       </p>
                     )}
                     <div className="flex items-center gap-2">
-                      <p className="text-[16px] text-gray-500 dark:text-slate-400">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                         {new Date(listing.availableDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </p>
                       {(listing.legacyBundle?.mattress || listing.legacyBundle?.cooler) && (
                         <div className="flex gap-2 items-center">
                           <span className="text-gray-300 dark:text-slate-600">•</span>
-                          <span className="text-[16px] text-gray-500 dark:text-slate-400 truncate">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate">
                             Includes items
                           </span>
                         </div>

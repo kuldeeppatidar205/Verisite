@@ -16,7 +16,6 @@ interface UserProfile {
   verified: boolean;
   hostelName?: string;
   roomNumber?: string;
-  studentId: string;
   idCardImageUrl?: string;
   favoriteCollege?: {
     name: string;
@@ -263,31 +262,31 @@ export default function ProfilePage() {
                       {profile.name.charAt(0)}
                    </div>
                    <div>
-                    <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white mb-2 tracking-tight">
+                    <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2 tracking-tighter uppercase">
                       {profile.name}
                     </h1>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="px-3 py-1 rounded-md text-[10px] font-semibold bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 uppercase tracking-wider">
+                      <span className="px-3 py-1 rounded-md text-[9px] font-black bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 uppercase tracking-widest border border-primary-100 dark:border-primary-900/20">
                         {profile.role}
                       </span>
                       {profile.role === 'ADMIN' && (
                         <Link 
                           href="/admin"
-                          className="px-3 py-1 rounded-md text-[10px] font-bold bg-amber-500 text-white uppercase tracking-wider hover:bg-amber-600 transition-colors flex items-center gap-1 shadow-sm"
+                          className="px-3 py-1 rounded-md text-[9px] font-black bg-amber-500 text-white uppercase tracking-widest hover:bg-amber-600 transition-colors flex items-center gap-1 shadow-lg shadow-amber-500/20"
                         >
                           <ShieldCheck className="w-3 h-3" /> Admin Panel
                         </Link>
                       )}
                       {profile.role !== 'GUEST' && profile.role !== 'ADMIN' && (
-                        <span className={`px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1 ${
+                        <span className={`px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-widest flex items-center gap-1 border ${
                           profile.verified
-                            ? 'bg-accent-emerald/10 text-accent-emerald'
-                            : 'bg-accent-amber/10 text-accent-amber'
+                            ? 'bg-accent-emerald/5 text-accent-emerald border-accent-emerald/10'
+                            : 'bg-accent-amber/5 text-accent-amber border-accent-amber/10'
                         }`}>
                           {profile.verified ? (
-                            <><CheckCircle2 className="w-3 h-3" /> Verified</>
+                            <><CheckCircle2 className="w-3 h-3" /> Verified Student</>
                           ) : (
-                            <><Clock className="w-3 h-3" /> Pending</>
+                            <><Clock className="w-3 h-3" /> Verification Pending</>
                           )}
                         </span>
                       )}
@@ -297,7 +296,7 @@ export default function ProfilePage() {
                 {!isEditing && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="w-full sm:w-auto px-6 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition btn-press"
+                    className="w-full sm:w-auto px-6 py-2 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95"
                   >
                     Edit Profile
                   </button>
@@ -308,28 +307,28 @@ export default function ProfilePage() {
                 <form onSubmit={handleUpdateProfile} className="space-y-6 border-t border-slate-100 dark:border-slate-800 pt-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
                         Full Name
                       </label>
                       <input
                         type="text"
                         value={editData.name}
                         onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                        className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-primary-500/50 outline-none text-[15px]"
+                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-primary-500/50 outline-none text-sm font-medium"
                         required
                       />
                     </div>
 
                     {profile.role === 'OWNER' && (
                       <div className="space-y-2">
-                        <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
                           Phone Number
                         </label>
                         <input
                           type="tel"
                           value={editData.phoneNumber}
                           onChange={(e) => setEditData({ ...editData, phoneNumber: e.target.value })}
-                          className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-primary-500/50 outline-none text-[15px]"
+                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-primary-500/50 outline-none text-sm font-medium"
                           required
                         />
                       </div>
@@ -337,14 +336,14 @@ export default function ProfilePage() {
 
                     {profile.role !== 'OWNER' && (
                       <div className="space-y-2">
-                        <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
-                          College/University Name
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                          Campus/Institution
                         </label>
                         <input
                           type="text"
                           value={editData.collegeName}
                           onChange={(e) => setEditData({ ...editData, collegeName: e.target.value })}
-                          className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-primary-500/50 outline-none text-[15px]"
+                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-primary-500/50 outline-none text-sm font-medium"
                           required
                         />
                       </div>
@@ -355,14 +354,14 @@ export default function ProfilePage() {
                     <button
                       type="submit"
                       disabled={updateLoading}
-                      className="flex-1 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition disabled:opacity-50 shadow-lg shadow-primary-500/20 btn-press"
+                      className="flex-1 py-3.5 bg-primary-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-primary-700 transition disabled:opacity-50 shadow-lg shadow-primary-500/20 active:scale-95"
                     >
-                      {updateLoading ? 'Saving...' : 'Save Changes'}
+                      {updateLoading ? 'UPDATING...' : 'Save Profile Changes'}
                     </button>
                     <button
                       type="button"
                       onClick={() => setIsEditing(false)}
-                      className="flex-1 py-3 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition btn-press"
+                      className="flex-1 py-3.5 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 dark:hover:bg-slate-800 transition active:scale-95"
                     >
                       Cancel
                     </button>
@@ -371,49 +370,45 @@ export default function ProfilePage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 border-t border-slate-100 dark:border-slate-800 pt-8">
                   <div className="space-y-1">
-                    <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                      Email
+                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      Personal Email
                     </h3>
-                    <p className="text-[15px] text-slate-900 dark:text-white font-medium break-all">{profile.email}</p>
+                    <p className="text-[14px] text-slate-900 dark:text-white font-bold break-all">{profile.email}</p>
                   </div>
 
                   {profile.role === 'OWNER' && (
                     <div className="space-y-1">
-                      <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                        Phone Number
+                      <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Official Phone
                       </h3>
-                      <p className="text-[15px] text-slate-900 dark:text-white font-medium break-all">{profile.phoneNumber || 'Not provided'}</p>
+                      <p className="text-[14px] text-slate-900 dark:text-white font-bold break-all">{profile.phoneNumber || 'Not provided'}</p>
                     </div>
                   )}
 
                   {profile.role === 'STUDENT' && (
                     <div className="space-y-1">
-                      <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                        College Email
+                      <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Institutional Email
                       </h3>
-                      <p className="text-[15px] text-slate-900 dark:text-white font-medium break-all">{profile.collegeEmail}</p>
+                      <p className="text-[14px] text-slate-900 dark:text-white font-bold break-all">{profile.collegeEmail}</p>
                     </div>
                   )}
 
                   {profile.role !== 'OWNER' && (
                     <div className="space-y-1">
-                      <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                        College/University
+                      <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Campus
                       </h3>
-                      <p className="text-[15px] text-slate-900 dark:text-white font-medium break-all">{profile.favoriteCollege?.name || 'Not provided'}</p>
+                      <p className="text-[14px] text-slate-900 dark:text-white font-bold break-all">{profile.favoriteCollege?.name || 'Not provided'}</p>
                     </div>
                   )}
 
                   <div className="space-y-1">
-                    <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                      Member Since
+                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      Account Tier
                     </h3>
-                    <p className="text-[15px] text-slate-900 dark:text-white font-medium">
-                      {new Date(profile.createdAt).toLocaleDateString('en-IN', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
+                    <p className="text-[14px] text-slate-900 dark:text-white font-bold uppercase tracking-tight">
+                      {profile.role} Since {new Date(profile.createdAt).getFullYear()}
                     </p>
                   </div>
                 </div>
@@ -422,12 +417,12 @@ export default function ProfilePage() {
 
             {/* My Listings */}
             {profile.role !== 'GUEST' && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 sm:p-8 transition-colors duration-200">
+              <div className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800 p-6 sm:p-8 transition-colors duration-200">
                 <div className="flex justify-between items-center mb-8">
-                  <h2 className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">My Listings</h2>
+                  <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">My Listings</h2>
                   <Link
                     href="/create-listing"
-                    className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg font-semibold text-[13px] hover:bg-slate-800 dark:hover:bg-slate-100 transition btn-press"
+                    className="px-4 py-2 bg-primary-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary-700 transition-all shadow-lg shadow-primary-500/20 active:scale-95"
                   >
                     + Add New
                   </Link>
@@ -438,43 +433,44 @@ export default function ProfilePage() {
                     {myListings.map((listing) => (
                       <div
                         key={listing._id}
-                        className="border border-slate-100 dark:border-slate-800 rounded-xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:border-slate-200 dark:hover:border-slate-700 transition-colors"
+                        className="border border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/20 rounded-[1.5rem] p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:border-slate-200 dark:hover:border-slate-700 transition-all group"
                       >
                         <div className="flex-1 min-w-0 w-full">
                           <div className="flex items-center gap-3 mb-2">
                             {listing.price !== undefined && (
-                              <h4 className="font-semibold text-slate-900 dark:text-white text-lg">
-                                ₹{(listing.price ?? 0).toLocaleString('en-IN')}/mo
+                              <h4 className="font-black text-slate-900 dark:text-white text-xl tracking-tighter">
+                                ₹{(listing.price ?? 0).toLocaleString('en-IN')}
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">/mo</span>
                               </h4>
                             )}
-                            <span className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-md font-bold ${
+                            <span className={`text-[8px] uppercase tracking-[0.2em] px-2 py-0.5 rounded font-black border ${
                               listing.status === 'available'
-                                ? 'bg-accent-emerald/10 text-accent-emerald'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                ? 'bg-accent-emerald/5 text-accent-emerald border-accent-emerald/10'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-transparent'
                             }`}>
                               {listing.status}
                             </span>
                           </div>
-                          <p className="text-slate-500 dark:text-slate-400 text-[15px] line-clamp-1 mb-1">
+                          <p className="text-slate-500 dark:text-slate-400 text-sm font-medium line-clamp-1 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
                             {listing.roomDetails}
                           </p>
                         </div>
-                        <div className="flex gap-3 w-full md:w-auto">
+                        <div className="flex gap-2 w-full md:w-auto">
                           <Link
                             href={`/listings/${listing._id}`}
-                            className="flex-1 md:flex-none px-4 py-2 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg font-semibold text-[13px] hover:bg-slate-100 dark:hover:bg-slate-700 transition text-center"
+                            className="flex-1 md:flex-none px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 transition-all text-center"
                           >
                             View
                           </Link>
                           <Link
                             href={`/create-listing?id=${listing._id}`}
-                            className="flex-1 md:flex-none px-4 py-2 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg font-semibold text-[13px] hover:bg-slate-100 dark:hover:bg-slate-700 transition text-center"
+                            className="flex-1 md:flex-none px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 transition-all text-center"
                           >
                             Edit
                           </Link>
                           <button
                             onClick={() => handleDeleteListing(listing._id)}
-                            className="flex-1 md:flex-none px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg font-semibold text-[13px] hover:bg-red-100 dark:hover:bg-red-900/30 transition btn-press"
+                            className="flex-1 md:flex-none px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-red-100 transition-all active:scale-95"
                           >
                             Delete
                           </button>
@@ -483,8 +479,8 @@ export default function ProfilePage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-12 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors duration-200">
-                    <p className="text-slate-500 dark:text-slate-400 font-medium text-[15px]">No active listings found.</p>
+                  <div className="text-center py-12 bg-slate-50/50 dark:bg-slate-950/50 rounded-[2rem] border border-slate-100 dark:border-slate-800 border-dashed">
+                    <p className="text-slate-400 font-bold text-sm uppercase tracking-widest">No Active Listings</p>
                   </div>
                 )}
               </div>
@@ -492,38 +488,38 @@ export default function ProfilePage() {
 
             {/* Verification Status */}
             {profile.role !== 'GUEST' && !profile.verified && (
-              <div className="bg-accent-amber/5 dark:bg-accent-amber/10 border border-accent-amber/20 rounded-2xl p-6 sm:p-8 transition-colors duration-200">
-                <h3 className="text-lg font-semibold text-accent-amber mb-2">
-                  ⏳ Verification Required
+              <div className="bg-accent-amber/5 dark:bg-accent-amber/10 border border-accent-amber/20 rounded-[2rem] p-6 sm:p-8 transition-colors duration-200">
+                <h3 className="text-sm font-black text-accent-amber mb-3 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <Clock className="w-4 h-4" /> Verification Required
                 </h3>
-                <p className="text-slate-600 dark:text-slate-300/80 mb-4 text-[15px]">
-                  Check your inbox at <span className="font-semibold">{profile.role === 'STUDENT' ? profile.collegeEmail : profile.email}</span> for the verification link.
+                <p className="text-slate-600 dark:text-slate-300/80 mb-6 text-sm font-medium leading-relaxed">
+                  Check <span className="font-bold text-slate-900 dark:text-white">{profile.role === 'STUDENT' ? profile.collegeEmail : profile.email}</span> for the verification link.
                 </p>
-                <div className="space-y-1 text-[13px] text-slate-500 dark:text-slate-400 font-medium">
-                  {profile.role === 'STUDENT' && <p>• Only institutional emails are accepted</p>}
-                  <p>• Check your spam/junk folder if missing</p>
-                  <p>• You must verify your email to create listings</p>
+                <div className="space-y-2 text-[11px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest">
+                  {profile.role === 'STUDENT' && <p>• Institutional email ONLY</p>}
+                  <p>• Check Spam Folder</p>
+                  <p>• Verification is MANDATORY for listings</p>
                 </div>
               </div>
             )}
 
-            {/* Account Info */}
-            <div className="bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl p-6 sm:p-8 transition-colors duration-200 border border-slate-100 dark:border-slate-800">
+            {/* Account Settings */}
+            <div className="bg-slate-100/50 dark:bg-slate-900/50 rounded-[2rem] p-6 sm:p-8 transition-colors duration-200 border border-slate-100 dark:border-slate-800">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                 <div className="flex-1 w-full">
-                  <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">
-                    Account Settings
+                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.25em] mb-2">
+                    Security
                   </h3>
-                  <p className="text-[15px] text-slate-500 dark:text-slate-400">
-                    Your identity and data are encrypted.
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300 tracking-tight">
+                    Your student identity and data are geofenced and encrypted.
                   </p>
                 </div>
                 <div className="w-full md:w-auto">
                   <button
                     onClick={handleDeleteAccount}
-                    className="w-full px-6 py-2.5 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition btn-press text-sm"
+                    className="w-full px-8 py-3 bg-red-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-red-700 transition-all shadow-xl shadow-red-600/20 active:scale-95"
                   >
-                    Delete Account
+                    Terminate Account
                   </button>
                 </div>
               </div>

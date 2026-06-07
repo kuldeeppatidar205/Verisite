@@ -32,12 +32,12 @@ export async function GET(req: NextRequest) {
       verified: user.verified,
       hostelName: user.hostelName,
       roomNumber: user.roomNumber,
-      studentId: user.studentId,
       idCardImageUrl: user.idCardImageUrl,
       favoriteCollege: user.favoriteCollege,
       createdAt: user.createdAt,
-    });
-  } catch (error) {
+      });
+      } catch (error) {
+
     console.error('Profile fetch error:', error);
     return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
   }
@@ -88,7 +88,6 @@ export async function PUT(req: NextRequest) {
         verified: user.verified,
         hostelName: user.hostelName,
         roomNumber: user.roomNumber,
-        studentId: user.studentId,
         favoriteCollege: user.favoriteCollege,
       }
     });
