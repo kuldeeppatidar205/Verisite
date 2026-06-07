@@ -132,32 +132,32 @@ function DistanceResult({ dist, collegeName, lat, lng, userProfile, onSave }: {
   return (
     <div className={`p-4 rounded-2xl border animate-in fade-in slide-in-from-top-2 bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-900 dark:text-white`}>
       <div className="flex justify-between items-start mb-2">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Commute</p>
+        <p className="text-[13px] font-black text-slate-400 uppercase tracking-widest">Commute</p>
         {badge && (
-          <span className="flex items-center gap-1 text-[9px] font-black uppercase px-2 py-0.5 bg-accent-emerald/10 text-accent-emerald rounded">
+          <span className="flex items-center gap-1 text-[13px] font-black uppercase px-2 py-0.5 bg-accent-emerald/10 text-accent-emerald rounded">
             {badge}
           </span>
         )}
       </div>
       <p className="text-xl font-black text-gray-900 dark:text-white">
-        {km} km <span className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider ml-1">away</span>
+        {km} km <span className="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider ml-1">away</span>
       </p>
       <div className="mt-3 space-y-2">
-        <div className="text-[12px] text-gray-600 dark:text-slate-400 flex items-center gap-2 font-bold uppercase tracking-tight">
+        <div className="text-[15px] text-gray-600 dark:text-slate-400 flex items-center gap-2 font-bold uppercase tracking-tight">
            <Bike className="w-3.5 h-3.5 text-primary-500" /> ~{scootyMins}m scooty
         </div>
-        <div className="text-[12px] text-gray-600 dark:text-slate-400 flex items-center gap-2 font-bold uppercase tracking-tight">
+        <div className="text-[15px] text-gray-600 dark:text-slate-400 flex items-center gap-2 font-bold uppercase tracking-tight">
            <Bus className="w-3.5 h-3.5 text-primary-500" /> ~{busMins}m bus
         </div>
       </div>
       <div className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800">
-        <p className="text-[11px] text-gray-500 dark:text-slate-500 line-clamp-1 italic font-medium">{collegeName}</p>
+        <p className="text-[14px] text-gray-500 dark:text-slate-500 line-clamp-1 italic font-medium">{collegeName}</p>
       </div>
       
       {userProfile && (!userProfile.favoriteCollege || userProfile.favoriteCollege.name !== collegeName) && (
         <button
           onClick={handleSave}
-          className="mt-3 text-[11px] font-black text-primary-600 dark:text-primary-400 hover:underline uppercase tracking-widest"
+          className="mt-3 text-[14px] font-black text-primary-600 dark:text-primary-400 hover:underline uppercase tracking-widest"
         >
           Set Default
         </button>
@@ -193,12 +193,12 @@ function CommuteDistanceModule({
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-4 gap-2">
-        <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+        <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
            <Search className="w-3.5 h-3.5 text-primary-500" /> Commute Distance
         </h2>
         <button 
           onClick={() => setShowSearch(!showSearch)} 
-          className="text-[10px] font-black text-primary-600 dark:text-primary-400 hover:underline uppercase tracking-widest"
+          className="text-[13px] font-black text-primary-600 dark:text-primary-400 hover:underline uppercase tracking-widest"
         >
           {showSearch ? 'Cancel' : (autoDist ? 'Change' : 'Check')}
         </button>
@@ -226,7 +226,7 @@ function CommuteDistanceModule({
                 autoFocus
                 placeholder="College name..."
                 disabled={distLoading}
-                className="w-full pl-10 pr-10 py-2.5 text-xs font-bold bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-gray-900 dark:text-white"
+                className="w-full pl-10 pr-10 py-2.5 text-sm font-bold bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-gray-900 dark:text-white"
                 onKeyDown={async (e) => {
                   if (e.key === 'Enter') {
                     const query = (e.target as HTMLInputElement).value;
@@ -533,11 +533,11 @@ export default function ListingDetailPage() {
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="w-full">
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                 <span className="px-2 py-0.5 bg-primary-50 dark:bg-primary-900/30 text-[9px] font-black uppercase tracking-widest text-primary-600 dark:text-primary-400 rounded">
+                 <span className="px-2 py-0.5 bg-primary-50 dark:bg-primary-900/30 text-[13px] font-black uppercase tracking-widest text-primary-600 dark:text-primary-400 rounded">
                    {listing.listingType === 'roommate' ? 'Roommate Search' : listing.listingType === 'handover' ? 'Room Handover' : 'Student Rating'}
                  </span>
                  {!listing.isOwnerListing && (
-                   <span className="flex items-center gap-1 text-[9px] font-black text-accent-emerald uppercase tracking-widest bg-accent-emerald/5 px-2 py-0.5 rounded border border-accent-emerald/10">
+                   <span className="flex items-center gap-1 text-[13px] font-black text-accent-emerald uppercase tracking-widest bg-accent-emerald/5 px-2 py-0.5 rounded border border-accent-emerald/10">
                      <ShieldCheck className="w-2.5 h-2.5" /> Verified Truth
                    </span>
                  )}
@@ -545,7 +545,7 @@ export default function ListingDetailPage() {
               <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-2 tracking-tight leading-tight">
                 {listing.pgName || listing.userId?.hostelName || 'Verified Property'}
               </h1>
-              <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">
+              <div className="flex flex-wrap items-center gap-3 text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">
                 <span className="flex items-center gap-1.5 max-w-[200px] sm:max-w-none">
                    <MapPin className="w-3.5 h-3.5 text-primary-500 shrink-0" /> <span className="truncate">{listing.address || 'Location Verified'}</span>
                 </span>
@@ -562,7 +562,7 @@ export default function ListingDetailPage() {
             </div>
             {isOwner && (
               <div className="flex gap-2 w-full md:w-auto shrink-0 mt-2 md:mt-0">
-                <Link href={`/create-listing?id=${id}`} className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 transition-colors text-center text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 text-gray-900 dark:text-white">
+                <Link href={`/create-listing?id=${id}`} className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 transition-colors text-center text-sm font-black uppercase tracking-widest flex items-center justify-center gap-2 text-gray-900 dark:text-white">
                   <Edit3 className="w-3.5 h-3.5" /> Edit
                 </Link>
                 <button onClick={handleDeleteListing} disabled={!listing.isOwnerListing && listing.reviewCount > 1} className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-30">
@@ -578,12 +578,12 @@ export default function ListingDetailPage() {
                  <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tighter">
                    ₹{(listing.price ?? 0).toLocaleString('en-IN')}
                  </span>
-                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">/ month</span>
+                 <span className="text-[13px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">/ month</span>
               </div>
               {listing.isOwnerListing && (
                 <div className="flex items-center gap-2 px-3 py-1 bg-primary-50 dark:bg-primary-900/20 rounded-full border border-primary-100 dark:border-primary-900/30">
                    <Users className="w-3.5 h-3.5 text-primary-500" />
-                   <span className="text-[10px] font-black text-primary-700 dark:text-primary-400 uppercase tracking-widest">
+                   <span className="text-[13px] font-black text-primary-700 dark:text-primary-400 uppercase tracking-widest">
                      {listing.availableRooms}/{listing.totalRooms} Available
                    </span>
                 </div>
@@ -624,7 +624,7 @@ export default function ListingDetailPage() {
                   ))}
                 </div>
                 {listing.images.length > 3 && (
-                   <button onClick={() => setFullScreenImage(listing.images![0])} className="absolute bottom-3 right-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-200 dark:border-slate-800 shadow-xl flex items-center gap-2 hover:bg-white transition-all">
+                   <button onClick={() => setFullScreenImage(listing.images![0])} className="absolute bottom-3 right-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-[13px] font-black uppercase tracking-widest border border-slate-200 dark:border-slate-800 shadow-xl flex items-center gap-2 hover:bg-white transition-all">
                       <Maximize2 className="w-3 h-3" /> All Photos
                    </button>
                 )}
@@ -634,11 +634,11 @@ export default function ListingDetailPage() {
             <div className="space-y-6">
               {/* Description - More Compact */}
               <section>
-                <h2 className="text-[10px] font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-[0.2em]">
+                <h2 className="text-[13px] font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-[0.2em]">
                    <Info className="w-3.5 h-3.5 text-primary-500" /> Description
                 </h2>
                 <div className="bg-slate-50/50 dark:bg-slate-900/30 p-4 sm:p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
-                  <p className="text-gray-600 dark:text-slate-300 text-[14px] leading-relaxed whitespace-pre-wrap">{listing.roomDetails}</p>
+                  <p className="text-gray-600 dark:text-slate-300 text-[18px] leading-relaxed whitespace-pre-wrap">{listing.roomDetails}</p>
                 </div>
               </section>
 
@@ -646,29 +646,29 @@ export default function ListingDetailPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {(listing.sharingType || listing.foodIncluded || listing.billsIncluded) && (
                   <section>
-                    <h2 className="text-[10px] font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-[0.2em]">
+                    <h2 className="text-[13px] font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-[0.2em]">
                       <Users className="w-3.5 h-3.5 text-primary-500" /> Specifications
                     </h2>
                     <div className="grid grid-cols-2 gap-2">
                       {listing.genderCategory && (
                         <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs flex flex-col gap-1">
-                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Gender</span>
-                          <span className="font-black text-[12px] capitalize truncate">{listing.genderCategory === 'both' ? 'Mixed' : listing.genderCategory}</span>
+                          <span className="text-[12px] font-black text-slate-400 uppercase tracking-tighter">Gender</span>
+                          <span className="font-black text-[15px] capitalize truncate">{listing.genderCategory === 'both' ? 'Mixed' : listing.genderCategory}</span>
                         </div>
                       )}
                       {listing.sharingType && (
                         <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs flex flex-col gap-1">
-                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Sharing</span>
-                          <span className="font-black text-[12px] capitalize truncate">{listing.sharingType}</span>
+                          <span className="text-[12px] font-black text-slate-400 uppercase tracking-tighter">Sharing</span>
+                          <span className="font-black text-[15px] capitalize truncate">{listing.sharingType}</span>
                         </div>
                       )}
                       <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs flex flex-col gap-1">
-                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Food</span>
-                        <span className={`text-[12px] font-black ${listing.foodIncluded ? 'text-accent-emerald' : 'text-slate-400'}`}>{listing.foodIncluded ? 'Yes' : 'No'}</span>
+                        <span className="text-[12px] font-black text-slate-400 uppercase tracking-tighter">Food</span>
+                        <span className={`text-[15px] font-black ${listing.foodIncluded ? 'text-accent-emerald' : 'text-slate-400'}`}>{listing.foodIncluded ? 'Yes' : 'No'}</span>
                       </div>
                       <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs flex flex-col gap-1">
-                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Bills</span>
-                        <span className={`text-[12px] font-black ${listing.billsIncluded ? 'text-accent-emerald' : 'text-slate-400'}`}>{listing.billsIncluded ? 'Yes' : 'No'}</span>
+                        <span className="text-[12px] font-black text-slate-400 uppercase tracking-tighter">Bills</span>
+                        <span className={`text-[15px] font-black ${listing.billsIncluded ? 'text-accent-emerald' : 'text-slate-400'}`}>{listing.billsIncluded ? 'Yes' : 'No'}</span>
                       </div>
                     </div>
                   </section>
@@ -676,7 +676,7 @@ export default function ListingDetailPage() {
 
                 {listing.listingType === 'handover' && listing.legacyBundle && (
                   <section>
-                    <h2 className="text-[10px] font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-[0.2em]">
+                    <h2 className="text-[13px] font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-[0.2em]">
                       <Package className="w-3.5 h-3.5 text-primary-500" /> Bundle
                     </h2>
                     <div className="grid grid-cols-2 gap-2">
@@ -687,7 +687,7 @@ export default function ListingDetailPage() {
                         { label: 'Lamp', active: listing.legacyBundle.lamp },
                       ].map(item => (
                         <div key={item.label} className={`flex items-center justify-between p-2.5 rounded-xl border transition-colors ${item.active ? 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 shadow-xs' : 'bg-slate-50/50 dark:bg-slate-900/10 border-transparent opacity-20'}`}>
-                           <span className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-tighter">{item.label}</span>
+                           <span className="text-[13px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-tighter">{item.label}</span>
                            {item.active && <CheckCircle2 className="w-3 h-3 text-accent-emerald" />}
                         </div>
                       ))}
@@ -721,31 +721,31 @@ export default function ListingDetailPage() {
                <div className="flex items-center justify-between mb-6">
                   <h2 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-3">
                     Verified Truth
-                    <span className="bg-primary-600 text-white px-2 py-0.5 rounded-md text-[10px] font-black">{reviews.length}</span>
+                    <span className="bg-primary-600 text-white px-2 py-0.5 rounded-md text-[13px] font-black">{reviews.length}</span>
                   </h2>
                   {canReview && !isRatingPost && (
                     <button onClick={() => {
                       const form = document.getElementById('review-form');
                       form?.scrollIntoView({ behavior: 'smooth' });
-                    }} className="text-[10px] font-black text-primary-600 uppercase tracking-widest hover:underline">Write One</button>
+                    }} className="text-[13px] font-black text-primary-600 uppercase tracking-widest hover:underline">Write One</button>
                   )}
                </div>
 
                {canReview && (
                 <form id="review-form" onSubmit={handleReviewSubmit} className="mb-10 bg-slate-50 dark:bg-slate-900/40 rounded-[2rem] p-5 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xl shadow-slate-100 dark:shadow-none">
-                  <h3 className="text-xs font-black mb-6 text-gray-900 dark:text-white uppercase tracking-[0.25em]">Rate Your Stay</h3>
+                  <h3 className="text-sm font-black mb-6 text-gray-900 dark:text-white uppercase tracking-[0.25em]">Rate Your Stay</h3>
                   
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                      {[
                       { label: 'Wi-Fi', key: 'wifiRating' },
-                      { label: 'Food', key: 'foodRating' },
-                      { label: 'Safe', key: 'securityRating' },
-                      { label: 'Host', key: 'behaviorRating' },
-                      { label: 'Power', key: 'backupRating' },
-                      { label: 'Resp', key: 'responsivenessRating' },
+                      { label: 'Food Quality', key: 'foodRating' },
+                      { label: 'Safety', key: 'securityRating' },
+                      { label: 'Owner Behaviour', key: 'behaviorRating' },
+                      { label: 'Power Backup', key: 'backupRating' },
+                      { label: 'Response Time', key: 'responsivenessRating' },
                     ].map((field) => (
                       <div key={field.key} className="bg-white dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
-                        <label className="block text-[7px] font-black text-slate-400 uppercase tracking-tighter mb-1.5 px-1">
+                        <label className="block text-[11px] font-black text-slate-400 uppercase tracking-tighter mb-1.5 px-1">
                           {field.label}
                         </label>
                         <div className="flex gap-0.5">
@@ -754,7 +754,7 @@ export default function ListingDetailPage() {
                               key={val}
                               type="button"
                               onClick={() => setNewReview(prev => ({ ...prev, [field.key]: val }))}
-                              className={`flex-1 py-1 text-[9px] font-black rounded-md transition-all ${
+                              className={`flex-1 py-1 text-[13px] font-black rounded-md transition-all ${
                                 (newReview as Record<string, unknown>)[field.key] === val
                                   ? 'bg-primary-600 text-white'
                                   : 'text-slate-300 hover:text-primary-600'
@@ -770,14 +770,14 @@ export default function ListingDetailPage() {
 
                   <div className="flex flex-col sm:flex-row gap-6 items-start mb-6">
                     <div className="shrink-0">
-                      <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Overall Score *</label>
+                      <label className="block text-[13px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Overall Score *</label>
                       <div className="flex gap-1">
                         {[1, 2, 3, 4, 5].map((val) => (
                           <button
                             key={val}
                             type="button"
                             onClick={() => setNewReview({ ...newReview, rating: val })}
-                            className={`w-9 h-9 flex items-center justify-center rounded-xl text-xs font-black transition-all ${
+                            className={`w-9 h-9 flex items-center justify-center rounded-xl text-sm font-black transition-all ${
                               newReview.rating === val
                                 ? 'bg-amber-500 text-white scale-105 shadow-lg shadow-amber-500/30'
                                 : 'bg-white dark:bg-slate-950 text-slate-400 border border-slate-200 dark:border-slate-800'
@@ -789,18 +789,18 @@ export default function ListingDetailPage() {
                       </div>
                     </div>
                     <div className="flex-1 w-full space-y-2">
-                      <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Commentary *</label>
-                      <textarea required value={newReview.comment} onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })} className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none ring-primary-500 focus:ring-1 text-gray-900 dark:text-white text-xs font-medium shadow-xs" placeholder="Be honest about your experience..." rows={3} />
+                      <label className="block text-[13px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Commentary *</label>
+                      <textarea required value={newReview.comment} onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })} className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none ring-primary-500 focus:ring-1 text-gray-900 dark:text-white text-sm font-medium shadow-xs" placeholder="Be honest about your experience..." rows={3} />
                     </div>
                   </div>
                   
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     {reviewError && (
-                      <div className="text-[10px] font-black text-red-500 uppercase tracking-widest flex items-center gap-2">
+                      <div className="text-[13px] font-black text-red-500 uppercase tracking-widest flex items-center gap-2">
                         <ShieldCheck className="w-3 h-3" /> {reviewError}
                       </div>
                     )}
-                    <button type="submit" disabled={reviewLoading} className="w-full sm:w-auto bg-primary-600 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 disabled:opacity-50 ml-auto">
+                    <button type="submit" disabled={reviewLoading} className="w-full sm:w-auto bg-primary-600 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest text-[13px] shadow-xl shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 disabled:opacity-50 ml-auto">
                       {reviewLoading ? 'VERIFYING...' : 'Post Verified Review'}
                     </button>
                   </div>
@@ -812,19 +812,19 @@ export default function ListingDetailPage() {
                   <div key={review._id} className="bg-white dark:bg-slate-900/60 p-5 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 shadow-xs hover:shadow-md transition-all">
                     <div className="flex justify-between items-center mb-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-primary-50 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600 font-black text-[10px] uppercase">
+                        <div className="w-8 h-8 bg-primary-50 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600 font-black text-[13px] uppercase">
                           {review.userId?.name?.charAt(0) || 'S'}
                         </div>
                         <div>
-                          <div className="font-black text-[10px] flex items-center gap-1.5 text-gray-900 dark:text-white uppercase tracking-widest leading-none">
+                          <div className="font-black text-[13px] flex items-center gap-1.5 text-gray-900 dark:text-white uppercase tracking-widest leading-none">
                             Verified Student {review.geofenceVerified && <ShieldCheck className="w-2.5 h-2.5 text-accent-emerald" />}
                           </div>
-                          <div className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">{new Date(review.createdAt).toLocaleDateString()}</div>
+                          <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">{new Date(review.createdAt).toLocaleDateString()}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 bg-amber-500/10 dark:bg-amber-500/5 px-3 py-1 rounded-full border border-amber-500/20">
                          <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                         <span className="text-[11px] font-black text-amber-600 dark:text-amber-400">{review.rating}</span>
+                         <span className="text-[14px] font-black text-amber-600 dark:text-amber-400">{review.rating}</span>
                       </div>
                     </div>
 
@@ -832,12 +832,12 @@ export default function ListingDetailPage() {
                        <div className="md:col-span-3 space-y-3">
                           {review.aiSummary && (
                             <div className="p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border-l-2 border-indigo-500 rounded-r-xl">
-                              <p className="text-[11px] text-indigo-950 dark:text-indigo-200 italic leading-relaxed font-bold">
+                              <p className="text-[14px] text-indigo-950 dark:text-indigo-200 italic leading-relaxed font-bold">
                                 "{review.aiSummary}"
                               </p>
                             </div>
                           )}
-                          <p className="text-slate-600 dark:text-slate-300 text-[13px] leading-relaxed font-medium">{review.comment}</p>
+                          <p className="text-slate-600 dark:text-slate-300 text-[16px] leading-relaxed font-medium">{review.comment}</p>
                        </div>
 
                        <div className="md:col-span-2 bg-slate-50/50 dark:bg-slate-950/20 p-3 rounded-xl border border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-x-4 gap-y-2 h-fit self-start">
@@ -850,7 +850,7 @@ export default function ListingDetailPage() {
                             { label: 'Resp', val: review.responsivenessRating },
                           ].map(m => m.val ? (
                             <div key={m.label} className="space-y-0.5">
-                              <div className="flex justify-between items-center text-[7px] font-black text-slate-400 uppercase tracking-tighter">
+                              <div className="flex justify-between items-center text-[11px] font-black text-slate-400 uppercase tracking-tighter">
                                 <span>{m.label}</span>
                                 <span className="text-primary-600">{m.val}</span>
                               </div>
@@ -875,7 +875,7 @@ export default function ListingDetailPage() {
             <div className="sticky top-20 space-y-4">
               <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] p-5 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-none transition-all">
                 <div className="flex items-center justify-between mb-5">
-                   <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em]">Status</h3>
+                   <h3 className="text-[13px] font-black text-slate-400 uppercase tracking-[0.25em]">Status</h3>
                    <div className="flex gap-1">
                       <div className="w-1.5 h-1.5 bg-accent-emerald rounded-full"></div>
                       <div className="w-1.5 h-1.5 bg-accent-emerald rounded-full opacity-30 animate-pulse"></div>
@@ -888,8 +888,8 @@ export default function ListingDetailPage() {
                         <Calendar className="w-4 h-4 text-white" />
                      </div>
                      <div>
-                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Availability</p>
-                        <p className="text-[12px] font-black text-gray-900 dark:text-white">
+                        <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Availability</p>
+                        <p className="text-[15px] font-black text-gray-900 dark:text-white">
                           {listing.availableDate ? new Date(listing.availableDate).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Ready Now'}
                         </p>
                      </div>
@@ -900,8 +900,8 @@ export default function ListingDetailPage() {
                         <Users className="w-4 h-4 text-white" />
                      </div>
                      <div className="flex-1 min-w-0">
-                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Posted By</p>
-                        <p className="text-[12px] font-black text-gray-900 dark:text-white truncate uppercase tracking-tighter">
+                        <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Posted By</p>
+                        <p className="text-[15px] font-black text-gray-900 dark:text-white truncate uppercase tracking-tighter">
                           {listing.isOwnerListing || listing.handoverMode || listing.listingType === 'roommate' ? listing.userId?.name || 'Verified User' : 'Anonymous'}
                         </p>
                      </div>
@@ -911,23 +911,23 @@ export default function ListingDetailPage() {
                     (listing.isOwnerListing || listing.handoverMode || listing.listingType === 'roommate') ? (
                       listing.userId?.email ? (
                         <div className="grid grid-cols-1 gap-2 pt-2">
-                          <a href={`mailto:${listing.userId.email}`} className="flex items-center justify-center gap-2 w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[9px] transition-all shadow-lg shadow-primary-500/25 active:scale-95">
+                          <a href={`mailto:${listing.userId.email}`} className="flex items-center justify-center gap-2 w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[13px] transition-all shadow-lg shadow-primary-500/25 active:scale-95">
                             <Mail className="w-3.5 h-3.5" /> Email
                           </a>
                           {listing.userId.phoneNumber && (
-                             <a href={`tel:${listing.userId.phoneNumber}`} className="flex items-center justify-center gap-2 w-full py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-gray-900 dark:text-white rounded-xl font-black uppercase tracking-[0.15em] text-[9px] transition-all hover:bg-slate-50 dark:hover:bg-slate-700">
+                             <a href={`tel:${listing.userId.phoneNumber}`} className="flex items-center justify-center gap-2 w-full py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-gray-900 dark:text-white rounded-xl font-black uppercase tracking-[0.15em] text-[13px] transition-all hover:bg-slate-50 dark:hover:bg-slate-700">
                                 <Phone className="w-3.5 h-3.5" /> Call Student
                              </a>
                           )}
                         </div>
                       ) : null
                     ) : (
-                      <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-[8px] font-black text-center text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 mt-2 uppercase tracking-[0.15em] leading-relaxed">
+                      <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-[12px] font-black text-center text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 mt-2 uppercase tracking-[0.15em] leading-relaxed">
                         Student Identity <br/> Protected for Truth Ledger
                       </div>
                     )
                   ) : (
-                    <Link href="/login" className="flex items-center justify-center gap-2 w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black uppercase tracking-[0.2em] text-[9px] transition-colors">
+                    <Link href="/login" className="flex items-center justify-center gap-2 w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black uppercase tracking-[0.2em] text-[13px] transition-colors">
                       <Zap className="w-3.5 h-3.5" /> Login to Access
                     </Link>
                   )}

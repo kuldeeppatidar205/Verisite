@@ -27,7 +27,6 @@ export async function POST(req: NextRequest) {
     }
 
     let collegeEmail = undefined;
-    let studentId = undefined;
 
     if (validated.role === 'STUDENT' && validated.collegeEmail) {
       // Ensure the college email isn't already used as an email OR a collegeEmail
@@ -39,7 +38,6 @@ export async function POST(req: NextRequest) {
       }
 
       collegeEmail = validated.collegeEmail;
-      studentId = validated.studentId;
     }
 
     // Hash password
@@ -63,12 +61,7 @@ export async function POST(req: NextRequest) {
 
     // Only add student-specific fields if they exist
     if (collegeEmail) userObj.collegeEmail = collegeEmail;
-    if (studentId) userObj.studentId = studentId;
-    if (validated.role === 'STUDENT') {
-      if (validated.hostelName) userObj.hostelName = validated.hostelName;
-      if (validated.roomNumber) userObj.roomNumber = validated.roomNumber;
-    }
-
+    
     // Geocode favoriteCollege if not provided but collegeName exists
     if (validated.favoriteCollege) {
       userObj.favoriteCollege = validated.favoriteCollege;

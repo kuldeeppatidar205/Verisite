@@ -38,6 +38,7 @@
   --background: #fbfbfb; /* Softer light background */
   --foreground: #0f172a; /* Slate 900 for text */
   color-scheme: light;
+  font-size: 110%; /* Increase base font size by 10% */
 }
 
 html.dark {
