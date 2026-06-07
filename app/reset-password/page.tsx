@@ -71,7 +71,7 @@ function ResetPasswordForm() {
     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 sm:p-8 backdrop-blur-md animate-slide-up">
       {message ? (
         <div className="text-center space-y-6 py-4">
-          <div className="w-16 h-16 bg-accent-emerald/10 text-accent-emerald rounded-full flex items-center justify-center mx-auto">
+          <div className="w-16 h-16 bg-brand-success/10 text-brand-success rounded-full flex items-center justify-center mx-auto">
             <CheckCircle2 className="w-8 h-8" />
           </div>
           <div className="space-y-2">
@@ -158,10 +158,10 @@ export default function ResetPasswordPage() {
             <div className="w-12 h-12 flex items-center justify-center transition-transform group-hover:scale-105">
               <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
             </div>
-            <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Verisite</span>
+            <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Verisite</span>
           </Link>
-          <h1 className="text-3xl font-semibold text-slate-900 dark:text-white mb-2 tracking-tight">Set New Password</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-[15px]">Create a strong password for your account</p>
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2 tracking-tighter">Set New Password</h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">Create a strong password for your account</p>
         </div>
 
         <ClientOnly>

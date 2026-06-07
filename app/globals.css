@@ -3,46 +3,110 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Brand Palette: Sophisticated Indigo & Slate */
-  --color-primary-50: #f5f7ff;
-  --color-primary-100: #ebf0fe;
-  --color-primary-200: #dce4fd;
-  --color-primary-300: #c2cffb;
-  --color-primary-400: #9da9f8;
-  --color-primary-500: #7a82f3;
-  --color-primary-600: #5c5ceb;
-  --color-primary-700: #4e4ad9;
-  --color-primary-800: #423eb3;
-  --color-primary-900: #39388f;
-  --color-primary-950: #222254;
+  /* Institutional Indigo Design System Semantic Mappings */
+  --color-brand-primary: var(--primary-500);
+  --color-brand-hover: var(--primary-600);
+  --color-brand-success: var(--brand-success);
+  --color-brand-warning: var(--brand-warning);
+  --color-brand-danger: var(--brand-danger);
+  
+  --color-surface-main: var(--bg-dark);
+  --color-surface-card: var(--surface-card);
+  --color-surface-input: var(--surface-input);
+  
+  --color-ui-border: var(--border-muted);
+  
+  --color-text-brand-base: var(--text-primary);
+  --color-text-brand-secondary: var(--text-secondary);
+  --color-text-brand-muted: var(--text-muted);
 
-  /* Neutral Palette: Softer than pure black/white */
-  --color-slate-50: #f8fafc;
-  --color-slate-100: #f1f5f9;
-  --color-slate-200: #e2e8f0;
-  --color-slate-300: #cbd5e1;
-  --color-slate-400: #94a3b8;
-  --color-slate-500: #64748b;
-  --color-slate-600: #475569;
-  --color-slate-700: #334155;
-  --color-slate-800: #1e293b;
-  --color-slate-900: #0f172a;
-  --color-slate-950: #020617;
+  /* Primary Scale Compatibility */
+  --color-primary-50: var(--primary-50);
+  --color-primary-100: var(--primary-100);
+  --color-primary-200: var(--primary-200);
+  --color-primary-300: var(--primary-300);
+  --color-primary-400: var(--primary-400);
+  --color-primary-500: var(--primary-500);
+  --color-primary-600: var(--primary-600);
+  --color-primary-700: var(--primary-700);
+  --color-primary-800: var(--primary-800);
+  --color-primary-900: var(--primary-900);
+  --color-primary-950: var(--primary-950);
 
-  /* Accent Palette */
-  --color-accent-amber: #f59e0b; /* Golden Yellow for stars */
-  --color-accent-emerald: #10b981; /* Success states */
+  /* Legacy color aliases for existing components during migration */
+  --color-accent-emerald: var(--brand-success);
+  --color-accent-amber: var(--brand-warning);
+  --color-amber-500: var(--brand-warning);
+  --color-red-500: var(--brand-danger);
 }
 
 :root {
-  --background: #fbfbfb; /* Softer light background */
-  --foreground: #0f172a; /* Slate 900 for text */
+  /* Baseline Light Mode: Editorial Warm-Neutral Canvas */
+  --bg-dark: #f9f9f6;
+  --surface-card: #ffffff;
+  --surface-input: #f1f1ee;
+  --border-muted: #e5e5e0;
+  
+  --primary-50: #f5f7ff;
+  --primary-100: #ebf0fe;
+  --primary-200: #dce4fd;
+  --primary-300: #c2cffb;
+  --primary-400: #9da9f8;
+  --primary-500: #4f46e5;
+  --primary-600: #3730a3;
+  --primary-700: #312e81;
+  --primary-800: #1e1b4b;
+  --primary-900: #1e1b4b;
+  --primary-950: #0f172a;
+  
+  --brand-success: #059669;
+  --brand-warning: #d97706;
+  --brand-danger: #dc2626;
+  
+  --text-primary: #0f172a; /* Deep Indigo-Ink */
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  
+  --success-emerald: #059669;
+  --warning-amber: #d97706;
+
+  --background: var(--bg-dark);
+  --foreground: var(--text-primary);
   color-scheme: light;
 }
 
 html.dark {
-  --background: #0b0f1a; /* Deep matte navy */
-  --foreground: #f1f5f9; /* Slate 100 for text */
+  /* Institutional Navy Architecture */
+  --bg-dark: #090d16;
+  --surface-card: #131926;
+  --surface-input: #1a2234;
+  --border-muted: #242f47;
+  
+  --primary-50: #1e293b;
+  --primary-100: #1e293b;
+  --primary-200: #334155;
+  --primary-300: #475569;
+  --primary-400: #6366f1;
+  --primary-500: #6366f1;
+  --primary-600: #4f46e5;
+  --primary-700: #4338ca;
+  --primary-800: #3730a3;
+  --primary-900: #312e81;
+  --primary-950: #1e1b4b;
+  
+  --brand-success: #10b981;
+  --brand-warning: #f59e0b;
+  --brand-danger: #ef4444;
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  --success-emerald: #10b981;
+  --warning-amber: #f59e0b;
+
+  --background: var(--bg-dark);
+  --foreground: var(--text-primary);
   color-scheme: dark;
 }
 
@@ -130,13 +194,13 @@ body {
 input:focus,
 textarea:focus,
 select:focus {
-  @apply outline-none ring-2 ring-primary-500/50 border-primary-500;
+  @apply outline-none ring-2 ring-brand-primary/50 border-brand-primary;
 }
 
 .dark input:focus,
 .dark textarea:focus,
 .dark select:focus {
-  @apply ring-primary-400/30 border-primary-400;
+  @apply ring-brand-primary/30 border-brand-primary;
 }
 
 /* Gradient Text */
@@ -181,4 +245,94 @@ select:focus {
 
 .animate-float {
   animation: float 4s ease-in-out infinite;
+}
+
+/* Typography utilities for PurePG - mobile defaults, refined at md+ (laptop) */
+
+/* Display / Hero */
+.text-display-hero {
+  font-weight: 800; /* ExtraBold */
+  font-size: 1.75rem; /* 28px mobile */
+  line-height: 1.25;
+}
+@media (min-width: 768px) {
+  .text-display-hero {
+    font-size: 2.5rem; /* 40px laptop */
+    line-height: 1.2;
+    font-weight: 800; /* ExtraBold (keep strong) */
+  }
+}
+
+/* Page Section Headings (H1/H2) */
+.text-section-heading {
+  font-weight: 700; /* Bold */
+  font-size: 1.375rem; /* 22px mobile */
+  line-height: 1.3;
+}
+@media (min-width: 768px) {
+  .text-section-heading {
+    font-size: 1.75rem; /* 28px laptop */
+    line-height: 1.3;
+    font-weight: 700;
+  }
+}
+
+/* Component / Card Titles (H3) */
+.text-card-title {
+  font-weight: 600; /* SemiBold */
+  font-size: 1.125rem; /* 18px mobile */
+  line-height: 1.4;
+}
+@media (min-width: 768px) {
+  .text-card-title {
+    font-size: 1.25rem; /* 20px laptop */
+    line-height: 1.4;
+    font-weight: 600;
+  }
+}
+
+/* Body Text (Primary Data / Price / Descriptions) */
+.text-body {
+  font-weight: 400; /* Normal */
+  font-size: 0.9375rem; /* 15px mobile */
+  line-height: 1.5;
+}
+@media (min-width: 768px) {
+  .text-body {
+    font-size: 1rem; /* 16px laptop */
+    line-height: 1.5;
+    font-weight: 400;
+  }
+}
+
+/* Metadata / Labels / Placeholders (Secondary) */
+.text-meta {
+  font-weight: 400; /* mobile: normal */
+  font-size: 0.8125rem; /* 13px mobile */
+  line-height: 1.5;
+}
+@media (min-width: 768px) {
+  .text-meta {
+    font-size: 0.875rem; /* 14px laptop */
+    line-height: 1.5;
+    font-weight: 500; /* Medium on laptop */
+  }
+}
+
+/* Micro-caps / Badges */
+.text-micro {
+  font-weight: 700; /* Bold */
+  font-size: 0.6875rem; /* 11px mobile */
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em; /* wide tracking */
+}
+@media (min-width: 768px) {
+  .text-micro {
+    font-size: 0.75rem; /* 12px laptop */
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
 }

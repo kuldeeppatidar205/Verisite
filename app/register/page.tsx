@@ -117,10 +117,10 @@ export default function RegisterPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
             </div>
-            <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Verisite</span>
+            <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Verisite</span>
           </Link>
-          <h1 className="text-3xl font-semibold text-slate-900 dark:text-white mb-2 tracking-tight">Create Account</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-[15px]">Join the verified community</p>
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2 tracking-tighter">Create Account</h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">Join the verified community</p>
         </div>
 
         <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 sm:p-8 backdrop-blur-md animate-slide-up">
@@ -131,13 +131,13 @@ export default function RegisterPage() {
               </div>
             )}
             {success && (
-              <div className="p-4 bg-accent-emerald/10 border border-accent-emerald/20 rounded-xl text-accent-emerald text-[13px] font-medium">
+              <div className="p-4 bg-brand-success/10 border border-brand-success/20 rounded-xl text-brand-success text-[13px] font-medium">
                 {success}
               </div>
             )}
 
             <div className="space-y-2">
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+              <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
                 Select Your Role
               </label>
               <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl gap-1">
@@ -146,7 +146,7 @@ export default function RegisterPage() {
                     key={r}
                     type="button"
                     onClick={() => setFormData({ ...formData, role: r as any })}
-                    className={`flex-1 py-2.5 rounded-lg text-[13px] font-semibold transition-all ${
+                    className={`flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
                       formData.role === r
                         ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-400 shadow-sm'
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
@@ -160,7 +160,7 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+                <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
                   Full Name
                 </label>
                 <input
@@ -169,12 +169,12 @@ export default function RegisterPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-[15px]"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
                   placeholder="John Doe"
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+                <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
                   Personal Email
                 </label>
                 <input
@@ -183,7 +183,7 @@ export default function RegisterPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-[15px]"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
                   placeholder="john@personal.com"
                 />
               </div>
@@ -192,7 +192,7 @@ export default function RegisterPage() {
             {formData.role === 'STUDENT' ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+                  <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
                     College Email *
                   </label>
                   <input
@@ -201,13 +201,13 @@ export default function RegisterPage() {
                     value={formData.collegeEmail}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-[15px]"
+                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
                     placeholder="john@university.edu"
                   />
-                  <p className="text-[10px] text-primary-600 dark:text-primary-400 font-semibold ml-1 tracking-tight">Required for verification ✓</p>
+                  <p className="text-[10px] text-primary-600 dark:text-primary-400 font-black ml-1 tracking-widest uppercase">Required for verification ✓</p>
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+                  <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
                     College Name
                   </label>
                   <input
@@ -216,14 +216,14 @@ export default function RegisterPage() {
                     value={formData.collegeName}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-[15px]"
+                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
                     placeholder="Search university..."
                   />
                 </div>
               </div>
             ) : (
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+                <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
                   Phone Number (for contact)
                 </label>
                 <input
@@ -232,7 +232,7 @@ export default function RegisterPage() {
                   value={formData.phoneNumber}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-[15px]"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
                   placeholder="+91 98765 43210"
                 />
               </div>
@@ -240,7 +240,7 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+                <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
                   Password
                 </label>
                 <input
@@ -249,12 +249,12 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-[15px]"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
                   placeholder="••••••••"
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+                <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
                   Confirm Password
                 </label>
                 <input
@@ -263,7 +263,7 @@ export default function RegisterPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-[15px]"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
                   placeholder="••••••••"
                 />
               </div>
@@ -272,16 +272,16 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-primary-600 hover:bg-primary-700 disabled:bg-slate-300 text-white rounded-xl font-semibold transition-all shadow-lg shadow-primary-500/20 mt-4 uppercase tracking-widest text-[13px] btn-press"
+              className="w-full py-4 bg-primary-600 hover:bg-primary-700 disabled:bg-slate-300 text-white rounded-xl font-black transition-all shadow-lg shadow-primary-500/20 mt-4 uppercase tracking-widest text-[10px] btn-press"
             >
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-slate-500 dark:text-slate-400 mt-8 font-medium text-[15px]">
+        <p className="text-center text-slate-500 dark:text-slate-400 mt-8 font-medium text-sm">
           Already have an account?{' '}
-          <Link href="/login" className="text-primary-600 dark:text-primary-400 hover:underline font-semibold">
+          <Link href="/login" className="text-primary-600 dark:text-primary-400 hover:underline font-black uppercase tracking-widest text-[10px]">
             Sign In
           </Link>
         </p>

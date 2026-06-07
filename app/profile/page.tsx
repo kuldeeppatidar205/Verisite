@@ -230,19 +230,19 @@ export default function ProfilePage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
             </div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Verisite</h1>
+            <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tighter">Verisite</h1>
           </Link>
           <div className="flex items-center gap-3 sm:gap-4">
             <ThemeToggle />
             <Link
               href="/browse"
-              className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+              className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               Browse
             </Link>
             <button
               onClick={handleLogout}
-              className="text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+              className="text-[10px] font-black uppercase tracking-widest text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
             >
               Logout
             </button>
@@ -258,7 +258,7 @@ export default function ProfilePage() {
             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-5 sm:p-8 transition-colors duration-200">
               <div className="flex flex-col sm:flex-row items-start justify-between mb-8 gap-6">
                 <div className="flex items-center gap-4 sm:gap-6">
-                   <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary-50 dark:bg-primary-900/20 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400 text-2xl sm:text-3xl font-bold">
+                   <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary-50 dark:bg-primary-900/20 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400 text-2xl sm:text-3xl font-black">
                       {profile.name.charAt(0)}
                    </div>
                    <div>
@@ -272,7 +272,7 @@ export default function ProfilePage() {
                       {profile.role === 'ADMIN' && (
                         <Link 
                           href="/admin"
-                          className="px-3 py-1 rounded-md text-[9px] font-black bg-amber-500 text-white uppercase tracking-widest hover:bg-amber-600 transition-colors flex items-center gap-1 shadow-lg shadow-amber-500/20"
+                          className="px-3 py-1 rounded-md text-[9px] font-black bg-brand-warning text-white uppercase tracking-widest hover:bg-amber-600 transition-colors flex items-center gap-1 shadow-lg shadow-brand-warning/20"
                         >
                           <ShieldCheck className="w-3 h-3" /> Admin Panel
                         </Link>
@@ -280,8 +280,8 @@ export default function ProfilePage() {
                       {profile.role !== 'GUEST' && profile.role !== 'ADMIN' && (
                         <span className={`px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-widest flex items-center gap-1 border ${
                           profile.verified
-                            ? 'bg-accent-emerald/5 text-accent-emerald border-accent-emerald/10'
-                            : 'bg-accent-amber/5 text-accent-amber border-accent-amber/10'
+                            ? 'bg-brand-success/5 text-brand-success border-brand-success/10'
+                            : 'bg-brand-warning/5 text-brand-warning border-brand-warning/10'
                         }`}>
                           {profile.verified ? (
                             <><CheckCircle2 className="w-3 h-3" /> Verified Student</>
@@ -373,7 +373,7 @@ export default function ProfilePage() {
                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                       Personal Email
                     </h3>
-                    <p className="text-[14px] text-slate-900 dark:text-white font-bold break-all">{profile.email}</p>
+                    <p className="text-sm text-slate-900 dark:text-white font-black tracking-tight break-all uppercase">{profile.email}</p>
                   </div>
 
                   {profile.role === 'OWNER' && (
@@ -381,7 +381,7 @@ export default function ProfilePage() {
                       <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                         Official Phone
                       </h3>
-                      <p className="text-[14px] text-slate-900 dark:text-white font-bold break-all">{profile.phoneNumber || 'Not provided'}</p>
+                      <p className="text-sm text-slate-900 dark:text-white font-black tracking-tight break-all">{profile.phoneNumber || 'Not provided'}</p>
                     </div>
                   )}
 
@@ -390,7 +390,7 @@ export default function ProfilePage() {
                       <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                         Institutional Email
                       </h3>
-                      <p className="text-[14px] text-slate-900 dark:text-white font-bold break-all">{profile.collegeEmail}</p>
+                      <p className="text-sm text-slate-900 dark:text-white font-black tracking-tight break-all uppercase">{profile.collegeEmail}</p>
                     </div>
                   )}
 
@@ -399,7 +399,7 @@ export default function ProfilePage() {
                       <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                         Campus
                       </h3>
-                      <p className="text-[14px] text-slate-900 dark:text-white font-bold break-all">{profile.favoriteCollege?.name || 'Not provided'}</p>
+                      <p className="text-sm text-slate-900 dark:text-white font-black tracking-tight break-all uppercase">{profile.favoriteCollege?.name || 'Not provided'}</p>
                     </div>
                   )}
 
@@ -407,7 +407,7 @@ export default function ProfilePage() {
                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                       Account Tier
                     </h3>
-                    <p className="text-[14px] text-slate-900 dark:text-white font-bold uppercase tracking-tight">
+                    <p className="text-sm text-slate-900 dark:text-white font-black uppercase tracking-tight">
                       {profile.role} Since {new Date(profile.createdAt).getFullYear()}
                     </p>
                   </div>
@@ -438,20 +438,20 @@ export default function ProfilePage() {
                         <div className="flex-1 min-w-0 w-full">
                           <div className="flex items-center gap-3 mb-2">
                             {listing.price !== undefined && (
-                              <h4 className="font-black text-slate-900 dark:text-white text-xl tracking-tighter">
+                              <h4 className="text-body text-slate-900 dark:text-white">
                                 ₹{(listing.price ?? 0).toLocaleString('en-IN')}
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">/mo</span>
+                                <span className="text-micro text-slate-400 ml-1">/mo</span>
                               </h4>
                             )}
                             <span className={`text-[8px] uppercase tracking-[0.2em] px-2 py-0.5 rounded font-black border ${
                               listing.status === 'available'
-                                ? 'bg-accent-emerald/5 text-accent-emerald border-accent-emerald/10'
+                                ? 'bg-brand-success/5 text-brand-success border-brand-success/10'
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-transparent'
                             }`}>
                               {listing.status}
                             </span>
                           </div>
-                          <p className="text-slate-500 dark:text-slate-400 text-sm font-medium line-clamp-1 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
+                          <p className="text-body text-slate-500 dark:text-slate-400 line-clamp-1 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
                             {listing.roomDetails}
                           </p>
                         </div>
@@ -488,8 +488,8 @@ export default function ProfilePage() {
 
             {/* Verification Status */}
             {profile.role !== 'GUEST' && !profile.verified && (
-              <div className="bg-accent-amber/5 dark:bg-accent-amber/10 border border-accent-amber/20 rounded-[2rem] p-6 sm:p-8 transition-colors duration-200">
-                <h3 className="text-sm font-black text-accent-amber mb-3 uppercase tracking-[0.2em] flex items-center gap-2">
+              <div className="bg-brand-warning/5 dark:bg-brand-warning/10 border border-brand-warning/20 rounded-[2rem] p-6 sm:p-8 transition-colors duration-200">
+                <h3 className="text-sm font-black text-brand-warning mb-3 uppercase tracking-[0.2em] flex items-center gap-2">
                   <Clock className="w-4 h-4" /> Verification Required
                 </h3>
                 <p className="text-slate-600 dark:text-slate-300/80 mb-6 text-sm font-medium leading-relaxed">

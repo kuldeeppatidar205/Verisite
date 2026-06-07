@@ -147,7 +147,7 @@ export default function BrowsePage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Verisite</h1>
+            <h1 className="text-xl font-black text-gray-900 dark:text-white tracking-tighter">Verisite</h1>
           </Link>
           
           <div className="hidden md:flex flex-1 max-w-md mx-8">
@@ -158,7 +158,7 @@ export default function BrowsePage() {
                 placeholder="Search by name or location..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all text-gray-900 dark:text-white"
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-full text-[10px] font-black uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all text-gray-900 dark:text-white"
               />
             </div>
           </div>
@@ -174,7 +174,7 @@ export default function BrowsePage() {
             <div className="hidden sm:flex items-center gap-4">
               <Link
                 href="/create-listing"
-                className="text-sm font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 Post Room
               </Link>
@@ -223,7 +223,7 @@ export default function BrowsePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-6">
           <div className="text-center sm:text-left">
-             <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">
+             <h1 className="text-section-heading text-gray-900 dark:text-white tracking-tight mb-2">
                {activeStream === 'STUDENT' ? 'Student Listings' : 'Owner Listings'}
              </h1>
              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
@@ -329,31 +329,31 @@ export default function BrowsePage() {
 
                   <div className="flex flex-col mt-1">
                     <div className="flex justify-between items-start mb-0.5">
-                      <p className="text-lg font-bold text-gray-900 dark:text-white truncate">
+                      <p className="text-card-title text-gray-900 dark:text-white truncate">
                         {listing.pgName || listing.userId?.hostelName || listing.address || 'Verified Location'}
                       </p>
                     </div>
                     {listing.address && (
-                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate mb-0.5">
+                      <p className="text-meta text-slate-500 dark:text-slate-400 truncate mb-0.5">
                         {listing.address}
                       </p>
                     )}
-                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 line-clamp-1 mb-0.5">
+                    <p className="text-body text-slate-500 dark:text-slate-400 line-clamp-1 mb-0.5">
                       {listing.roomDetails}
                     </p>
                     {listing.price !== undefined && (
-                      <p className="text-lg font-black text-gray-900 dark:text-white mt-1 mb-1.5">
-                        ₹{listing.price.toLocaleString('en-IN')} <span className="text-[10px] uppercase tracking-widest text-slate-400">/ month</span>
+                      <p className="text-body text-gray-900 dark:text-white mt-1 mb-1.5">
+                        ₹{listing.price.toLocaleString('en-IN')} <span className="text-micro text-slate-400">/ month</span>
                       </p>
                     )}
                     <div className="flex items-center gap-2">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                      <p className="text-micro text-slate-400 dark:text-slate-500">
                         {new Date(listing.availableDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </p>
                       {(listing.legacyBundle?.mattress || listing.legacyBundle?.cooler) && (
                         <div className="flex gap-2 items-center">
                           <span className="text-gray-300 dark:text-slate-600">•</span>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate">
+                          <span className="text-micro text-slate-400 dark:text-slate-500 truncate">
                             Includes items
                           </span>
                         </div>
@@ -378,7 +378,7 @@ export default function BrowsePage() {
                     <button
                       key={i + 1}
                       onClick={() => setPage(i + 1)}
-                      className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
+                      className={`w-8 h-8 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${
                         page === i + 1
                           ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
                           : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800'
@@ -400,10 +400,10 @@ export default function BrowsePage() {
           </>
         ) : (
           <div className="text-center py-20 bg-gray-50 dark:bg-slate-900/30 rounded-xl border border-gray-200 dark:border-slate-800">
-            <p className="text-gray-500 dark:text-slate-400 text-base mb-6">No listings match your criteria.</p>
+            <p className="text-gray-500 dark:text-slate-400 text-sm font-medium mb-6">No listings match your criteria.</p>
             <Link
               href="/create-listing"
-              className="inline-block px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+              className="inline-block px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
             >
               Post a listing
             </Link>

@@ -96,7 +96,6 @@ function DistanceResult({ dist, collegeName, lat, lng, userProfile, onSave }: {
   lat: number; 
   lng: number; 
   userProfile: any;
-  listing: Listing;
   onSave?: () => void;
 }) {
   const km = (dist / 1000).toFixed(2);
@@ -132,22 +131,22 @@ function DistanceResult({ dist, collegeName, lat, lng, userProfile, onSave }: {
   return (
     <div className={`p-4 rounded-2xl border animate-in fade-in slide-in-from-top-2 bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-900 dark:text-white`}>
       <div className="flex justify-between items-start mb-2">
-        <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Commute</p>
+        <p className="text-micro text-slate-400">Commute</p>
         {badge && (
-          <span className="flex items-center gap-1 text-xs font-black uppercase px-2 py-0.5 bg-accent-emerald/10 text-accent-emerald rounded tracking-widest">
+          <span className="flex items-center gap-1 text-micro bg-brand-success/10 text-brand-success rounded px-2 py-0.5">
             {badge}
           </span>
         )}
       </div>
-      <p className="text-xl font-black text-gray-900 dark:text-white">
-        {km} km <span className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest ml-1">away</span>
+      <p className="text-card-title text-gray-900 dark:text-white">
+        {km} km <span className="text-micro text-gray-400 dark:text-slate-500 ml-1">away</span>
       </p>
       <div className="mt-3 space-y-2">
-        <div className="text-sm text-gray-600 dark:text-slate-400 flex items-center gap-2 font-bold uppercase tracking-wider">
-           <Bike className="w-3.5 h-3.5 text-primary-500" /> ~{scootyMins}m scooty
+        <div className="text-meta text-gray-600 dark:text-slate-400 flex items-center gap-2">
+           <Bike className="w-3.5 h-3.5 text-brand-primary" /> ~{scootyMins}m scooty
         </div>
-        <div className="text-sm text-gray-600 dark:text-slate-400 flex items-center gap-2 font-bold uppercase tracking-wider">
-           <Bus className="w-3.5 h-3.5 text-primary-500" /> ~{busMins}m bus
+        <div className="text-meta text-gray-600 dark:text-slate-400 flex items-center gap-2">
+           <Bus className="w-3.5 h-3.5 text-brand-primary" /> ~{busMins}m bus
         </div>
       </div>
       <div className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800">
@@ -157,7 +156,7 @@ function DistanceResult({ dist, collegeName, lat, lng, userProfile, onSave }: {
       {userProfile && (!userProfile.favoriteCollege || userProfile.favoriteCollege.name !== collegeName) && (
         <button
           onClick={handleSave}
-          className="mt-3 text-xs font-black text-primary-600 dark:text-primary-400 hover:underline uppercase tracking-widest"
+          className="mt-3 text-micro font-black text-brand-primary dark:text-primary-400 hover:underline"
         >
           Set Default
         </button>
@@ -176,6 +175,7 @@ function CommuteDistanceModule({
   setSearchResult, 
   listing, 
   userProfile, 
+  token,
   onProfileUpdate 
 }: {
   autoDist: any;
@@ -193,12 +193,12 @@ function CommuteDistanceModule({
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-4 gap-2">
-        <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-           <Search className="w-3.5 h-3.5 text-primary-500" /> Commute Distance
+        <h2 className="text-micro text-slate-400 flex items-center gap-2">
+           <Search className="w-3.5 h-3.5 text-brand-primary" /> Commute Distance
         </h2>
         <button 
           onClick={() => setShowSearch(!showSearch)} 
-          className="text-xs font-black text-primary-600 dark:text-primary-400 hover:underline uppercase tracking-widest"
+          className="text-micro font-black text-brand-primary dark:text-primary-400 hover:underline"
         >
           {showSearch ? 'Cancel' : (autoDist ? 'Change' : 'Check')}
         </button>
@@ -212,7 +212,6 @@ function CommuteDistanceModule({
             lat={autoDist.lat} 
             lng={autoDist.lng}
             userProfile={userProfile}
-            listing={listing}
             onSave={onProfileUpdate}
           />
         )}
@@ -226,7 +225,7 @@ function CommuteDistanceModule({
                 autoFocus
                 placeholder="College name..."
                 disabled={distLoading}
-                className="w-full pl-10 pr-10 py-2.5 text-sm font-bold bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-gray-900 dark:text-white"
+                className="w-full pl-10 pr-10 py-2.5 text-sm font-bold bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-brand-primary outline-none text-gray-900 dark:text-white"
                 onKeyDown={async (e) => {
                   if (e.key === 'Enter') {
                     const query = (e.target as HTMLInputElement).value;
@@ -250,7 +249,7 @@ function CommuteDistanceModule({
                   }
                 }}
               />
-              {distLoading && <div className="absolute right-3 top-1/2 -translate-y-1/2"><div className="w-3.5 h-3.5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>}
+              {distLoading && <div className="absolute right-3 top-1/2 -translate-y-1/2"><div className="w-3.5 h-3.5 border-2 border-brand-primary border-t-transparent rounded-full animate-spin"></div></div>}
             </div>
           </div>
         )}
@@ -263,7 +262,6 @@ function CommuteDistanceModule({
               lat={searchResult.lat} 
               lng={searchResult.lng}
               userProfile={userProfile}
-              listing={listing}
               onSave={() => {
                 setSearchResult(null);
                 setShowSearch(false);
@@ -490,7 +488,7 @@ export default function ListingDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center">
-        <div className="text-gray-400 dark:text-slate-600 animate-pulse font-medium text-lg">Loading...</div>
+        <div className="text-gray-400 dark:text-slate-600 animate-pulse font-medium text-lg text-body">Loading...</div>
       </div>
     );
   }
@@ -498,8 +496,8 @@ export default function ListingDetailPage() {
   if (!listing) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col items-center justify-center px-4 text-center">
-        <h1 className="text-3xl font-semibold mb-4 text-gray-900 dark:text-white">Listing not found</h1>
-        <Link href="/browse" className="bg-primary-600 text-white px-6 py-3 rounded-lg font-bold transition-all active:scale-95">Back to listings</Link>
+        <h1 className="text-section-heading text-gray-900 dark:text-white mb-4">Listing not found</h1>
+        <Link href="/browse" className="bg-brand-primary text-white px-6 py-3 rounded-lg font-black uppercase tracking-widest text-micro transition-all active:scale-95">Back to listings</Link>
       </div>
     );
   }
@@ -516,11 +514,11 @@ export default function ListingDetailPage() {
             <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center transition-transform group-hover:scale-105">
               <img src="/logo image short.png" alt="Logo" className="w-full h-full object-cover rounded-full" />
             </div>
-            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-gray-900 dark:text-white">Verisite</h1>
+            <h1 className="text-card-title font-black tracking-tighter text-gray-900 dark:text-white">Verisite</h1>
           </Link>
           <div className="flex items-center gap-3 sm:gap-4">
             <ThemeToggle />
-            <Link href="/browse" className="text-sm font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-1">
+            <Link href="/browse" className="text-micro font-black uppercase tracking-widest text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-1">
               <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">Browse</span>
             </Link>
           </div>
@@ -533,27 +531,27 @@ export default function ListingDetailPage() {
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="w-full">
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                 <span className="px-2 py-0.5 bg-primary-50 dark:bg-primary-900/30 text-[13px] font-black uppercase tracking-widest text-primary-600 dark:text-primary-400 rounded">
+                 <span className="px-2 py-0.5 bg-brand-primary/5 dark:bg-brand-primary/20 text-micro font-black text-brand-primary rounded">
                    {listing.listingType === 'roommate' ? 'Roommate Search' : listing.listingType === 'handover' ? 'Room Handover' : 'Student Rating'}
                  </span>
                  {!listing.isOwnerListing && (
-                   <span className="flex items-center gap-1 text-[13px] font-black text-accent-emerald uppercase tracking-widest bg-accent-emerald/5 px-2 py-0.5 rounded border border-accent-emerald/10">
+                   <span className="flex items-center gap-1 text-micro font-black text-brand-success bg-brand-success/5 px-2 py-0.5 rounded border border-brand-success/10">
                      <ShieldCheck className="w-2.5 h-2.5" /> Verified Truth
                    </span>
                  )}
               </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-2 tracking-tight leading-tight">
+              <h1 className="text-display-hero text-gray-900 dark:text-white mb-2 tracking-tighter leading-tight uppercase">
                 {listing.pgName || listing.userId?.hostelName || 'Verified Property'}
               </h1>
-              <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">
+              <div className="flex flex-wrap items-center gap-3 text-micro font-black text-gray-400 dark:text-slate-500">
                 <span className="flex items-center gap-1.5 max-w-[200px] sm:max-w-none">
-                   <MapPin className="w-3.5 h-3.5 text-primary-500 shrink-0" /> <span className="truncate">{listing.address || 'Location Verified'}</span>
+                   <MapPin className="w-3.5 h-3.5 text-brand-primary shrink-0" /> <span className="truncate">{listing.address || 'Location Verified'}</span>
                 </span>
                 {listing.coordinates && (
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${listing.coordinates.lat},${listing.coordinates.lng}`}
                     target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-primary-600 dark:text-primary-400 hover:underline transition-colors whitespace-nowrap uppercase tracking-widest"
+                    className="flex items-center gap-1 text-brand-primary dark:text-primary-400 hover:underline transition-colors whitespace-nowrap uppercase tracking-widest"
                   >
                     View Map <ExternalLink className="w-3 h-3" />
                   </a>
@@ -562,10 +560,10 @@ export default function ListingDetailPage() {
             </div>
             {isOwner && (
               <div className="flex gap-2 w-full md:w-auto shrink-0 mt-2 md:mt-0">
-                <Link href={`/create-listing?id=${id}`} className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 transition-colors text-center text-sm font-black uppercase tracking-widest flex items-center justify-center gap-2 text-gray-900 dark:text-white">
-                  <Edit3 className="w-3.5 h-3.5" /> Edit
+                <Link href={`/create-listing?id=${id}`} className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 transition-colors text-center text-micro font-black uppercase tracking-widest flex items-center justify-center gap-2 text-gray-900 dark:text-white shadow-sm">
+                  <Edit3 className="w-3.5 h-3.5" /> Edit Specs
                 </Link>
-                <button onClick={handleDeleteListing} disabled={!listing.isOwnerListing && listing.reviewCount > 1} className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-30">
+                <button onClick={handleDeleteListing} disabled={!listing.isOwnerListing && listing.reviewCount > 1} className="p-2 bg-brand-danger/10 text-brand-danger rounded-xl hover:bg-brand-danger/20 transition-colors disabled:opacity-30">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -575,15 +573,15 @@ export default function ListingDetailPage() {
           {!isRatingPost && (
             <div className="flex flex-wrap gap-4 items-center justify-between py-3 mt-4 border-y border-slate-100 dark:border-slate-800">
               <div className="flex items-baseline gap-1">
-                 <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tighter">
+                 <span className="text-display-hero text-gray-900 dark:text-white tracking-tighter">
                    ₹{(listing.price ?? 0).toLocaleString('en-IN')}
                  </span>
-                 <span className="text-[13px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">/ month</span>
+                 <span className="text-micro font-black text-gray-400 ml-1">/ month</span>
               </div>
               {listing.isOwnerListing && (
-                <div className="flex items-center gap-2 px-3 py-1 bg-primary-50 dark:bg-primary-900/20 rounded-full border border-primary-100 dark:border-primary-900/30">
-                   <Users className="w-3.5 h-3.5 text-primary-500" />
-                   <span className="text-[13px] font-black text-primary-700 dark:text-primary-400 uppercase tracking-widest">
+                <div className="flex items-center gap-2 px-3 py-1 bg-brand-primary/5 dark:bg-brand-primary/20 rounded-full border border-brand-primary/10">
+                   <Users className="w-3.5 h-3.5 text-brand-primary" />
+                   <span className="text-micro font-black text-brand-primary uppercase">
                      {listing.availableRooms}/{listing.totalRooms} Available
                    </span>
                 </div>
@@ -624,7 +622,7 @@ export default function ListingDetailPage() {
                   ))}
                 </div>
                 {listing.images.length > 3 && (
-                   <button onClick={() => setFullScreenImage(listing.images![0])} className="absolute bottom-3 right-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-[13px] font-black uppercase tracking-widest border border-slate-200 dark:border-slate-800 shadow-xl flex items-center gap-2 hover:bg-white transition-all">
+                   <button onClick={() => setFullScreenImage(listing.images![0])} className="absolute bottom-3 right-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-micro font-black border border-slate-200 dark:border-slate-800 shadow-xl flex items-center gap-2 hover:bg-white transition-all uppercase tracking-widest">
                       <Maximize2 className="w-3 h-3" /> All Photos
                    </button>
                 )}
@@ -633,42 +631,44 @@ export default function ListingDetailPage() {
 
             <div className="space-y-6">
               {/* Description - More Compact */}
-              <section>
-                <h2 className="text-xs font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-widest">
-                   <Info className="w-3.5 h-3.5 text-primary-500" /> Description
-                </h2>
-                <div className="bg-slate-50/50 dark:bg-slate-900/30 p-4 sm:p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
-                  <p className="text-gray-600 dark:text-slate-300 text-base sm:text-lg leading-relaxed font-medium whitespace-pre-wrap">{listing.roomDetails}</p>
-                </div>
-              </section>
+              {!isRatingPost && (
+                <section>
+                  <h2 className="text-micro font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-widest">
+                     <Info className="w-3.5 h-3.5 text-brand-primary" /> Property Details
+                  </h2>
+                  <div className="bg-slate-50/50 dark:bg-slate-900/30 p-4 sm:p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
+                    <p className="text-gray-600 dark:text-slate-300 text-body leading-relaxed whitespace-pre-wrap font-medium">{listing.roomDetails}</p>
+                  </div>
+                </section>
+              )}
 
               {/* Combined Specs Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {(listing.sharingType || listing.foodIncluded || listing.billsIncluded) && (
                   <section>
-                    <h2 className="text-xs font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-widest">
-                      <Users className="w-3.5 h-3.5 text-primary-500" /> Specifications
+                    <h2 className="text-micro font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-widest">
+                      <Users className="w-3.5 h-3.5 text-brand-primary" /> Specifications
                     </h2>
                     <div className="grid grid-cols-2 gap-2">
                       {listing.genderCategory && (
                         <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs flex flex-col gap-1">
-                          <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Gender</span>
-                          <span className="font-bold text-sm capitalize truncate">{listing.genderCategory === 'both' ? 'Mixed' : listing.genderCategory}</span>
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gender</span>
+                          <span className="font-black text-sm capitalize truncate text-slate-900 dark:text-white">{listing.genderCategory === 'both' ? 'Mixed' : listing.genderCategory}</span>
                         </div>
                       )}
                       {listing.sharingType && (
                         <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs flex flex-col gap-1">
-                          <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Sharing</span>
-                          <span className="font-bold text-sm capitalize truncate">{listing.sharingType}</span>
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sharing</span>
+                          <span className="font-black text-sm capitalize truncate text-slate-900 dark:text-white">{listing.sharingType}</span>
                         </div>
                       )}
                       <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs flex flex-col gap-1">
-                        <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Food</span>
-                        <span className={`text-sm font-bold ${listing.foodIncluded ? 'text-accent-emerald' : 'text-slate-400'}`}>{listing.foodIncluded ? 'Yes' : 'No'}</span>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Food</span>
+                        <span className={`text-sm font-black ${listing.foodIncluded ? 'text-brand-success' : 'text-slate-400'}`}>{listing.foodIncluded ? 'Yes' : 'No'}</span>
                       </div>
                       <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs flex flex-col gap-1">
-                        <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Bills</span>
-                        <span className={`text-sm font-bold ${listing.billsIncluded ? 'text-accent-emerald' : 'text-slate-400'}`}>{listing.billsIncluded ? 'Yes' : 'No'}</span>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bills</span>
+                        <span className={`text-sm font-black ${listing.billsIncluded ? 'text-brand-success' : 'text-slate-400'}`}>{listing.billsIncluded ? 'Yes' : 'No'}</span>
                       </div>
                     </div>
                   </section>
@@ -676,8 +676,8 @@ export default function ListingDetailPage() {
 
                 {listing.listingType === 'handover' && listing.legacyBundle && (
                   <section>
-                    <h2 className="text-xs font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-widest">
-                      <Package className="w-3.5 h-3.5 text-primary-500" /> Bundle
+                    <h2 className="text-micro font-black mb-3 flex items-center gap-2 text-slate-400 uppercase tracking-widest">
+                      <Package className="w-3.5 h-3.5 text-brand-primary" /> Bundle Deal
                     </h2>
                     <div className="grid grid-cols-2 gap-2">
                       {[
@@ -688,7 +688,7 @@ export default function ListingDetailPage() {
                       ].map(item => (
                         <div key={item.label} className={`flex items-center justify-between p-2.5 rounded-xl border transition-colors ${item.active ? 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 shadow-xs' : 'bg-slate-50/50 dark:bg-slate-900/10 border-transparent opacity-20'}`}>
                            <span className="text-[11px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">{item.label}</span>
-                           {item.active && <CheckCircle2 className="w-3 h-3 text-accent-emerald" />}
+                           {item.active && <CheckCircle2 className="w-3 h-3 text-brand-success" />}
                         </div>
                       ))}
                     </div>
@@ -719,33 +719,33 @@ export default function ListingDetailPage() {
             {/* Reviews Section - Modern & Spaced Efficiently */}
             <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-3">
+                  <h2 className="text-section-heading font-black text-gray-900 dark:text-white flex items-center gap-3 uppercase tracking-tighter">
                     Verified Truth
-                    <span className="bg-primary-600 text-white px-2 py-0.5 rounded-md text-[13px] font-black">{reviews.length}</span>
+                    <span className="bg-brand-primary text-white px-2 py-0.5 rounded-md text-micro font-black">{reviews.length}</span>
                   </h2>
                   {canReview && !isRatingPost && (
                     <button onClick={() => {
                       const form = document.getElementById('review-form');
                       form?.scrollIntoView({ behavior: 'smooth' });
-                    }} className="text-[13px] font-black text-primary-600 uppercase tracking-widest hover:underline">Write One</button>
+                    }} className="text-micro font-black text-brand-primary uppercase tracking-widest hover:underline">Write One</button>
                   )}
                </div>
 
                {canReview && (
                 <form id="review-form" onSubmit={handleReviewSubmit} className="mb-10 bg-slate-50 dark:bg-slate-900/40 rounded-[2rem] p-5 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xl shadow-slate-100 dark:shadow-none">
-                  <h3 className="text-sm font-black mb-6 text-gray-900 dark:text-white uppercase tracking-[0.25em]">Rate Your Stay</h3>
+                  <h3 className="text-micro font-black mb-6 text-gray-900 dark:text-white uppercase tracking-[0.25em]">Rate Your Stay</h3>
                   
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                      {[
-                      { label: 'Wi-Fi', key: 'wifiRating' },
+                      { label: 'Wi-Fi / Network', key: 'wifiRating' },
                       { label: 'Food Quality', key: 'foodRating' },
-                      { label: 'Safety', key: 'securityRating' },
+                      { label: 'Safety / Guard', key: 'securityRating' },
                       { label: 'Owner Behaviour', key: 'behaviorRating' },
                       { label: 'Power Backup', key: 'backupRating' },
                       { label: 'Response Time', key: 'responsivenessRating' },
                     ].map((field) => (
                       <div key={field.key} className="bg-white dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
-                        <label className="block text-[11px] font-black text-slate-400 uppercase tracking-tighter mb-1.5 px-1">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1.5 px-1">
                           {field.label}
                         </label>
                         <div className="flex gap-0.5">
@@ -754,10 +754,10 @@ export default function ListingDetailPage() {
                               key={val}
                               type="button"
                               onClick={() => setNewReview(prev => ({ ...prev, [field.key]: val }))}
-                              className={`flex-1 py-1 text-[13px] font-black rounded-md transition-all ${
+                              className={`flex-1 py-1 text-xs font-black rounded-md transition-all ${
                                 (newReview as Record<string, unknown>)[field.key] === val
-                                  ? 'bg-primary-600 text-white'
-                                  : 'text-slate-300 hover:text-primary-600'
+                                  ? 'bg-brand-primary text-white shadow-sm'
+                                  : 'text-slate-300 hover:text-brand-primary'
                               }`}
                             >
                               {val}
@@ -770,16 +770,16 @@ export default function ListingDetailPage() {
 
                   <div className="flex flex-col sm:flex-row gap-6 items-start mb-6">
                     <div className="shrink-0">
-                      <label className="block text-[13px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Overall Score *</label>
-                      <div className="flex gap-1">
+                      <label className="block text-micro font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Overall Score *</label>
+                      <div className="flex gap-1.5">
                         {[1, 2, 3, 4, 5].map((val) => (
                           <button
                             key={val}
                             type="button"
                             onClick={() => setNewReview({ ...newReview, rating: val })}
-                            className={`w-9 h-9 flex items-center justify-center rounded-xl text-sm font-black transition-all ${
+                            className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-black transition-all ${
                               newReview.rating === val
-                                ? 'bg-amber-500 text-white scale-105 shadow-lg shadow-amber-500/30'
+                                ? 'bg-brand-warning text-white scale-105 shadow-lg shadow-brand-warning/30'
                                 : 'bg-white dark:bg-slate-950 text-slate-400 border border-slate-200 dark:border-slate-800'
                             }`}
                           >
@@ -789,19 +789,19 @@ export default function ListingDetailPage() {
                       </div>
                     </div>
                     <div className="flex-1 w-full space-y-2">
-                      <label className="block text-[13px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Commentary *</label>
-                      <textarea required value={newReview.comment} onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })} className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none ring-primary-500 focus:ring-1 text-gray-900 dark:text-white text-sm font-medium shadow-xs" placeholder="Be honest about your experience..." rows={3} />
+                      <label className="block text-micro font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Detailed Commentary *</label>
+                      <textarea required value={newReview.comment} onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })} className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none ring-brand-primary focus:ring-1 text-gray-900 dark:text-white text-sm font-medium shadow-xs" placeholder="Be honest about food, rules, and owners..." rows={3} />
                     </div>
                   </div>
                   
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     {reviewError && (
-                      <div className="text-[13px] font-black text-red-500 uppercase tracking-widest flex items-center gap-2">
-                        <ShieldCheck className="w-3 h-3" /> {reviewError}
+                      <div className="text-micro font-black text-brand-danger uppercase tracking-widest flex items-center gap-2">
+                        <ShieldCheck className="w-3.5 h-3.5" /> {reviewError}
                       </div>
                     )}
-                    <button type="submit" disabled={reviewLoading} className="w-full sm:w-auto bg-primary-600 text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest text-[13px] shadow-xl shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 disabled:opacity-50 ml-auto">
-                      {reviewLoading ? 'VERIFYING...' : 'Post Verified Review'}
+                    <button type="submit" disabled={reviewLoading} className="w-full sm:w-auto bg-brand-primary text-white px-8 py-3.5 rounded-xl font-black uppercase tracking-widest text-micro shadow-xl shadow-brand-primary/30 hover:bg-brand-hover transition-all active:scale-95 disabled:opacity-50 ml-auto">
+                      {reviewLoading ? 'VERIFYING...' : 'Post Truth Ledger Review'}
                     </button>
                   </div>
                 </form>
@@ -812,35 +812,38 @@ export default function ListingDetailPage() {
                   <div key={review._id} className="bg-white dark:bg-slate-900/60 p-5 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 shadow-xs hover:shadow-md transition-all">
                     <div className="flex justify-between items-center mb-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-primary-50 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600 font-black text-[13px] uppercase">
+                        <div className="w-9 h-9 bg-brand-primary/5 dark:bg-brand-primary/20 rounded-full flex items-center justify-center text-brand-primary font-black text-xs uppercase">
                           {review.userId?.name?.charAt(0) || 'S'}
                         </div>
                         <div>
-                          <div className="font-black text-[13px] flex items-center gap-1.5 text-gray-900 dark:text-white uppercase tracking-widest leading-none">
-                            Verified Student {review.geofenceVerified && <ShieldCheck className="w-2.5 h-2.5 text-accent-emerald" />}
+                          <div className="font-black text-micro flex items-center gap-1.5 text-gray-900 dark:text-white uppercase tracking-widest leading-none">
+                            Verified Student {review.geofenceVerified && <ShieldCheck className="w-3 h-3 text-brand-success" />}
                           </div>
-                          <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">{new Date(review.createdAt).toLocaleDateString()}</div>
+                          <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">{new Date(review.createdAt).toLocaleDateString()}</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1.5 bg-amber-500/10 dark:bg-amber-500/5 px-3 py-1 rounded-full border border-amber-500/20">
-                         <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                         <span className="text-[14px] font-black text-amber-600 dark:text-amber-400">{review.rating}</span>
+                      <div className="flex items-center gap-1.5 bg-brand-warning/10 dark:bg-brand-warning/5 px-3 py-1 rounded-full border border-brand-warning/20">
+                         <Star className="w-3.5 h-3.5 fill-brand-warning text-brand-warning" />
+                         <span className="text-sm font-black text-brand-warning dark:text-brand-warning">{review.rating}</span>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                       <div className="md:col-span-3 space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                       <div className="md:col-span-3 space-y-4">
                           {review.aiSummary && (
-                            <div className="p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border-l-2 border-indigo-500 rounded-r-xl">
-                              <p className="text-[14px] text-indigo-950 dark:text-indigo-200 italic leading-relaxed font-bold">
+                            <div className="p-3.5 bg-brand-primary/5 dark:bg-brand-primary/10 border-l-2 border-brand-primary rounded-r-xl relative overflow-hidden group">
+                              <p className="text-sm text-brand-primary dark:text-brand-primary italic leading-relaxed font-bold">
                                 "{review.aiSummary}"
                               </p>
+                              <div className="mt-2 text-[9px] font-black text-brand-primary/60 uppercase tracking-widest flex items-center gap-1">
+                                <Zap className="w-2.5 h-2.5" /> AI VERIFIED SUMMARY
+                              </div>
                             </div>
                           )}
-                          <p className="text-slate-600 dark:text-slate-300 text-[16px] leading-relaxed font-medium">{review.comment}</p>
+                          <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-medium">{review.comment}</p>
                        </div>
 
-                       <div className="md:col-span-2 bg-slate-50/50 dark:bg-slate-950/20 p-3 rounded-xl border border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-x-4 gap-y-2 h-fit self-start">
+                       <div className="md:col-span-2 bg-slate-50/50 dark:bg-slate-950/20 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-x-4 gap-y-3 h-fit self-start shadow-inner">
                           {[
                             { label: 'Net', val: review.wifiRating },
                             { label: 'Food', val: review.foodRating },
@@ -849,14 +852,18 @@ export default function ListingDetailPage() {
                             { label: 'Power', val: review.backupRating },
                             { label: 'Resp', val: review.responsivenessRating },
                           ].map(m => m.val ? (
-                            <div key={m.label} className="space-y-0.5">
-                              <div className="flex justify-between items-center text-[11px] font-black text-slate-400 uppercase tracking-tighter">
+                            <div key={m.label} className="space-y-1">
+                              <div className="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                 <span>{m.label}</span>
-                                <span className="text-primary-600">{m.val}</span>
+                                <span className="text-brand-primary font-black">{m.val}</span>
                               </div>
-                              <div className="w-full h-0.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                              <div className="w-full h-1 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                                 <div 
-                                  className={`h-full rounded-full ${m.val >= 4 ? 'bg-accent-emerald' : m.val >= 3 ? 'bg-amber-500' : 'bg-red-500'}`} 
+                                  className={`h-full rounded-full shadow-sm transition-all duration-1000 ease-out ${
+                                    m.val >= 4 ? 'bg-brand-success' : 
+                                    m.val >= 3 ? 'bg-brand-warning' : 
+                                    'bg-brand-danger'
+                                  }`} 
                                   style={{ width: `${(m.val / 5) * 100}%` }}
                                 />
                               </div>
@@ -873,36 +880,36 @@ export default function ListingDetailPage() {
           {/* Sidebar */}
           <div ref={sidebarRef} className="lg:col-span-4 space-y-4">
             <div className="sticky top-20 space-y-4">
-              <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] p-5 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-none transition-all">
-                <div className="flex items-center justify-between mb-5">
-                   <h3 className="text-[13px] font-black text-slate-400 uppercase tracking-[0.25em]">Status</h3>
+              <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] p-5 border border-slate-200 dark:border-slate-800 shadow-2xl shadow-slate-200/20 dark:shadow-none transition-all">
+                <div className="flex items-center justify-between mb-5 px-1">
+                   <h3 className="text-micro font-black text-slate-400 uppercase tracking-[0.25em]">Dashboard</h3>
                    <div className="flex gap-1">
-                      <div className="w-1.5 h-1.5 bg-accent-emerald rounded-full"></div>
-                      <div className="w-1.5 h-1.5 bg-accent-emerald rounded-full opacity-30 animate-pulse"></div>
+                      <div className="w-1.5 h-1.5 bg-brand-success rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-brand-success rounded-full opacity-30 animate-pulse"></div>
                    </div>
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                     <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center shadow-lg shadow-primary-500/30 shrink-0">
+                  <div className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors hover:border-slate-200">
+                     <div className="w-9 h-9 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg shadow-brand-primary/30 shrink-0">
                         <Calendar className="w-4 h-4 text-white" />
                      </div>
                      <div>
-                        <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Availability</p>
-                        <p className="text-[15px] font-black text-gray-900 dark:text-white">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Availability</p>
+                        <p className="text-sm font-black text-gray-900 dark:text-white tracking-tight">
                           {listing.availableDate ? new Date(listing.availableDate).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Ready Now'}
                         </p>
                      </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                     <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0">
+                  <div className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors hover:border-slate-200">
+                     <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0">
                         <Users className="w-4 h-4 text-white" />
                      </div>
                      <div className="flex-1 min-w-0">
-                        <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Posted By</p>
-                        <p className="text-[15px] font-black text-gray-900 dark:text-white truncate uppercase tracking-tighter">
-                          {listing.isOwnerListing || listing.handoverMode || listing.listingType === 'roommate' ? listing.userId?.name || 'Verified User' : 'Anonymous'}
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Posted By</p>
+                        <p className="text-sm font-black text-gray-900 dark:text-white truncate uppercase tracking-tighter">
+                          {listing.isOwnerListing || listing.handoverMode || listing.listingType === 'roommate' ? listing.userId?.name || 'Verified User' : 'Anonymous Student'}
                         </p>
                      </div>
                   </div>
@@ -910,25 +917,50 @@ export default function ListingDetailPage() {
                   {token ? (
                     (listing.isOwnerListing || listing.handoverMode || listing.listingType === 'roommate') ? (
                       listing.userId?.email ? (
-                        <div className="grid grid-cols-1 gap-2 pt-2">
-                          <a href={`mailto:${listing.userId.email}`} className="flex items-center justify-center gap-2 w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-black uppercase tracking-[0.15em] text-[13px] transition-all shadow-lg shadow-primary-500/25 active:scale-95">
-                            <Mail className="w-3.5 h-3.5" /> Email
-                          </a>
-                          {listing.userId.phoneNumber && (
-                             <a href={`tel:${listing.userId.phoneNumber}`} className="flex items-center justify-center gap-2 w-full py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-gray-900 dark:text-white rounded-xl font-black uppercase tracking-[0.15em] text-[13px] transition-all hover:bg-slate-50 dark:hover:bg-slate-700">
-                                <Phone className="w-3.5 h-3.5" /> Call Student
-                             </a>
-                          )}
+                        <div className="space-y-5 pt-3">
+                          <div className="grid grid-cols-1 gap-2.5">
+                            <a href={`mailto:${listing.userId.email}`} className="flex items-center justify-center gap-2.5 w-full py-3.5 bg-brand-primary hover:bg-brand-hover text-white rounded-2xl font-black uppercase tracking-widest text-micro transition-all shadow-xl shadow-brand-primary/25 active:scale-95">
+                              <Mail className="w-4 h-4" /> Send Email
+                            </a>
+                            {listing.userId.phoneNumber && (
+                              <a href={`tel:${listing.userId.phoneNumber}`} className="flex items-center justify-center gap-2.5 w-full py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-gray-900 dark:text-white rounded-2xl font-black uppercase tracking-widest text-micro transition-all hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm">
+                                <Phone className="w-4 h-4" /> Call Student
+                              </a>
+                            )}
+                          </div>
+                          
+                          <div className="space-y-3 pt-5 border-t border-slate-100 dark:border-slate-800">
+                            <div className="flex items-center gap-4">
+                              <div className="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-950 flex items-center justify-center border border-slate-100 dark:border-slate-800 shrink-0">
+                                <Mail className="w-4 h-4 text-slate-400" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Email ID</p>
+                                <p className="text-[13px] font-bold text-slate-700 dark:text-slate-300 truncate uppercase tracking-tighter">{listing.userId.email}</p>
+                              </div>
+                            </div>
+                            {listing.userId.phoneNumber && (
+                              <div className="flex items-center gap-4">
+                                <div className="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-950 flex items-center justify-center border border-slate-100 dark:border-slate-800 shrink-0">
+                                  <Phone className="w-4 h-4 text-slate-400" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Mobile No</p>
+                                  <p className="text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tighter">{listing.userId.phoneNumber}</p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       ) : null
                     ) : (
-                      <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-[12px] font-black text-center text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 mt-2 uppercase tracking-[0.15em] leading-relaxed">
-                        Student Identity <br/> Protected for Truth Ledger
+                      <div className="p-5 bg-slate-50 dark:bg-slate-800/40 rounded-2xl text-micro font-black text-center text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 mt-2 uppercase tracking-[0.2em] leading-loose">
+                        Student Identity <br/> Anonymous for Review Integrity
                       </div>
                     )
                   ) : (
-                    <Link href="/login" className="flex items-center justify-center gap-2 w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black uppercase tracking-[0.2em] text-[13px] transition-colors">
-                      <Zap className="w-3.5 h-3.5" /> Login to Access
+                    <Link href="/login" className="flex items-center justify-center gap-3 w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black uppercase tracking-widest text-micro transition-colors shadow-xl">
+                      <Zap className="w-4 h-4" /> Authorize Access
                     </Link>
                   )}
                 </div>

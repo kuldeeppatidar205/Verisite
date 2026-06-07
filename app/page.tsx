@@ -157,11 +157,11 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-32 text-center relative">
-        <h2 className="text-4xl sm:text-7xl font-black text-gray-900 dark:text-white mb-6 sm:mb-8 tracking-tighter leading-[1.1] animate-fade-in">
+        <h2 className="text-display-hero text-gray-900 dark:text-white mb-6 sm:mb-8 tracking-tighter animate-fade-in">
           Find your next place <br className="hidden sm:block" />
           <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-600 to-indigo-500">near campus.</span>
         </h2>
-        <p className="text-base sm:text-lg text-gray-500 dark:text-slate-400 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed font-medium animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        <p className="text-body text-gray-500 dark:text-slate-400 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.1s' }}>
           Verisite - A True PGvault. The secure platform for verified students to discover, list rooms, and for owners to list PGs.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 animate-fade-in" style={{ animationDelay: '0.2s' }}>
@@ -240,19 +240,19 @@ export default function Home() {
 
                 <div className="flex flex-col mt-1">
                   <div className="flex justify-between items-start">
-                    <p className="text-base font-bold text-gray-900 dark:text-white truncate">
+                    <p className="text-card-title text-gray-900 dark:text-white truncate">
                       {listing.pgName || listing.userId?.hostelName || listing.address || 'Verified Location'}
                     </p>
                   </div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-slate-400 line-clamp-1 mt-0.5">
+                  <p className="text-body text-gray-500 dark:text-slate-400 line-clamp-1 mt-0.5">
                     {listing.roomDetails}
                   </p>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mt-0.5">
+                  <p className="text-micro text-slate-400 dark:text-slate-500 mt-0.5">
                     {listing.userId?.name ? listing.userId.name.split(' ')[0] : 'Anonymous'}
                   </p>
                   {listing.price !== undefined && (
-                    <p className="text-base font-bold text-gray-900 dark:text-white mt-1">
-                      ₹{listing.price.toLocaleString('en-IN')} <span className="text-xs font-bold uppercase tracking-widest text-slate-400">/ month</span>
+                    <p className="text-body text-gray-900 dark:text-white mt-1">
+                      ₹{listing.price.toLocaleString('en-IN')} <span className="text-micro text-slate-400">/ month</span>
                     </p>
                   )}
                 </div>

@@ -67,7 +67,7 @@ function VerifyEmailContent() {
 
         {resendStatus && (
           <div className={`mb-6 p-3 rounded-lg text-sm font-medium ${
-            resendStatus.type === 'success' ? 'bg-accent-emerald/10 text-accent-emerald' : 'bg-red-50 dark:bg-red-900/20 text-red-600'
+            resendStatus.type === 'success' ? 'bg-brand-success/10 text-brand-success' : 'bg-brand-danger/5 text-brand-danger'
           }`}>
             {resendStatus.message}
           </div>

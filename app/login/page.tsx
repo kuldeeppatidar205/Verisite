@@ -73,13 +73,13 @@ function LoginForm() {
         )}
 
         {success && (
-          <div className="p-4 bg-accent-emerald/10 border border-accent-emerald/20 rounded-xl text-accent-emerald text-[13px] font-medium animate-slide-down">
+          <div className="p-4 bg-brand-success/10 border border-brand-success/20 rounded-xl text-brand-success text-[13px] font-medium animate-slide-down">
             {success}
           </div>
         )}
 
         <div className="space-y-2">
-          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+          <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
             Personal Email
           </label>
           <input
@@ -88,17 +88,17 @@ function LoginForm() {
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-[15px]"
+            className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
             placeholder="example.gmail.com"
           />
         </div>
 
         <div className="space-y-2">
           <div className="flex justify-between items-center ml-1">
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+            <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
               Password
             </label>
-            <Link href="/forgot-password" className="text-[10px] font-bold text-primary-600 dark:text-primary-400 uppercase tracking-tighter hover:text-primary-700 transition-colors">
+            <Link href="/forgot-password" className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-widest hover:text-primary-700 transition-colors">
               Forgot?
             </Link>
           </div>
@@ -108,7 +108,7 @@ function LoginForm() {
             value={formData.password}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-[15px]"
+            className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
             placeholder="••••••••"
           />
         </div>
@@ -116,7 +116,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 bg-primary-600 hover:bg-primary-700 disabled:bg-slate-300 text-white rounded-xl font-semibold transition-all shadow-lg shadow-primary-500/20 mt-4 uppercase tracking-widest text-[13px] btn-press"
+          className="w-full py-4 bg-primary-600 hover:bg-primary-700 disabled:bg-slate-300 text-white rounded-xl font-black transition-all shadow-lg shadow-primary-500/20 mt-4 uppercase tracking-widest text-[10px] btn-press"
         >
           {loading ? 'Signing in...' : 'Sign In'}
         </button>
@@ -145,10 +145,10 @@ export default function LoginPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
             </div>
-            <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Verisite</span>
+            <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Verisite</span>
           </Link>
-          <h1 className="text-3xl font-semibold text-slate-900 dark:text-white mb-2 tracking-tight">Welcome Back</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-[15px]">Sign in to your account</p>
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2 tracking-tighter">Welcome Back</h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">Sign in to your account</p>
         </div>
 
         <ClientOnly>
@@ -161,9 +161,9 @@ export default function LoginPage() {
           </Suspense>
         </ClientOnly>
 
-        <p className="text-center text-slate-500 dark:text-slate-400 mt-8 font-medium text-[15px]">
+        <p className="text-center text-slate-500 dark:text-slate-400 mt-8 font-medium text-sm">
           Don&apos;t have an account?{' '}
-          <Link href="/register" className="text-primary-600 dark:text-primary-400 hover:underline font-semibold">
+          <Link href="/register" className="text-primary-600 dark:text-primary-400 hover:underline font-black uppercase tracking-widest text-[10px]">
             Register here
           </Link>
         </p>

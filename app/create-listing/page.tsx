@@ -431,8 +431,8 @@ function CreateListingForm() {
         <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white leading-tight">
           {editId ? 'Edit Specs' : userRole === 'STUDENT' ? 'Post to Student Truth Ledger' : 'List Marketplace Property'}
         </h1>
-        <div className="flex items-center gap-2 text-[10px] font-semibold px-3 py-1 bg-accent-emerald/10 text-accent-emerald rounded-full">
-           <span className="w-2 h-2 bg-accent-emerald rounded-full animate-pulse"></span>
+        <div className="flex items-center gap-2 text-[10px] font-semibold px-3 py-1 bg-brand-success/10 text-brand-success rounded-full">
+           <span className="w-2 h-2 bg-brand-success rounded-full animate-pulse"></span>
            {formData.lat ? 'Location Captured' : 'Capturing Location...'}
         </div>
       </div>
@@ -879,14 +879,14 @@ function CreateListingForm() {
                   
                   {selectedFiles.length > 0 ? (
                     <div className="flex flex-wrap gap-2 items-center">
-                      <div className="text-[11px] font-bold text-accent-emerald uppercase tracking-wider flex items-center gap-1">
+                      <div className="text-[11px] font-bold text-brand-success uppercase tracking-wider flex items-center gap-1">
                         <CheckCircle2 className="w-3.5 h-3.5" /> 
                         {selectedFiles.length} selected
                       </div>
                       <button 
                         type="button" 
                         onClick={() => { setSelectedFiles([]); }}
-                        className="text-[10px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wider ml-auto"
+                        className="text-[10px] font-bold text-brand-danger hover:text-red-600 uppercase tracking-wider ml-auto"
                       >
                         Clear All
                       </button>

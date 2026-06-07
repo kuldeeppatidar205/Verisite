@@ -152,7 +152,7 @@ export default function AdminPanel() {
   if (loading && !stats) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+        <Loader2 className="w-8 h-8 text-brand-primary animate-spin" />
       </div>
     );
   }
@@ -163,10 +163,10 @@ export default function AdminPanel() {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out shadow-xl md:shadow-none`}>
         <div className="h-full flex flex-col p-6">
           <div className="flex items-center gap-3 mb-10">
-            <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
+            <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg shadow-brand-primary/20">
               <ShieldCheck className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Admin Central</h1>
+            <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tighter">Admin Central</h1>
           </div>
 
           <nav className="flex-1 space-y-2">
@@ -179,21 +179,21 @@ export default function AdminPanel() {
               <button
                 key={tab.id}
                 onClick={() => { setActiveTab(tab.id as any); setIsSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                   activeTab === tab.id 
-                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' 
+                    ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20' 
                     : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
-                <tab.icon className="w-5 h-5" />
+                <tab.icon className="w-4 h-4" />
                 {tab.label}
               </button>
             ))}
           </nav>
 
           <div className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
-             <Link href="/" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-primary-600 transition-colors">
-                <ArrowLeft className="w-5 h-5" /> Back to Verisite
+             <Link href="/" className="flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 hover:text-brand-primary transition-colors">
+                <ArrowLeft className="w-4 h-4" /> Back to Verisite
              </Link>
           </div>
         </div>
@@ -210,8 +210,8 @@ export default function AdminPanel() {
              <ThemeToggle />
              <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-xs font-bold text-white uppercase">AD</div>
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300 hidden sm:block">Super Admin</span>
+                <div className="w-8 h-8 rounded-full bg-brand-warning flex items-center justify-center text-[10px] font-black text-white uppercase">AD</div>
+                <span className="text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest hidden sm:block">Super Admin</span>
              </div>
            </div>
         </header>
@@ -243,7 +243,7 @@ export default function AdminPanel() {
                   <ShieldAlert className="w-6 h-6 text-amber-600 shrink-0 mt-1" />
                   <div>
                     <h3 className="text-xs font-black text-amber-900 dark:text-amber-400 uppercase tracking-widest mb-1">Administrative Privilege</h3>
-                    <p className="text-sm font-medium text-amber-800/80 dark:text-amber-500/80 leading-relaxed">
+                    <p className="text-sm font-medium text-amber-800/80 dark:text-brand-warning/80 leading-relaxed">
                       You are in full control of the Verisite platform. Exercise caution when performing destructive actions.
                     </p>
                   </div>
@@ -267,7 +267,7 @@ export default function AdminPanel() {
                     <input 
                       type="text" 
                       placeholder={`Search by name or email...`} 
-                      className="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-medium outline-none ring-primary-500 focus:ring-2 shadow-xs transition-all"
+                      className="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-medium outline-none ring-brand-primary focus:ring-2 shadow-xs transition-all"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -277,7 +277,7 @@ export default function AdminPanel() {
                <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
                   <div className="overflow-x-auto">
                     {loading ? (
-                      <div className="p-20 flex justify-center"><Loader2 className="w-8 h-8 text-primary-600 animate-spin" /></div>
+                      <div className="p-20 flex justify-center"><Loader2 className="w-8 h-8 text-brand-primary animate-spin" /></div>
                     ) : (
                       <table className="w-full text-left border-collapse">
                         <thead className="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
@@ -360,7 +360,7 @@ export default function AdminPanel() {
                               <td className="px-6 py-4">
                                 <div className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
                                   {listing.pgName || 'Unnamed PG'}
-                                  <Link href={`/listings/${listing._id}`} target="_blank" className="text-primary-600 hover:text-primary-700"><ExternalLink className="w-3.5 h-3.5" /></Link>
+                                  <Link href={`/listings/${listing._id}`} target="_blank" className="text-brand-primary hover:text-brand-hover"><ExternalLink className="w-3.5 h-3.5" /></Link>
                                 </div>
                                 <div className="text-[11px] font-medium text-slate-400 mt-0.5 truncate max-w-[200px]">{listing.address}</div>
                               </td>
@@ -368,7 +368,7 @@ export default function AdminPanel() {
                                 <div className="text-[13px] font-bold text-slate-600 dark:text-slate-400">{listing.userId?.name || 'Unknown'}</div>
                               </td>
                               <td className="px-6 py-4 text-center">
-                                <div className="text-sm font-black text-slate-900 dark:text-white">₹{(listing.price ?? 0).toLocaleString()}</div>
+                                <div className="text-body text-slate-900 dark:text-white">₹{(listing.price ?? 0).toLocaleString()}</div>
                               </td>
                               <td className="px-6 py-4">
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded">
@@ -379,7 +379,7 @@ export default function AdminPanel() {
                                 <div className="flex items-center justify-end gap-1">
                                   <Link 
                                     href={`/create-listing?id=${listing._id}`}
-                                    className="p-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-colors"
+                                    className="p-2 text-brand-primary hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-colors"
                                   >
                                     <Edit3 className="w-4 h-4" />
                                   </Link>
@@ -403,7 +403,7 @@ export default function AdminPanel() {
                               </td>
                               <td className="px-6 py-4">
                                 <div className="flex items-center justify-center gap-1.5 bg-amber-50 dark:bg-amber-900/10 py-1 rounded-lg border border-amber-100 dark:border-amber-900/20">
-                                  <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                                  <Star className="w-3 h-3 fill-brand-warning text-brand-warning" />
                                   <span className="text-xs font-black text-amber-700 dark:text-amber-400">{review.rating}</span>
                                 </div>
                               </td>
