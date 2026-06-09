@@ -28,7 +28,7 @@ function CreateListingForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [token, setToken] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<'STUDENT' | 'OWNER' | 'ADMIN'>('STUDENT');
+  const [userRole, setUserRole] = useState<'STUDENT' | 'OWNER' | 'ADMIN' | 'GUEST'>('STUDENT');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [showMap, setShowMap] = useState(false);
   const [existingImages, setExistingImages] = useState<string[]>([]);
@@ -164,13 +164,13 @@ function CreateListingForm() {
       });
       const data = await res.json();
       if (data.user) {
-        if (!data.user.verified) {
+        if (!data.user.verified && data.user.role !== 'GUEST') {
           const email = data.user.role === 'STUDENT' ? data.user.collegeEmail : data.user.email;
           router.push(`/verify-email?email=${encodeURIComponent(email)}`);
           return;
         }
         const normalizedRole = data.user.role?.toUpperCase() || 'STUDENT';
-        setUserRole(normalizedRole as 'STUDENT' | 'OWNER' | 'ADMIN');
+        setUserRole(normalizedRole as 'STUDENT' | 'OWNER' | 'ADMIN' | 'GUEST');
       }
     } catch (error) {
       console.error('Failed to fetch user role:', error);
@@ -424,6 +424,26 @@ function CreateListingForm() {
   };
 
   const isRatingMode = userRole === 'STUDENT' && formData.studentListingType === 'RATING';
+
+  if (userRole === 'GUEST') {
+    return (
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-8 sm:p-12 text-center transition-colors duration-200">
+        <div className="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Lock className="w-10 h-10 text-indigo-600 dark:text-indigo-400" />
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter uppercase">Verification Required</h2>
+        <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto font-medium">
+          Only verified student or owner accounts can post listings. Upgrade your account in your profile to unlock this feature.
+        </p>
+        <Link 
+          href="/profile"
+          className="inline-flex items-center gap-2 px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
+        >
+          Go to Profile <ChevronRight className="w-4 h-4" />
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 sm:p-8 transition-colors duration-200">

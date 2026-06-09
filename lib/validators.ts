@@ -102,3 +102,21 @@ export const resetPasswordSchema = z.object({
   token: z.string().min(1, 'Token is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
+
+// Upgrade to Student Schema
+export const upgradeToStudentSchema = z.object({
+  collegeEmail: z.string().email('Invalid institutional email format'),
+  collegeName: z.string().min(2, 'College name is required'),
+  favoriteCollege: z.object({
+    name: z.string(),
+    lat: z.number(),
+    lng: z.number(),
+  }).optional(),
+}).refine((data) => {
+  const domain = data.collegeEmail.split('@')[1].toLowerCase();
+  const allowedEndings = ['.edu.in', '.ac.in', '.edu', '.res.in'];
+  return allowedEndings.some(ending => domain.endsWith(ending));
+}, {
+  message: 'Institutional email must end with .edu.in, .ac.in, .edu, or .res.in',
+  path: ['collegeEmail'],
+});

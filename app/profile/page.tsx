@@ -48,6 +48,12 @@ export default function ProfilePage() {
     collegeName: '',
   });
   const [updateLoading, setUpdateLoading] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
+  const [upgradeData, setUpgradeData] = useState({
+    collegeEmail: '',
+    collegeName: '',
+  });
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
 
   useEffect(() => {
     const t = localStorage.getItem('token');
@@ -146,6 +152,57 @@ export default function ProfilePage() {
       alert('An error occurred');
     } finally {
       setUpdateLoading(false);
+    }
+  };
+
+  const handleUpgrade = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token) return;
+    setUpgradeLoading(true);
+
+    try {
+      const body: any = {
+        collegeEmail: upgradeData.collegeEmail,
+        collegeName: upgradeData.collegeName,
+      };
+
+      // Geocode college
+      try {
+        const searchRes = await fetch(`/api/geocode/search?q=${encodeURIComponent(upgradeData.collegeName)}`);
+        const searchData = await searchRes.json();
+        if (searchRes.ok && searchData.lat && searchData.lon) {
+          body.favoriteCollege = {
+            name: searchData.name || upgradeData.collegeName,
+            lat: searchData.lat,
+            lng: searchData.lon
+          };
+        }
+      } catch (err) {
+        console.error('Geocoding error during upgrade:', err);
+      }
+
+      const res = await fetch('/api/users/upgrade', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert('Upgrade initiated! Please check your institutional email to verify.');
+        // Redirect to verification page or refresh
+        router.push(`/verify-email?email=${encodeURIComponent(upgradeData.collegeEmail)}`);
+      } else {
+        alert(data.error || 'Failed to upgrade account');
+      }
+    } catch (error) {
+      console.error('Failed to upgrade profile:', error);
+      alert('An error occurred');
+    } finally {
+      setUpgradeLoading(false);
     }
   };
 
@@ -414,6 +471,72 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
+
+            {/* Upgrade Section for Guests */}
+            {profile.role === 'GUEST' && (
+              <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 rounded-[2rem] p-6 sm:p-8 transition-all">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+                  <div>
+                    <h2 className="text-2xl font-black text-indigo-900 dark:text-indigo-400 tracking-tighter uppercase mb-2">Upgrade to Student</h2>
+                    <p className="text-indigo-700/70 dark:text-indigo-300/60 text-sm font-medium">Verify your identity to list rooms or rate accommodations.</p>
+                  </div>
+                  {!isUpgrading && (
+                    <button 
+                      onClick={() => setIsUpgrading(true)}
+                      className="w-full md:w-auto px-8 py-3 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95"
+                    >
+                      Start Upgrade
+                    </button>
+                  )}
+                </div>
+
+                {isUpgrading && (
+                  <form onSubmit={handleUpgrade} className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-indigo-400 uppercase tracking-widest ml-1">Institutional Email</label>
+                        <input
+                          type="email"
+                          required
+                          placeholder="name@university.edu"
+                          value={upgradeData.collegeEmail}
+                          onChange={(e) => setUpgradeData({ ...upgradeData, collegeEmail: e.target.value })}
+                          className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-900/50 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-indigo-500/50 outline-none text-sm font-medium"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-indigo-400 uppercase tracking-widest ml-1">Campus/Institution Name</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Search your college..."
+                          value={upgradeData.collegeName}
+                          onChange={(e) => setUpgradeData({ ...upgradeData, collegeName: e.target.value })}
+                          className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-900/50 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-indigo-500/50 outline-none text-sm font-medium"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <button
+                        type="submit"
+                        disabled={upgradeLoading}
+                        className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition disabled:opacity-50 shadow-lg shadow-indigo-600/20 active:scale-95"
+                      >
+                        {upgradeLoading ? 'PROCESSING...' : 'Verify & Upgrade Account'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsUpgrading(false)}
+                        className="flex-1 py-3.5 border border-indigo-200 dark:border-indigo-900/50 text-indigo-500 dark:text-indigo-400 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-white dark:hover:bg-slate-800 transition active:scale-95"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    <p className="text-[10px] font-black text-indigo-400/60 text-center uppercase tracking-widest">A verification link will be sent to your institutional email</p>
+                  </form>
+                )}
+              </div>
+            )}
 
             {/* My Listings */}
             {profile.role !== 'GUEST' && (

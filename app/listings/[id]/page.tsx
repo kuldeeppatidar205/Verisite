@@ -23,12 +23,14 @@ import {
   Info,
   Clock,
   ArrowLeft,
+  ArrowRight,
   X,
   Maximize2,
   Bike,
   Bus,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  Lock
 } from 'lucide-react';
 
 interface Listing {
@@ -398,7 +400,7 @@ export default function ListingDetailPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleReviewSubmit = async (e: React.FormEvent) => {
+  const handleReviewSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!token) return;
     setReviewLoading(true);
@@ -557,7 +559,7 @@ export default function ListingDetailPage() {
                  </span>
                  {!listing.isOwnerListing && (
                    <span className="flex items-center gap-1 text-micro font-black text-brand-success bg-brand-success/5 px-2 py-0.5 rounded border border-brand-success/10">
-                     <ShieldCheck className="w-2.5 h-2.5" /> Verified Truth
+                     <ShieldCheck className="w-2.5 h-2.5" /> 
                    </span>
                  )}
               </div>
@@ -744,7 +746,7 @@ export default function ListingDetailPage() {
             <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
                <div className="flex items-center justify-between mb-6">
                   <h2 className="text-section-heading font-black text-gray-900 dark:text-white flex items-center gap-3 uppercase tracking-tighter">
-                    Verified Truth
+                    Reviews
                     <span className="bg-brand-primary text-white px-2 py-0.5 rounded-md text-micro font-black">{reviews.length}</span>
                   </h2>
                   {canReview && !isRatingPost && (
@@ -771,6 +773,24 @@ export default function ListingDetailPage() {
                        "{listing.aiSummary}"
                      </p>
                    </div>
+                 </div>
+               )}
+
+               {!canReview && userProfile?.role === 'GUEST' && (
+                 <div className="mb-10 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20 rounded-[2rem] p-6 sm:p-8 text-center transition-all">
+                    <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                      <Lock className="w-5 h-5 text-indigo-500" />
+                    </div>
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-2">Verification Required to Rate</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs font-medium mb-6 max-w-xs mx-auto leading-relaxed">
+                      Upgrade to a student account to share your experience and contribute to the Truth Ledger.
+                    </p>
+                    <Link 
+                      href="/profile"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all active:scale-95"
+                    >
+                      Upgrade Profile <ArrowRight className="w-3 h-3" />
+                    </Link>
                  </div>
                )}
 
@@ -832,8 +852,8 @@ export default function ListingDetailPage() {
                       </div>
                     </div>
                     <div className="flex-1 w-full space-y-2">
-                      <label className="block text-micro font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Detailed Commentary *</label>
-                      <textarea required value={newReview.comment} onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })} className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none ring-brand-primary focus:ring-1 text-gray-900 dark:text-white text-sm font-medium shadow-xs" placeholder="Be honest about food, rules, and owners..." rows={3} />
+                      <label className="block text-micro font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Detailed Information regarding PG*</label>
+                      <textarea required value={newReview.comment} onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })} className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none ring-brand-primary focus:ring-1 text-gray-900 dark:text-white text-sm font-medium shadow-xs" placeholder="Be honest about food, rules and avoid personal grudges" rows={3} />
                     </div>
                   </div>
                   
@@ -844,7 +864,7 @@ export default function ListingDetailPage() {
                       </div>
                     )}
                     <button type="submit" disabled={reviewLoading} className="w-full sm:w-auto bg-brand-primary text-white px-8 py-3.5 rounded-xl font-black uppercase tracking-widest text-micro shadow-xl shadow-brand-primary/30 hover:bg-brand-hover transition-all active:scale-95 disabled:opacity-50 ml-auto">
-                      {reviewLoading ? 'VERIFYING...' : 'Post Truth Ledger Review'}
+                      {reviewLoading ? 'VERIFYING...' : 'Post Review'}
                     </button>
                   </div>
                 </form>

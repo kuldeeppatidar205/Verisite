@@ -16,7 +16,7 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'STUDENT' as 'STUDENT' | 'OWNER',
+    role: 'STUDENT' as 'STUDENT' | 'OWNER' | 'GUEST',
     phoneNumber: '',
     collegeEmail: '',
     collegeName: '',
@@ -141,7 +141,7 @@ export default function RegisterPage() {
                 Select Your Role
               </label>
               <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl gap-1">
-                {['STUDENT', 'OWNER'].map((r) => (
+                {['GUEST', 'STUDENT', 'OWNER'].map((r) => (
                   <button
                     key={r}
                     type="button"
@@ -152,7 +152,7 @@ export default function RegisterPage() {
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                     }`}
                   >
-                    {r === 'STUDENT' ? 'Student' : 'PG Owner'}
+                    {r === 'GUEST' ? 'Guest' : r === 'STUDENT' ? 'Student' : 'PG Owner'}
                   </button>
                 ))}
               </div>
@@ -189,7 +189,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {formData.role === 'STUDENT' ? (
+            {formData.role === 'GUEST' ? null : formData.role === 'STUDENT' ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">

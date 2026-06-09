@@ -89,7 +89,7 @@ function LoginForm() {
             onChange={handleChange}
             required
             className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
-            placeholder="example.gmail.com"
+            placeholder="example@gmail.com"
           />
         </div>
 
