@@ -95,7 +95,11 @@ export async function POST(req: NextRequest) {
     const userRole = user.role?.toUpperCase() || 'STUDENT';
 
     if (userRole === 'GUEST') {
-      return NextResponse.json({ error: 'Guests cannot create listings' }, { status: 403 });
+      return NextResponse.json({ error: 'Please verify your student identity in your profile to create listings' }, { status: 403 });
+    }
+
+    if (userRole === 'STUDENT' && !user.verified) {
+       return NextResponse.json({ error: 'Your student account is pending verification. Please check your institutional email.' }, { status: 403 });
     }
 
     const isOwnerListing = userRole === 'OWNER';

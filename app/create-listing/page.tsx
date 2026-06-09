@@ -164,11 +164,6 @@ function CreateListingForm() {
       });
       const data = await res.json();
       if (data.user) {
-        if (!data.user.verified && data.user.role !== 'GUEST') {
-          const email = data.user.role === 'STUDENT' ? data.user.collegeEmail : data.user.email;
-          router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-          return;
-        }
         const normalizedRole = data.user.role?.toUpperCase() || 'STUDENT';
         setUserRole(normalizedRole as 'STUDENT' | 'OWNER' | 'ADMIN' | 'GUEST');
       }
@@ -433,7 +428,7 @@ function CreateListingForm() {
         </div>
         <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter uppercase">Verification Required</h2>
         <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto font-medium">
-          Only verified student or owner accounts can post listings. Upgrade your account in your profile to unlock this feature.
+          Only verified student or owner accounts can post listings. Verify your student identity in your profile to unlock this feature.
         </p>
         <Link 
           href="/profile"

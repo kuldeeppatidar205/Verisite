@@ -16,10 +16,8 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'STUDENT' as 'STUDENT' | 'OWNER' | 'GUEST',
+    role: 'GUEST' as 'GUEST' | 'OWNER',
     phoneNumber: '',
-    collegeEmail: '',
-    collegeName: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -51,26 +49,6 @@ export default function RegisterPage() {
 
       if (formData.role === 'OWNER') {
         payload.phoneNumber = formData.phoneNumber;
-      } else {
-        payload.collegeEmail = formData.collegeEmail;
-        payload.collegeName = formData.collegeName;
-        
-        // Geocode college name on client as well for immediate feedback if needed
-        if (formData.collegeName) {
-           try {
-             const searchRes = await fetch(`/api/geocode/search?q=${encodeURIComponent(formData.collegeName)}`);
-             const searchData = await searchRes.json();
-             if (searchRes.ok && searchData.lat && searchData.lon) {
-                payload.favoriteCollege = {
-                   name: searchData.name || formData.collegeName,
-                   lat: searchData.lat,
-                   lng: searchData.lon
-                };
-             }
-           } catch (err) {
-             console.error('Geocoding error during registration:', err);
-           }
-        }
       }
 
       const res = await fetch('/api/auth/register', {
@@ -88,8 +66,12 @@ export default function RegisterPage() {
       }
 
       if (res.ok) {
-        const emailToVerify = formData.role === 'STUDENT' ? formData.collegeEmail : formData.email;
-        router.push(`/verify-email?email=${encodeURIComponent(emailToVerify)}`);
+        if (formData.role === 'GUEST') {
+           // Guests are verified by default in the API, so we can just log them in or redirect to login
+           router.push('/login?message=Registration successful. Please login.');
+        } else {
+           router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
+        }
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -141,7 +123,7 @@ export default function RegisterPage() {
                 Select Your Role
               </label>
               <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl gap-1">
-                {['GUEST', 'STUDENT', 'OWNER'].map((r) => (
+                {['GUEST', 'OWNER'].map((r) => (
                   <button
                     key={r}
                     type="button"
@@ -152,7 +134,7 @@ export default function RegisterPage() {
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                     }`}
                   >
-                    {r === 'GUEST' ? 'Guest' : r === 'STUDENT' ? 'Student' : 'PG Owner'}
+                    {r === 'GUEST' ? 'Student' : 'PG Owner'}
                   </button>
                 ))}
               </div>
@@ -189,39 +171,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {formData.role === 'GUEST' ? null : formData.role === 'STUDENT' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
-                    College Email *
-                  </label>
-                  <input
-                    type="email"
-                    name="collegeEmail"
-                    value={formData.collegeEmail}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
-                    placeholder="john@university.edu"
-                  />
-                  <p className="text-[10px] text-primary-600 dark:text-primary-400 font-black ml-1 tracking-widest uppercase">Required for verification ✓</p>
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
-                    College Name
-                  </label>
-                  <input
-                    type="text"
-                    name="collegeName"
-                    value={formData.collegeName}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
-                    placeholder="Search university..."
-                  />
-                </div>
-              </div>
-            ) : (
+            {formData.role === 'OWNER' && (
               <div className="space-y-2">
                 <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
                   Phone Number (for contact)

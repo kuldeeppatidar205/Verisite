@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (user.role !== 'GUEST') {
-      return NextResponse.json({ error: 'Only guest accounts can be upgraded to student accounts' }, { status: 400 });
+      return NextResponse.json({ error: 'This account is already verified or is not eligible for student verification' }, { status: 400 });
     }
 
     // Check if college email is already in use

@@ -120,3 +120,8 @@ export const upgradeToStudentSchema = z.object({
   message: 'Institutional email must end with .edu.in, .ac.in, .edu, or .res.in',
   path: ['collegeEmail'],
 });
+
+// Report Review Schema
+export const reportReviewSchema = z.object({
+  reason: z.string().min(5, 'Report reason must be at least 5 characters'),
+});

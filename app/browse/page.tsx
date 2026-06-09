@@ -59,14 +59,9 @@ export default function BrowsePage() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        
-        if (!data.verified) {
-          const email = data.role === 'STUDENT' ? data.collegeEmail : data.email;
-          router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-          return;
+        if (res.ok) {
+          setUserProfile(data);
         }
-
-        setUserProfile(data);
         const role = data.role?.toUpperCase();
         setUserRole(role);
         if (role === 'OWNER') {

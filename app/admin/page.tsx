@@ -26,6 +26,7 @@ interface Stats {
   users: number;
   listings: number;
   reviews: number;
+  reports: number;
 }
 
 interface User {
@@ -65,15 +66,35 @@ interface Review {
   };
 }
 
+interface Report {
+  _id: string;
+  reporterId: {
+    name: string;
+    email: string;
+  };
+  reviewId: {
+    _id: string;
+    comment: string;
+    userId: {
+      name: string;
+      email: string;
+    };
+  };
+  reason: string;
+  status: string;
+  createdAt: string;
+}
+
 export default function AdminPanel() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'listings' | 'reviews'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'listings' | 'reviews' | 'reports'>('stats');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [stats, setStats] = useState<Stats | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -115,6 +136,7 @@ export default function AdminPanel() {
       if (tab === 'users') setUsers(data.data);
       if (tab === 'listings') setListings(data.data);
       if (tab === 'reviews') setReviews(data.data);
+      if (tab === 'reports') setReports(data.data);
       if (tab === 'stats') setStats(data.stats);
       setLoading(false);
     } catch (err) {
@@ -175,6 +197,7 @@ export default function AdminPanel() {
               { id: 'users', label: 'Users', icon: Users },
               { id: 'listings', label: 'Listings', icon: Home },
               { id: 'reviews', label: 'Reviews', icon: Star },
+              { id: 'reports', label: 'Reports', icon: ShieldAlert },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -224,6 +247,7 @@ export default function AdminPanel() {
                    { label: 'Users', value: stats.users, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-900/20' },
                    { label: 'Listings', value: stats.listings, icon: Home, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
                    { label: 'Reviews', value: stats.reviews, icon: Star, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' },
+                   { label: 'Reports', value: stats.reports, icon: ShieldAlert, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-900/20' },
                  ].map((card, i) => (
                    <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:scale-[1.02] hover:shadow-xl">
                       <div className="flex justify-between items-start">
@@ -259,7 +283,7 @@ export default function AdminPanel() {
                       {activeTab} Management
                     </h2>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
-                      {activeTab === 'users' ? users.length : activeTab === 'listings' ? listings.length : reviews.length} Total Records
+                      {activeTab === 'users' ? users.length : activeTab === 'listings' ? listings.length : activeTab === 'reviews' ? reviews.length : reports.length} Total Records
                     </p>
                   </div>
                   <div className="relative w-full sm:w-72">
@@ -309,6 +333,15 @@ export default function AdminPanel() {
                                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                               </>
                             )}
+                            {activeTab === 'reports' && (
+                              <>
+                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Report Detail</th>
+                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Reporter</th>
+                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                              </>
+                            )}
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -324,9 +357,10 @@ export default function AdminPanel() {
                               <td className="px-6 py-4">
                                 <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-tighter ${
                                   user.role === 'ADMIN' ? 'bg-amber-100 text-amber-700' : 
-                                  user.role === 'OWNER' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'
+                                  user.role === 'OWNER' ? 'bg-blue-100 text-blue-700' : 
+                                  user.role === 'STUDENT' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'
                                 }`}>
-                                  {user.role}
+                                  {user.role === 'GUEST' ? 'STUDENT' : (user.role === 'STUDENT' ? 'VERIFIED STUDENT' : user.role)}
                                 </span>
                               </td>
                               <td className="px-6 py-4">
@@ -414,6 +448,47 @@ export default function AdminPanel() {
                                 <button onClick={() => handleDelete('reviews', review._id)} className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
                                   <Trash2 className="w-4 h-4" />
                                 </button>
+                              </td>
+                            </tr>
+                          ))}
+
+                          {activeTab === 'reports' && reports && reports.map((report) => (
+                            <tr key={report._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                              <td className="px-6 py-4">
+                                <div className="font-bold text-slate-900 dark:text-white text-sm">Reason: {report.reason}</div>
+                                <div className="text-[11px] font-medium text-slate-500 mt-1 italic">
+                                  Review: "{report.reviewId?.comment}"
+                                  <div className="text-slate-400 mt-0.5">by {report.reviewId?.userId?.name}</div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="text-[13px] font-bold text-slate-600 dark:text-slate-400">{report.reporterId?.name}</div>
+                                <div className="text-[10px] text-slate-400">{report.reporterId?.email}</div>
+                              </td>
+                              <td className="px-6 py-4 text-center">
+                                <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase ${
+                                  report.status === 'pending' ? 'bg-amber-100 text-amber-700' : 
+                                  report.status === 'resolved' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'
+                                }`}>
+                                  {report.status}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 text-[13px] font-medium text-slate-500">
+                                {new Date(report.createdAt).toLocaleDateString()}
+                              </td>
+                              <td className="px-6 py-4 text-right">
+                                <div className="flex items-center justify-end gap-1">
+                                  <button 
+                                    onClick={() => handleDelete('reviews', report.reviewId._id)}
+                                    className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
+                                    title="Delete Reported Review"
+                                  >
+                                    <ShieldAlert className="w-4 h-4" />
+                                  </button>
+                                  <button onClick={() => handleDelete('reports', report._id)} className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           ))}

@@ -81,12 +81,6 @@ export default function ProfilePage() {
       }
 
       const data = await res.json();
-      
-      if (!data.verified) {
-        const email = data.role === 'STUDENT' ? data.collegeEmail : data.email;
-        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-        return;
-      }
 
       setProfile(data);
       setEditData({
@@ -324,7 +318,7 @@ export default function ProfilePage() {
                     </h1>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="px-3 py-1 rounded-md text-[9px] font-black bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 uppercase tracking-widest border border-primary-100 dark:border-primary-900/20">
-                        {profile.role}
+                        {profile.role === 'GUEST' ? 'STUDENT' : (profile.role === 'STUDENT' ? 'VERIFIED STUDENT' : profile.role)}
                       </span>
                       {profile.role === 'ADMIN' && (
                         <Link 
@@ -334,14 +328,14 @@ export default function ProfilePage() {
                           <ShieldCheck className="w-3 h-3" /> Admin Panel
                         </Link>
                       )}
-                      {profile.role !== 'GUEST' && profile.role !== 'ADMIN' && (
+                      {(profile.role === 'STUDENT' || profile.role === 'OWNER') && (
                         <span className={`px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-widest flex items-center gap-1 border ${
                           profile.verified
                             ? 'bg-brand-success/5 text-brand-success border-brand-success/10'
                             : 'bg-brand-warning/5 text-brand-warning border-brand-warning/10'
                         }`}>
                           {profile.verified ? (
-                            <><CheckCircle2 className="w-3 h-3" /> Verified Student</>
+                            <><CheckCircle2 className="w-3 h-3" /> Identity Verified</>
                           ) : (
                             <><Clock className="w-3 h-3" /> Verification Pending</>
                           )}
@@ -391,7 +385,7 @@ export default function ProfilePage() {
                       </div>
                     )}
 
-                    {profile.role !== 'OWNER' && (
+                    {(profile.role === 'STUDENT' || profile.role === 'GUEST') && (
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
                           Campus/Institution
@@ -465,27 +459,27 @@ export default function ProfilePage() {
                       Account Tier
                     </h3>
                     <p className="text-sm text-slate-900 dark:text-white font-black uppercase tracking-tight">
-                      {profile.role} Since {new Date(profile.createdAt).getFullYear()}
+                      {profile.role === 'GUEST' ? 'STUDENT' : (profile.role === 'STUDENT' ? 'VERIFIED STUDENT' : profile.role)} Since {new Date(profile.createdAt).getFullYear()}
                     </p>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Upgrade Section for Guests */}
+            {/* Upgrade Section for Students (GUEST role) */}
             {profile.role === 'GUEST' && (
               <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 rounded-[2rem] p-6 sm:p-8 transition-all">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
                   <div>
-                    <h2 className="text-2xl font-black text-indigo-900 dark:text-indigo-400 tracking-tighter uppercase mb-2">Upgrade to Student</h2>
-                    <p className="text-indigo-700/70 dark:text-indigo-300/60 text-sm font-medium">Verify your identity to list rooms or rate accommodations.</p>
+                    <h2 className="text-2xl font-black text-indigo-900 dark:text-indigo-400 tracking-tighter uppercase mb-2">Upgrade to Verified Student</h2>
+                    <p className="text-indigo-700/70 dark:text-indigo-300/60 text-sm font-medium">Verify your student identity to list rooms or rate accommodations.</p>
                   </div>
                   {!isUpgrading && (
                     <button 
                       onClick={() => setIsUpgrading(true)}
                       className="w-full md:w-auto px-8 py-3 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95"
                     >
-                      Start Upgrade
+                      Verify Now
                     </button>
                   )}
                 </div>

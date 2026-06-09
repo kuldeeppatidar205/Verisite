@@ -30,7 +30,8 @@ import {
   Bus,
   ExternalLink,
   ShieldCheck,
-  Lock
+  Lock,
+  ShieldAlert
 } from 'lucide-react';
 
 interface Listing {
@@ -306,6 +307,9 @@ export default function ListingDetailPage() {
   const [profileLoading, setProfileLoading] = useState(true);
   const [shouldMoveToSidebar, setShouldMoveToSidebar] = useState(false);
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
+  const [reportingReviewId, setReportingReviewId] = useState<string | null>(null);
+  const [reportReason, setReportReason] = useState('');
+  const [reportLoading, setReportLoading] = useState(false);
 
   const mainContentRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -347,11 +351,6 @@ export default function ListingDetailPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        if (!data.verified) {
-          const email = data.role === 'STUDENT' ? data.collegeEmail : data.email;
-          router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-          return;
-        }
         setUserProfile(data);
       }
     } catch (error) {
@@ -486,6 +485,42 @@ export default function ListingDetailPage() {
       }
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleReportSubmit = async (e: React.SyntheticEvent, reviewId: string) => {
+    e.preventDefault();
+    if (!token) {
+      alert('Please login to report reviews.');
+      return;
+    }
+    if (!reportReason || reportReason.length < 5) {
+      alert('Please provide a reason of at least 5 characters.');
+      return;
+    }
+    
+    setReportLoading(true);
+    try {
+      const res = await fetch(`/api/reviews/${reviewId}/report`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reason: reportReason }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert('Report submitted successfully. Thank you for keeping the community safe.');
+        setReportingReviewId(null);
+        setReportReason('');
+      } else {
+        alert(data.error || 'Failed to submit report');
+      }
+    } catch (error) {
+      alert('An error occurred while submitting the report.');
+    } finally {
+      setReportLoading(false);
     }
   };
 
@@ -783,13 +818,13 @@ export default function ListingDetailPage() {
                     </div>
                     <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-2">Verification Required to Rate</h3>
                     <p className="text-slate-500 dark:text-slate-400 text-xs font-medium mb-6 max-w-xs mx-auto leading-relaxed">
-                      Upgrade to a student account to share your experience and contribute to the Truth Ledger.
+                      Verify your student identity to share your experience and contribute to the Truth Ledger.
                     </p>
                     <Link 
                       href="/profile"
                       className="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all active:scale-95"
                     >
-                      Upgrade Profile <ArrowRight className="w-3 h-3" />
+                      Verify Profile <ArrowRight className="w-3 h-3" />
                     </Link>
                  </div>
                )}
@@ -894,6 +929,36 @@ export default function ListingDetailPage() {
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                        <div className="md:col-span-3 space-y-4">
                           <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-medium">{review.comment}</p>
+                          
+                          <div className="pt-2">
+                             {reportingReviewId === review._id ? (
+                               <form onSubmit={(e) => handleReportSubmit(e, review._id)} className="flex items-end gap-2 mt-4">
+                                 <div className="flex-1">
+                                   <input
+                                     type="text"
+                                     value={reportReason}
+                                     onChange={(e) => setReportReason(e.target.value)}
+                                     placeholder="Reason for reporting..."
+                                     className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-800 rounded-lg outline-none focus:ring-1 focus:ring-brand-danger bg-transparent text-slate-900 dark:text-white"
+                                     required
+                                   />
+                                 </div>
+                                 <button type="submit" disabled={reportLoading} className="px-3 py-2 bg-brand-danger text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition disabled:opacity-50">
+                                   Submit
+                                 </button>
+                                 <button type="button" onClick={() => setReportingReviewId(null)} className="px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                                   Cancel
+                                 </button>
+                               </form>
+                             ) : (
+                               <button 
+                                 onClick={() => { setReportingReviewId(review._id); setReportReason(''); }}
+                                 className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 hover:text-brand-danger transition uppercase tracking-widest"
+                               >
+                                 <ShieldAlert className="w-3 h-3" /> Report Issue
+                               </button>
+                             )}
+                          </div>
                        </div>
 
                        <div className="md:col-span-2 bg-slate-50/50 dark:bg-slate-950/20 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-x-4 gap-y-3 h-fit self-start shadow-inner">

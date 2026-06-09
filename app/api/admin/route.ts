@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/db';
 import { User } from '@/lib/models/User';
 import { Listing } from '@/lib/models/Listing';
 import { Review } from '@/lib/models/Review';
+import { Report } from '@/lib/models/Report';
 import { isAdmin } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
@@ -13,10 +14,11 @@ export async function GET(req: NextRequest) {
   try {
     await connectToDatabase();
 
-    const [userCount, listingCount, reviewCount] = await Promise.all([
+    const [userCount, listingCount, reviewCount, reportCount] = await Promise.all([
       User.countDocuments(),
       Listing.countDocuments(),
       Review.countDocuments(),
+      Report.countDocuments({ status: 'pending' }),
     ]);
 
     // Get recent activity
@@ -31,6 +33,7 @@ export async function GET(req: NextRequest) {
         users: userCount,
         listings: listingCount,
         reviews: reviewCount,
+        reports: reportCount,
       },
       recent: {
         users: recentUsers,

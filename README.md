@@ -27,17 +27,17 @@ Verisite is a secure, high-performance platform designed for students to discove
 
 ## 🔑 User Roles & Security
 
-### 1. Students (Educational Email Required)
-*   **Verification:** Must use a valid `.edu.in`, `.ac.in`, `.edu`, or `.res.in` email.
-*   **Capabilities:** Post truth-ledger reviews, list handovers, and find roommates.
-*   **Privacy:** Complete anonymity for review authors, while contact info is shared for room-sharing listings.
+### 1. Students (Two-Step Verification)
+*   **Initial Registration:** Join as a Student with any personal email to browse listings and community data.
+*   **Institutional Verification:** To unlock the "Truth Ledger" features (posting reviews, listing handovers, or finding roommates), students must verify their identity using a valid `.edu.in`, `.ac.in`, `.edu`, or `.res.in` email in their profile.
+*   **Privacy:** Complete anonymity is maintained for review authors to ensure honest feedback without repercussions.
 
 ### 2. PG Owners
 *   **Capabilities:** Professional property listing management, amenity showcases, and coordinate updates for accurate mapping.
 *   **Restrictions:** Strictly prohibited from posting reviews or ratings to ensure community-driven data integrity.
 
-### 3. Guests
-*   **Capabilities:** Read-only access to browse all listings and verified student reviews.
+### 3. Administrators
+*   **Capabilities:** Full platform oversight, content moderation, and user management through the Admin Central panel.
 
 ---
 
