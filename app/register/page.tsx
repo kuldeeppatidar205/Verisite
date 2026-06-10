@@ -66,12 +66,7 @@ export default function RegisterPage() {
       }
 
       if (res.ok) {
-        if (formData.role === 'GUEST') {
-           // Guests are verified by default in the API, so we can just log them in or redirect to login
-           router.push('/login?message=Registration successful. Please login.');
-        } else {
-           router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
-        }
+        router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
       }
     } catch (err) {
       setError('An error occurred. Please try again.');

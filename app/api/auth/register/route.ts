@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       passwordHash: hashedPassword,
       role: validated.role,
       phoneNumber: validated.phoneNumber,
-      verified: validated.role === 'GUEST', // Guests are verified by default
+      verified: false, // All users must verify their personal email
       verificationToken,
       verificationTokenExpiry,
     };
@@ -56,27 +56,25 @@ export async function POST(req: NextRequest) {
     let emailSent = false;
     let verifyUrl = '';
 
-    // Only send verification email for OWNER (GUEST is verified by default)
-    if (validated.role === 'OWNER') {
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
-      console.log('🌐 Using Base URL for verification:', baseUrl);
-      
-      // Send verification email
-      verifyUrl = `${baseUrl}/api/auth/verify-email?token=${verificationToken}`;
-      
-      console.log(`📧 Attempting to send verification email to: ${validated.email}`);
-      
-      emailSent = await sendEmail({
-        to: validated.email,
-        subject: 'Verify your Verisite account',
-        html: generateVerificationEmailHtml(verifyUrl, validated.name),
-      });
+    // Send verification email for all users
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+    console.log('🌐 Using Base URL for verification:', baseUrl);
+    
+    // Send verification email
+    verifyUrl = `${baseUrl}/api/auth/verify-email?token=${verificationToken}`;
+    
+    console.log(`📧 Attempting to send verification email to: ${validated.email}`);
+    
+    emailSent = await sendEmail({
+      to: validated.email,
+      subject: 'Verify your Verisite account',
+      html: generateVerificationEmailHtml(verifyUrl, validated.name),
+    });
 
-      if (!emailSent) {
-        console.warn('❌ Email sending failed (sendEmail returned false) for user:', newUser._id);
-      } else {
-        console.log('✅ Verification email sent successfully to:', validated.email);
-      }
+    if (!emailSent) {
+      console.warn('❌ Email sending failed (sendEmail returned false) for user:', newUser._id);
+    } else {
+      console.log('✅ Verification email sent successfully to:', validated.email);
     }
 
     // Generate JWT token
@@ -88,11 +86,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       {
-        message: validated.role === 'GUEST'
-          ? 'Registration successful.'
-          : (emailSent 
-            ? 'Registration successful. Please verify your email.' 
-            : 'Registration successful. Check console for verification link (email not sent - check Gmail credentials).'),
+        message: emailSent 
+            ? 'Registration successful. Please verify your personal email.' 
+            : 'Registration successful. Check console for verification link (email not sent - check Gmail credentials).',
         token: jwtToken,
         user: {
           id: newUser._id.toString(),
