@@ -373,9 +373,13 @@ export default function AdminPanel() {
                                   {/* Logic: If they are a STUDENT, they MUST have verified their personal email to login and start upgrade. 
                                       If they are GUEST/OWNER, we check the verified flag. */}
                                   {(user.verified || user.role === 'STUDENT' || user.role === 'ADMIN') ? (
-                                    <ShieldCheck className="w-4 h-4 text-emerald-500" title="Personal Email Verified" />
+                                    <span title="Personal Email Verified">
+                                      <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                    </span>
                                   ) : (
-                                    <Clock className="w-4 h-4 text-slate-300" title="Personal Verification Pending" />
+                                    <span title="Personal Verification Pending">
+                                      <Clock className="w-4 h-4 text-slate-300" />
+                                    </span>
                                   )}
                                 </div>
                               </td>
@@ -384,9 +388,13 @@ export default function AdminPanel() {
                                 <div className="flex justify-center">
                                   {user.role === 'STUDENT' ? (
                                     user.verified ? (
-                                      <ShieldCheck className="w-4 h-4 text-indigo-500" title="Institutional Identity Verified" />
+                                      <span title="Institutional Identity Verified">
+                                        <ShieldCheck className="w-4 h-4 text-indigo-500" />
+                                      </span>
                                     ) : (
-                                      <Clock className="w-4 h-4 text-amber-400" title="College Verification Pending" />
+                                      <span title="College Verification Pending">
+                                        <Clock className="w-4 h-4 text-amber-400" />
+                                      </span>
                                     )
                                   ) : (
                                     <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">N/A</span>
