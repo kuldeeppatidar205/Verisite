@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
-import { ShieldCheck, CheckCircle2, Clock } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Clock, Lock } from 'lucide-react';
 
 interface UserProfile {
   id: string;
