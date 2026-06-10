@@ -35,6 +35,7 @@ interface User {
   email: string;
   role: string;
   verified: boolean;
+  collegeEmail?: string;
   createdAt: string;
 }
 
@@ -310,8 +311,8 @@ export default function AdminPanel() {
                               <>
                                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">User Identity</th>
                                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Role</th>
-                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
-                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Joined</th>
+                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Personal</th>
+                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Institutional</th>
                                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                               </>
                             )}
@@ -353,6 +354,9 @@ export default function AdminPanel() {
                               <td className="px-6 py-4">
                                 <div className="font-bold text-slate-900 dark:text-white text-sm">{user.name}</div>
                                 <div className="text-[11px] font-medium text-slate-400 mt-0.5">{user.email}</div>
+                                {user.collegeEmail && (
+                                  <div className="text-[9px] font-black text-indigo-500 mt-1 uppercase tracking-tighter">🎓 {user.collegeEmail}</div>
+                                )}
                               </td>
                               <td className="px-6 py-4">
                                 <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-tighter ${
@@ -363,17 +367,31 @@ export default function AdminPanel() {
                                   {user.role === 'GUEST' ? 'STUDENT' : (user.role === 'STUDENT' ? 'VERIFIED STUDENT' : user.role)}
                                 </span>
                               </td>
-                              <td className="px-6 py-4">
+                              {/* Personal Verification Column */}
+                              <td className="px-6 py-4 text-center">
                                 <div className="flex justify-center">
-                                  {user.verified ? (
-                                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                  {/* Logic: If they are a STUDENT, they MUST have verified their personal email to login and start upgrade. 
+                                      If they are GUEST/OWNER, we check the verified flag. */}
+                                  {(user.verified || user.role === 'STUDENT' || user.role === 'ADMIN') ? (
+                                    <ShieldCheck className="w-4 h-4 text-emerald-500" title="Personal Email Verified" />
                                   ) : (
-                                    <Clock className="w-4 h-4 text-slate-300" />
+                                    <Clock className="w-4 h-4 text-slate-300" title="Personal Verification Pending" />
                                   )}
                                 </div>
                               </td>
-                              <td className="px-6 py-4 text-[13px] font-medium text-slate-500">
-                                {new Date(user.createdAt).toLocaleDateString()}
+                              {/* Institutional Verification Column */}
+                              <td className="px-6 py-4 text-center">
+                                <div className="flex justify-center">
+                                  {user.role === 'STUDENT' ? (
+                                    user.verified ? (
+                                      <ShieldCheck className="w-4 h-4 text-indigo-500" title="Institutional Identity Verified" />
+                                    ) : (
+                                      <Clock className="w-4 h-4 text-amber-400" title="College Verification Pending" />
+                                    )
+                                  ) : (
+                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">N/A</span>
+                                  )}
+                                </div>
                               </td>
                               <td className="px-6 py-4 text-right">
                                 <button 

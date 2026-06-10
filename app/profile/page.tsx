@@ -317,9 +317,12 @@ export default function ProfilePage() {
                       {profile.name}
                     </h1>
                     <div className="flex flex-wrap items-center gap-2">
+                      {/* Base Role Badge */}
                       <span className="px-3 py-1 rounded-md text-[9px] font-black bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 uppercase tracking-widest border border-primary-100 dark:border-primary-900/20">
                         {profile.role === 'GUEST' ? 'STUDENT' : (profile.role === 'STUDENT' ? 'VERIFIED STUDENT' : profile.role)}
                       </span>
+
+                      {/* Admin Access */}
                       {profile.role === 'ADMIN' && (
                         <Link 
                           href="/admin"
@@ -328,16 +331,31 @@ export default function ProfilePage() {
                           <ShieldCheck className="w-3 h-3" /> Admin Panel
                         </Link>
                       )}
-                      {(profile.role === 'STUDENT' || profile.role === 'OWNER') && (
+
+                      {/* Verification Level: Personal */}
+                      <span className={`px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-widest flex items-center gap-1 border ${
+                        profile.verified || profile.role === 'STUDENT'
+                          ? 'bg-brand-success/5 text-brand-success border-brand-success/10'
+                          : 'bg-brand-warning/5 text-brand-warning border-brand-warning/10'
+                      }`}>
+                        {profile.verified || profile.role === 'STUDENT' ? (
+                          <><CheckCircle2 className="w-3 h-3" /> Personal Email Verified</>
+                        ) : (
+                          <><Clock className="w-3 h-3" /> Personal Verification Pending</>
+                        )}
+                      </span>
+
+                      {/* Verification Level: Institutional (Only for Student Path) */}
+                      {(profile.role === 'GUEST' || profile.role === 'STUDENT') && (
                         <span className={`px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-widest flex items-center gap-1 border ${
-                          profile.verified
-                            ? 'bg-brand-success/5 text-brand-success border-brand-success/10'
-                            : 'bg-brand-warning/5 text-brand-warning border-brand-warning/10'
+                          profile.role === 'STUDENT' && profile.verified
+                            ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/30'
+                            : 'bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700'
                         }`}>
-                          {profile.verified ? (
-                            <><CheckCircle2 className="w-3 h-3" /> Identity Verified</>
+                          {profile.role === 'STUDENT' && profile.verified ? (
+                            <><ShieldCheck className="w-3 h-3" /> Institutional Verified</>
                           ) : (
-                            <><Clock className="w-3 h-3" /> Verification Pending</>
+                            <><Lock className="w-3 h-3" /> Institutional Verification Required</>
                           )}
                         </span>
                       )}

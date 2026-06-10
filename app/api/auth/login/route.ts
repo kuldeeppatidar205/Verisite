@@ -36,6 +36,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
+    // Check if personal email is verified
+    if (!user.verified && user.role !== 'STUDENT') {
+      console.warn(`⚠️ Login attempt by unverified user: ${user.email}`);
+      return NextResponse.json({ 
+        error: 'Please verify your personal email before logging in. Check your inbox.' 
+      }, { status: 403 });
+    }
+
     // Generate JWT token
     const token = signToken({ 
       userId: user._id.toString(), 

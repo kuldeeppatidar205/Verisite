@@ -3,7 +3,10 @@ import { z } from 'zod';
 // User Registration Schema
 export const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email format'),
+  email: z.string().email('Invalid email format').refine(
+    (email) => email.toLowerCase().endsWith('@gmail.com'),
+    'Only @gmail.com emails are allowed for personal email'
+  ),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   role: z.enum(['STUDENT', 'OWNER', 'GUEST']).default('STUDENT'),
   collegeEmail: z.string().email('Invalid college email format').optional().or(z.literal('')),
@@ -94,7 +97,10 @@ export const profileUpdateSchema = z.object({
 
 // Forgot Password Schema
 export const forgotPasswordSchema = z.object({
-  email: z.string().email('Invalid email format'),
+  email: z.string().email('Invalid email format').refine(
+    (email) => email.toLowerCase().endsWith('@gmail.com'),
+    'Only @gmail.com emails are supported for password reset'
+  ),
 });
 
 // Reset Password Schema

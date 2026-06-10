@@ -80,7 +80,7 @@ function LoginForm() {
 
         <div className="space-y-2">
           <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
-            Personal Email
+            Personal or Institutional Email
           </label>
           <input
             type="email"
