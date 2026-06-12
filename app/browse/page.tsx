@@ -60,6 +60,10 @@ export default function BrowsePage() {
         });
         const data = await res.json();
         if (res.ok) {
+          if (!data.personalEmailVerified) {
+            router.push('/profile');
+            return;
+          }
           setUserProfile(data);
         }
         const role = data.role?.toUpperCase();

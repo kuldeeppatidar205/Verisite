@@ -555,7 +555,7 @@ export default function ListingDetailPage() {
   }
 
   const isOwner = userProfile && listing?.userId && userProfile.id === (typeof listing.userId === 'string' ? listing.userId : listing.userId._id);
-  const canReview = userProfile && userProfile.role === 'STUDENT' && userProfile.verified && !isOwner;
+  const canReview = userProfile && userProfile.role === 'STUDENT' && userProfile.collegeEmailVerified && !isOwner;
   const isRatingPost = listing.listingType === 'pg' && !listing.isOwnerListing;
 
   return (

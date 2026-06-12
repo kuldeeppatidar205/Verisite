@@ -34,8 +34,8 @@ export async function POST(req: NextRequest) {
     const hashedPassword = await bcrypt.hash(validated.password, 10);
 
     // Generate verification token
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const personalVerificationToken = crypto.randomBytes(32).toString('hex');
+    const personalVerificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Create user
     const userObj: any = {
@@ -44,9 +44,10 @@ export async function POST(req: NextRequest) {
       passwordHash: hashedPassword,
       role: validated.role,
       phoneNumber: validated.phoneNumber,
-      verified: false, // All users must verify their personal email
-      verificationToken,
-      verificationTokenExpiry,
+      personalEmailVerified: false, // All users must verify their personal email
+      collegeEmailVerified: false,
+      personalVerificationToken,
+      personalVerificationTokenExpiry,
     };
 
     const newUser = new User(userObj);
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
     console.log('🌐 Using Base URL for verification:', baseUrl);
     
     // Send verification email
-    verifyUrl = `${baseUrl}/api/auth/verify-email?token=${verificationToken}`;
+    verifyUrl = `${baseUrl}/api/auth/verify-email?token=${personalVerificationToken}&type=personal`;
     
     console.log(`📧 Attempting to send verification email to: ${validated.email}`);
     
@@ -81,7 +82,9 @@ export async function POST(req: NextRequest) {
     const jwtToken = signToken({ 
       userId: newUser._id.toString(), 
       email: newUser.email,
-      role: newUser.role
+      role: newUser.role,
+      personalEmailVerified: newUser.personalEmailVerified,
+      collegeEmailVerified: newUser.collegeEmailVerified,
     });
 
     return NextResponse.json(
@@ -96,7 +99,8 @@ export async function POST(req: NextRequest) {
           email: newUser.email,
           role: newUser.role,
           collegeEmail: newUser.collegeEmail,
-          verified: newUser.verified,
+          personalEmailVerified: newUser.personalEmailVerified,
+          collegeEmailVerified: newUser.collegeEmailVerified,
         },
       },
       { status: 201 }

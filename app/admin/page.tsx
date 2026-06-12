@@ -34,7 +34,8 @@ interface User {
   name: string;
   email: string;
   role: string;
-  verified: boolean;
+  personalEmailVerified: boolean;
+  collegeEmailVerified: boolean;
   collegeEmail?: string;
   createdAt: string;
 }
@@ -364,37 +365,41 @@ export default function AdminPanel() {
                                   user.role === 'OWNER' ? 'bg-blue-100 text-blue-700' : 
                                   user.role === 'STUDENT' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'
                                 }`}>
-                                  {user.role === 'GUEST' ? 'STUDENT' : (user.role === 'STUDENT' ? 'VERIFIED STUDENT' : user.role)}
+                                  {user.role === 'STUDENT' 
+                                    ? (user.collegeEmailVerified ? 'VERIFIED STUDENT' : 'STUDENT (UNVERIFIED)') 
+                                    : user.role}
                                 </span>
                               </td>
                               {/* Personal Verification Column */}
                               <td className="px-6 py-4 text-center">
-                                <div className="flex justify-center">
-                                  {/* Logic: If they are a STUDENT, they MUST have verified their personal email to login and start upgrade. 
-                                      If they are GUEST/OWNER, we check the verified flag. */}
-                                  {(user.verified || user.role === 'STUDENT' || user.role === 'ADMIN') ? (
-                                    <span title="Personal Email Verified">
+                                <div className="flex flex-col items-center justify-center gap-1">
+                                  {user.personalEmailVerified ? (
+                                    <>
                                       <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                                    </span>
+                                      <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-tighter">Verified</span>
+                                    </>
                                   ) : (
-                                    <span title="Personal Verification Pending">
+                                    <>
                                       <Clock className="w-4 h-4 text-slate-300" />
-                                    </span>
+                                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Pending</span>
+                                    </>
                                   )}
                                 </div>
                               </td>
                               {/* Institutional Verification Column */}
                               <td className="px-6 py-4 text-center">
-                                <div className="flex justify-center">
-                                  {user.role === 'STUDENT' ? (
-                                    user.verified ? (
-                                      <span title="Institutional Identity Verified">
+                                <div className="flex flex-col items-center justify-center gap-1">
+                                  {(user.role === 'STUDENT' || user.collegeEmail) ? (
+                                    user.collegeEmailVerified ? (
+                                      <>
                                         <ShieldCheck className="w-4 h-4 text-indigo-500" />
-                                      </span>
+                                        <span className="text-[8px] font-bold text-indigo-600 uppercase tracking-tighter">Verified</span>
+                                      </>
                                     ) : (
-                                      <span title="College Verification Pending">
+                                      <>
                                         <Clock className="w-4 h-4 text-amber-400" />
-                                      </span>
+                                        <span className="text-[8px] font-bold text-amber-500 uppercase tracking-tighter">Pending</span>
+                                      </>
                                     )
                                   ) : (
                                     <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">N/A</span>

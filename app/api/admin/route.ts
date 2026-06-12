@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
 
     // Get recent activity
     const [recentUsers, recentListings, recentReviews] = await Promise.all([
-      User.find().sort({ createdAt: -1 }).limit(5).select('name email role verified createdAt'),
+      User.find().sort({ createdAt: -1 }).limit(5).select('name email role personalEmailVerified collegeEmailVerified createdAt'),
       Listing.find().sort({ createdAt: -1 }).limit(5).select('pgName price listingType address createdAt'),
       Review.find().sort({ createdAt: -1 }).limit(5).select('rating comment createdAt'),
     ]);

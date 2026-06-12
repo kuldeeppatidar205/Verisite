@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     const payload = verifyToken(token);
     await connectToDatabase();
 
-    const user = await User.findById(payload.userId).select('-passwordHash -verificationToken');
+    const user = await User.findById(payload.userId).select('-passwordHash -personalVerificationToken -collegeVerificationToken');
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }

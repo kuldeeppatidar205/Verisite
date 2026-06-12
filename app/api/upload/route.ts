@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     await connectToDatabase();
 
     const user = await User.findById(payload.userId);
-    if (!user || !user.verified) {
+    if (!user || !user.personalEmailVerified) {
       return NextResponse.json({ error: 'Only verified users can upload images.' }, { status: 403 });
     }
 

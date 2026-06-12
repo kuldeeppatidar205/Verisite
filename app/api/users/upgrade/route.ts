@@ -38,15 +38,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate verification token
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const collegeVerificationToken = crypto.randomBytes(32).toString('hex');
+    const collegeVerificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Update user to student role and set to unverified
     user.role = 'STUDENT';
     user.collegeEmail = validated.collegeEmail;
-    user.verified = false;
-    user.verificationToken = verificationToken;
-    user.verificationTokenExpiry = verificationTokenExpiry;
+    user.collegeEmailVerified = false;
+    user.collegeVerificationToken = collegeVerificationToken;
+    user.collegeVerificationTokenExpiry = collegeVerificationTokenExpiry;
     
     if (validated.favoriteCollege) {
       user.favoriteCollege = validated.favoriteCollege;
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 
     // Send verification email
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
-    const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${verificationToken}`;
+    const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${collegeVerificationToken}&type=college`;
     
     await sendEmail({
       to: validated.collegeEmail,
@@ -72,7 +72,8 @@ export async function POST(req: NextRequest) {
         email: user.email,
         role: user.role,
         collegeEmail: user.collegeEmail,
-        verified: user.verified,
+        personalEmailVerified: user.personalEmailVerified,
+        collegeEmailVerified: user.collegeEmailVerified,
       }
     });
   } catch (error) {

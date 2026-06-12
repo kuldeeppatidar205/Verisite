@@ -88,18 +88,22 @@ export async function POST(req: NextRequest) {
 
     // Check if user is verified
     const user = await User.findById(payload.userId);
-    if (!user || !user.verified) {
-      return NextResponse.json({ error: 'Only verified users can create listings. Please verify your email first.' }, { status: 403 });
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    if (!user.personalEmailVerified) {
+      return NextResponse.json({ error: 'Please verify your personal email before creating a listing.' }, { status: 403 });
+    }
+
+    if (!user.collegeEmailVerified) {
+      return NextResponse.json({ error: 'Institutional (College) email verification is required to create listings. Please verify your college identity in your profile.' }, { status: 403 });
     }
 
     const userRole = user.role?.toUpperCase() || 'STUDENT';
 
     if (userRole === 'GUEST') {
       return NextResponse.json({ error: 'Please verify your student identity in your profile to create listings' }, { status: 403 });
-    }
-
-    if (userRole === 'STUDENT' && !user.verified) {
-       return NextResponse.json({ error: 'Your student account is pending verification. Please check your institutional email.' }, { status: 403 });
     }
 
     const isOwnerListing = userRole === 'OWNER';

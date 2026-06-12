@@ -12,9 +12,12 @@ export interface IUser extends Document {
     lat: number;
     lng: number;
   };
-  verified: boolean;
-  verificationToken?: string;
-  verificationTokenExpiry?: Date;
+  personalEmailVerified: boolean;
+  collegeEmailVerified: boolean;
+  personalVerificationToken?: string;
+  collegeVerificationToken?: string;
+  personalVerificationTokenExpiry?: Date;
+  collegeVerificationTokenExpiry?: Date;
   resetPasswordToken?: string;
   resetPasswordExpiry?: Date;
   createdAt: Date;
@@ -34,9 +37,12 @@ const userSchema = new Schema<IUser>(
       lat: Number,
       lng: Number,
     },
-    verified: { type: Boolean, default: false },
-    verificationToken: { type: String },
-    verificationTokenExpiry: { type: Date },
+    personalEmailVerified: { type: Boolean, default: false },
+    collegeEmailVerified: { type: Boolean, default: false },
+    personalVerificationToken: { type: String },
+    personalVerificationTokenExpiry: { type: Date },
+    collegeVerificationToken: { type: String },
+    collegeVerificationTokenExpiry: { type: Date },
     resetPasswordToken: { type: String },
     resetPasswordExpiry: { type: Date },
   },

@@ -42,7 +42,7 @@ async function populateReviews() {
     }
 
     // Add some new ones if we have listings and students
-    const student = await User.findOne({ role: 'STUDENT', verified: true });
+    const student = await User.findOne({ role: 'STUDENT', personalEmailVerified: true, collegeEmailVerified: true });
     const listings = await Listing.find().limit(3);
 
     if (student && listings.length > 0) {

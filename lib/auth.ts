@@ -4,6 +4,8 @@ export interface JWTPayload {
   userId: string;
   email?: string;
   role: 'STUDENT' | 'OWNER' | 'GUEST' | 'ADMIN';
+  personalEmailVerified: boolean;
+  collegeEmailVerified: boolean;
   iat?: number;
   exp?: number;
 }

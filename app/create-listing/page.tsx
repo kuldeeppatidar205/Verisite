@@ -29,6 +29,8 @@ function CreateListingForm() {
   const [error, setError] = useState('');
   const [token, setToken] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<'STUDENT' | 'OWNER' | 'ADMIN' | 'GUEST'>('STUDENT');
+  const [isPersonalVerified, setIsPersonalVerified] = useState(true);
+  const [isCollegeVerified, setIsCollegeVerified] = useState(true);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [showMap, setShowMap] = useState(false);
   const [existingImages, setExistingImages] = useState<string[]>([]);
@@ -166,6 +168,8 @@ function CreateListingForm() {
       if (data.user) {
         const normalizedRole = data.user.role?.toUpperCase() || 'STUDENT';
         setUserRole(normalizedRole as 'STUDENT' | 'OWNER' | 'ADMIN' | 'GUEST');
+        setIsPersonalVerified(data.user.personalEmailVerified);
+        setIsCollegeVerified(data.user.collegeEmailVerified);
       }
     } catch (error) {
       console.error('Failed to fetch user role:', error);
@@ -419,6 +423,28 @@ function CreateListingForm() {
   };
 
   const isRatingMode = userRole === 'STUDENT' && formData.studentListingType === 'RATING';
+
+  if (!isPersonalVerified || !isCollegeVerified) {
+    return (
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-8 sm:p-12 text-center transition-colors duration-200">
+        <div className="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Lock className="w-10 h-10 text-indigo-600 dark:text-indigo-400" />
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter uppercase">Verification Required</h2>
+        <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto font-medium">
+          {!isPersonalVerified 
+            ? 'Please verify your personal email to access this feature.' 
+            : 'Institutional (College) email verification is required to post listings.'}
+        </p>
+        <Link 
+          href="/profile"
+          className="inline-flex items-center gap-2 px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
+        >
+          Go to Profile <ChevronRight className="w-4 h-4" />
+        </Link>
+      </div>
+    );
+  }
 
   if (userRole === 'GUEST') {
     return (

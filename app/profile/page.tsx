@@ -13,7 +13,8 @@ interface UserProfile {
   role: 'STUDENT' | 'OWNER' | 'GUEST' | 'ADMIN';
   phoneNumber?: string;
   collegeEmail: string;
-  verified: boolean;
+  personalEmailVerified: boolean;
+  collegeEmailVerified: boolean;
   hostelName?: string;
   roomNumber?: string;
   idCardImageUrl?: string;
@@ -42,6 +43,8 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     name: '',
+    email: '',
+    collegeEmail: '',
     phoneNumber: '',
     hostelName: '',
     roomNumber: '',
@@ -54,6 +57,7 @@ export default function ProfilePage() {
     collegeName: '',
   });
   const [upgradeLoading, setUpgradeLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState<string | null>(null);
 
   useEffect(() => {
     const t = localStorage.getItem('token');
@@ -85,6 +89,8 @@ export default function ProfilePage() {
       setProfile(data);
       setEditData({
         name: data.name,
+        email: data.email,
+        collegeEmail: data.collegeEmail || '',
         phoneNumber: data.phoneNumber || '',
         hostelName: data.hostelName || '',
         roomNumber: data.roomNumber || '',
@@ -92,6 +98,31 @@ export default function ProfilePage() {
       });
     } catch (error) {
       console.error('Failed to fetch profile:', error);
+    }
+  };
+
+  const handleResendVerification = async (type: 'personal' | 'college') => {
+    if (!token) return;
+    setResendLoading(type);
+    try {
+      const res = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ type }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message || 'Verification email sent!');
+      } else {
+        alert(data.error || 'Failed to resend verification email');
+      }
+    } catch (error) {
+      alert('An error occurred while resending the verification email.');
+    } finally {
+      setResendLoading(null);
     }
   };
 
@@ -103,6 +134,8 @@ export default function ProfilePage() {
     try {
       const body: any = {
         name: editData.name,
+        email: editData.email,
+        collegeEmail: editData.collegeEmail,
         phoneNumber: editData.phoneNumber,
         hostelName: editData.hostelName,
         roomNumber: editData.roomNumber,
@@ -334,11 +367,11 @@ export default function ProfilePage() {
 
                       {/* Verification Level: Personal */}
                       <span className={`px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-widest flex items-center gap-1 border ${
-                        profile.verified || profile.role === 'STUDENT'
+                        profile.personalEmailVerified
                           ? 'bg-brand-success/5 text-brand-success border-brand-success/10'
                           : 'bg-brand-warning/5 text-brand-warning border-brand-warning/10'
                       }`}>
-                        {profile.verified || profile.role === 'STUDENT' ? (
+                        {profile.personalEmailVerified ? (
                           <><CheckCircle2 className="w-3 h-3" /> Personal Email Verified</>
                         ) : (
                           <><Clock className="w-3 h-3" /> Personal Verification Pending</>
@@ -346,13 +379,13 @@ export default function ProfilePage() {
                       </span>
 
                       {/* Verification Level: Institutional (Only for Student Path) */}
-                      {(profile.role === 'GUEST' || profile.role === 'STUDENT') && (
+                      {(profile.role === 'STUDENT' || profile.role === 'ADMIN' || profile.collegeEmail) && (
                         <span className={`px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-widest flex items-center gap-1 border ${
-                          profile.role === 'STUDENT' && profile.verified
+                          profile.collegeEmailVerified
                             ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/30'
                             : 'bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700'
                         }`}>
-                          {profile.role === 'STUDENT' && profile.verified ? (
+                          {profile.collegeEmailVerified ? (
                             <><ShieldCheck className="w-3 h-3" /> Institutional Verified</>
                           ) : (
                             <><Lock className="w-3 h-3" /> Institutional Verification Required</>
@@ -388,6 +421,22 @@ export default function ProfilePage() {
                       />
                     </div>
 
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex justify-between">
+                        <span>Personal Email</span>
+                        {profile.personalEmailVerified && <span className="text-emerald-500 flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Verified</span>}
+                      </label>
+                      <input
+                        type="email"
+                        value={editData.email}
+                        onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                        disabled={profile.personalEmailVerified}
+                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-primary-500/50 outline-none text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                        required
+                      />
+                      {!profile.personalEmailVerified && <p className="text-[9px] font-black text-brand-warning uppercase tracking-widest ml-1">You can correct this email before verifying.</p>}
+                    </div>
+
                     {profile.role === 'OWNER' && (
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
@@ -404,18 +453,36 @@ export default function ProfilePage() {
                     )}
 
                     {(profile.role === 'STUDENT' || profile.role === 'GUEST') && (
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                          Campus/Institution
-                        </label>
-                        <input
-                          type="text"
-                          value={editData.collegeName}
-                          onChange={(e) => setEditData({ ...editData, collegeName: e.target.value })}
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-primary-500/50 outline-none text-sm font-medium"
-                          required
-                        />
-                      </div>
+                      <>
+                        {profile.collegeEmail && (
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex justify-between">
+                              <span>Institutional Email</span>
+                              {profile.collegeEmailVerified && <span className="text-indigo-500 flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Verified</span>}
+                            </label>
+                            <input
+                              type="email"
+                              value={editData.collegeEmail}
+                              onChange={(e) => setEditData({ ...editData, collegeEmail: e.target.value })}
+                              disabled={profile.collegeEmailVerified}
+                              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-primary-500/50 outline-none text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                            />
+                            {!profile.collegeEmailVerified && <p className="text-[9px] font-black text-brand-warning uppercase tracking-widest ml-1">You can correct this email before verifying.</p>}
+                          </div>
+                        )}
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                            Campus/Institution
+                          </label>
+                          <input
+                            type="text"
+                            value={editData.collegeName}
+                            onChange={(e) => setEditData({ ...editData, collegeName: e.target.value })}
+                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-primary-500/50 outline-none text-sm font-medium"
+                            required
+                          />
+                        </div>
+                      </>
                     )}
                   </div>
 
@@ -622,18 +689,50 @@ export default function ProfilePage() {
             )}
 
             {/* Verification Status */}
-            {profile.role !== 'GUEST' && !profile.verified && (
+            {(!profile.personalEmailVerified || (!profile.collegeEmailVerified && profile.collegeEmail)) && (
               <div className="bg-brand-warning/5 dark:bg-brand-warning/10 border border-brand-warning/20 rounded-[2rem] p-6 sm:p-8 transition-colors duration-200">
-                <h3 className="text-sm font-black text-brand-warning mb-3 uppercase tracking-[0.2em] flex items-center gap-2">
+                <h3 className="text-sm font-black text-brand-warning mb-4 uppercase tracking-[0.2em] flex items-center gap-2">
                   <Clock className="w-4 h-4" /> Verification Required
                 </h3>
-                <p className="text-slate-600 dark:text-slate-300/80 mb-6 text-sm font-medium leading-relaxed">
-                  Check <span className="font-bold text-slate-900 dark:text-white">{profile.role === 'STUDENT' ? profile.collegeEmail : profile.email}</span> for the verification link.
-                </p>
-                <div className="space-y-2 text-[11px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest">
-                  {profile.role === 'STUDENT' && <p>• Institutional email ONLY</p>}
-                  <p>• Check Spam Folder</p>
-                  <p>• Verification is MANDATORY for listings</p>
+                
+                <div className="space-y-6">
+                  {!profile.personalEmailVerified && (
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-white/50 dark:bg-slate-900/50 rounded-xl border border-brand-warning/10">
+                      <div>
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Personal Email</p>
+                        <p className="text-sm font-bold text-slate-700 dark:text-slate-300">{profile.email}</p>
+                      </div>
+                      <button
+                        onClick={() => handleResendVerification('personal')}
+                        disabled={resendLoading === 'personal'}
+                        className="px-4 py-2 bg-brand-warning text-white rounded-lg font-black text-[9px] uppercase tracking-widest hover:bg-amber-600 transition-all disabled:opacity-50 active:scale-95"
+                      >
+                        {resendLoading === 'personal' ? 'Sending...' : 'Resend Link'}
+                      </button>
+                    </div>
+                  )}
+
+                  {!profile.collegeEmailVerified && profile.collegeEmail && (
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-white/50 dark:bg-slate-900/50 rounded-xl border border-brand-warning/10">
+                      <div>
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Institutional Email</p>
+                        <p className="text-sm font-bold text-slate-700 dark:text-slate-300">{profile.collegeEmail}</p>
+                      </div>
+                      <button
+                        onClick={() => handleResendVerification('college')}
+                        disabled={resendLoading === 'college'}
+                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-black text-[9px] uppercase tracking-widest hover:bg-indigo-700 transition-all disabled:opacity-50 active:scale-95"
+                      >
+                        {resendLoading === 'college' ? 'Sending...' : 'Resend Link'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-6 space-y-2 text-[10px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest">
+                  <p>• Check your Spam folder if you don't see the email</p>
+                  <p>• Personal verification is required for site access</p>
+                  <p>• Institutional verification is required for listing rooms</p>
                 </div>
               </div>
             )}

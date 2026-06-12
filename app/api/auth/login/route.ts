@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if personal email is verified
-    if (!user.verified && user.role !== 'STUDENT') {
+    if (!user.personalEmailVerified && user.role !== 'STUDENT') {
       console.warn(`⚠️ Login attempt by unverified user: ${user.email}`);
       return NextResponse.json({ 
         error: 'Please verify your personal email before logging in. Check your inbox.' 
@@ -48,7 +48,9 @@ export async function POST(req: NextRequest) {
     const token = signToken({ 
       userId: user._id.toString(), 
       email: user.email,
-      role: user.role
+      role: user.role,
+      personalEmailVerified: user.personalEmailVerified,
+      collegeEmailVerified: user.collegeEmailVerified,
     });
 
     return NextResponse.json({
@@ -60,7 +62,8 @@ export async function POST(req: NextRequest) {
         email: user.email,
         role: user.role,
         collegeEmail: user.collegeEmail,
-        verified: user.verified,
+        personalEmailVerified: user.personalEmailVerified,
+        collegeEmailVerified: user.collegeEmailVerified,
       },
     });
   } catch (error: any) {

@@ -83,6 +83,11 @@ export const reviewSchema = z.object({
 // Profile Update Schema
 export const profileUpdateSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').optional(),
+  email: z.string().email('Invalid email format').refine(
+    (email) => email.toLowerCase().endsWith('@gmail.com'),
+    'Only @gmail.com emails are allowed for personal email'
+  ).optional(),
+  collegeEmail: z.string().email('Invalid institutional email format').optional(),
   phoneNumber: z.string().refine((val) => !val || val.length >= 10, {
     message: 'Phone number must be at least 10 characters',
   }).optional().or(z.literal('')),
@@ -93,6 +98,16 @@ export const profileUpdateSchema = z.object({
     lat: z.number(),
     lng: z.number(),
   }).optional(),
+}).refine((data) => {
+  if (data.collegeEmail) {
+    const domain = data.collegeEmail.split('@')[1].toLowerCase();
+    const allowedEndings = ['.edu.in', '.ac.in', '.edu', '.res.in'];
+    return allowedEndings.some(ending => domain.endsWith(ending));
+  }
+  return true;
+}, {
+  message: 'Institutional email must end with .edu.in, .ac.in, .edu, or .res.in',
+  path: ['collegeEmail'],
 });
 
 // Forgot Password Schema

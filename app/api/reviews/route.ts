@@ -56,8 +56,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    if (!user.verified) {
-      return NextResponse.json({ error: 'Please verify your email before leaving a review' }, { status: 403 });
+    if (!user.personalEmailVerified) {
+      return NextResponse.json({ error: 'Please verify your personal email before leaving a review' }, { status: 403 });
+    }
+
+    if (!user.collegeEmailVerified) {
+      return NextResponse.json({ error: 'Institutional (College) email verification is required to leave reviews. Please verify your college identity in your profile.' }, { status: 403 });
     }
 
     if (user.role !== 'STUDENT') {

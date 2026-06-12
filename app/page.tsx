@@ -53,7 +53,7 @@ export default function Home() {
       });
       if (res.ok) {
         const data = await res.json();
-        setIsVerified(data.verified);
+        setIsVerified(data.personalEmailVerified);
         setUserEmail(data.role === 'STUDENT' ? data.collegeEmail : data.email);
       }
     } catch (error) {

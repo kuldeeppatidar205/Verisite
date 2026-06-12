@@ -23,7 +23,8 @@ async function seedAdmin() {
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
       existingAdmin.passwordHash = hashedPassword;
       existingAdmin.role = 'ADMIN';
-      existingAdmin.verified = true;
+      existingAdmin.personalEmailVerified = true;
+      existingAdmin.collegeEmailVerified = true;
       await existingAdmin.save();
       console.log('Admin password updated successfully');
     } else {
@@ -34,7 +35,8 @@ async function seedAdmin() {
         email: adminEmail,
         passwordHash: hashedPassword,
         role: 'ADMIN',
-        verified: true,
+        personalEmailVerified: true,
+        collegeEmailVerified: true,
       });
       await newAdmin.save();
       console.log('Admin created successfully');
