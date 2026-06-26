@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import ClientOnly from '@/components/ClientOnly';
@@ -129,7 +130,7 @@ function ResetPasswordForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 bg-primary-600 hover:bg-primary-700 disabled:bg-slate-300 text-white rounded-xl font-semibold transition-all shadow-lg shadow-primary-500/20 mt-4 uppercase tracking-widest text-[13px] btn-press"
+            className="w-full py-4 bg-primary-500/10 hover:bg-primary-500/20 text-primary-600 dark:text-primary-400 border border-primary-500/20 backdrop-blur-md disabled:bg-slate-300 rounded-xl font-semibold transition-all mt-4 uppercase tracking-widest text-[13px] btn-press"
           >
             {loading ? 'Updating...' : 'Update Password'}
           </button>
@@ -155,8 +156,15 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md animate-scale-in">
         <div className="text-center mb-8 animate-slide-down">
           <Link href="/" className="flex items-center justify-center gap-2 mb-4 group">
-            <div className="w-12 h-12 flex items-center justify-center transition-transform group-hover:scale-105">
-              <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
+            <div className="relative w-12 h-12 flex items-center justify-center transition-transform group-hover:scale-105 overflow-hidden rounded-full border border-gray-200/50 dark:border-slate-800">
+              <Image 
+                src="/logo image short.png" 
+                alt="Verisite Logo" 
+                fill
+                priority
+                sizes="48px"
+                className="object-cover" 
+              />
             </div>
             <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Verisite</span>
           </Link>

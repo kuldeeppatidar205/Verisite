@@ -187,8 +187,8 @@ export default function AdminPanel() {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out shadow-xl md:shadow-none`}>
         <div className="h-full flex flex-col p-6">
           <div className="flex items-center gap-3 mb-10">
-            <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg shadow-brand-primary/20">
-              <ShieldCheck className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 bg-brand-primary/10 border border-brand-primary/20 text-brand-primary rounded-xl flex items-center justify-center">
+              <ShieldCheck className="w-6 h-6" />
             </div>
             <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tighter">Admin Central</h1>
           </div>
@@ -204,10 +204,10 @@ export default function AdminPanel() {
               <button
                 key={tab.id}
                 onClick={() => { setActiveTab(tab.id as any); setIsSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
                   activeTab === tab.id 
-                    ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20' 
-                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-brand-primary/15 text-brand-primary border-brand-primary/20 backdrop-blur-sm' 
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -233,7 +233,7 @@ export default function AdminPanel() {
            
            <div className="flex items-center gap-4 ml-auto">
              <ThemeToggle />
-             <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
+             <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-2"></div>
              <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-brand-warning flex items-center justify-center text-[10px] font-black text-white uppercase">AD</div>
                 <span className="text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest hidden sm:block">Super Admin</span>
@@ -251,7 +251,7 @@ export default function AdminPanel() {
                    { label: 'Reviews', value: stats.reviews, icon: Star, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' },
                    { label: 'Reports', value: stats.reports, icon: ShieldAlert, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-900/20' },
                  ].map((card, i) => (
-                   <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:scale-[1.02] hover:shadow-xl">
+                   <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-4xl border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:scale-[1.02] hover:shadow-xl">
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-2">{card.label}</p>
@@ -265,7 +265,7 @@ export default function AdminPanel() {
                  ))}
                </div>
 
-               <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 rounded-[2rem] p-6 flex items-start gap-4">
+               <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 rounded-4xl p-6 flex items-start gap-4">
                   <ShieldAlert className="w-6 h-6 text-amber-600 shrink-0 mt-1" />
                   <div>
                     <h3 className="text-xs font-black text-amber-900 dark:text-amber-400 uppercase tracking-widest mb-1">Administrative Privilege</h3>
@@ -300,7 +300,7 @@ export default function AdminPanel() {
                   </div>
                </div>
 
-               <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+               <div className="bg-white dark:bg-slate-900 rounded-4xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
                   <div className="overflow-x-auto">
                     {loading ? (
                       <div className="p-20 flex justify-center"><Loader2 className="w-8 h-8 text-brand-primary animate-spin" /></div>
@@ -427,7 +427,7 @@ export default function AdminPanel() {
                                   {listing.pgName || 'Unnamed PG'}
                                   <Link href={`/listings/${listing._id}`} target="_blank" className="text-brand-primary hover:text-brand-hover"><ExternalLink className="w-3.5 h-3.5" /></Link>
                                 </div>
-                                <div className="text-[11px] font-medium text-slate-400 mt-0.5 truncate max-w-[200px]">{listing.address}</div>
+                                <div className="text-[11px] font-medium text-slate-400 mt-0.5 truncate max-w-50">{listing.address}</div>
                               </td>
                               <td className="px-6 py-4">
                                 <div className="text-[13px] font-bold text-slate-600 dark:text-slate-400">{listing.userId?.name || 'Unknown'}</div>

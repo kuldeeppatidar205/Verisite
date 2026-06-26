@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ClientOnly from '@/components/ClientOnly';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -491,7 +492,7 @@ function CreateListingForm() {
         </p>
         <Link 
           href="/profile"
-          className="inline-flex items-center gap-2 px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
+          className="inline-flex items-center gap-2 px-8 py-3.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 backdrop-blur-md rounded-xl font-black uppercase tracking-widest text-[10px] transition-all active:scale-95"
         >
           Go to Profile <ChevronRight className="w-4 h-4" />
         </Link>
@@ -511,7 +512,7 @@ function CreateListingForm() {
         </p>
         <Link 
           href="/profile"
-          className="inline-flex items-center gap-2 px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
+          className="inline-flex items-center gap-2 px-8 py-3.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 backdrop-blur-md rounded-xl font-black uppercase tracking-widest text-[10px] transition-all active:scale-95"
         >
           Go to Profile <ChevronRight className="w-4 h-4" />
         </Link>
@@ -603,7 +604,7 @@ function CreateListingForm() {
                   type="button"
                   onClick={handleMapSearch}
                   disabled={searchLoading}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg text-sm font-semibold transition"
+                  className="px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 backdrop-blur-md disabled:opacity-50 rounded-lg text-sm font-semibold transition"
                 >
                   {searchLoading ? 'Searching...' : 'Search'}
                 </button>
@@ -684,10 +685,10 @@ function CreateListingForm() {
                           key={val}
                           type="button"
                           onClick={() => setFormData(prev => ({ ...prev, [field.key]: val }))}
-                          className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                          className={`flex-1 py-2 text-sm font-bold rounded-lg border transition-all ${
                             (formData as Record<string, unknown>)[field.key] === val
-                              ? 'bg-primary-600 text-white shadow-sm'
-                              : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                              ? 'bg-primary-500/15 text-primary-600 dark:text-primary-400 border-primary-500/20 backdrop-blur-sm'
+                              : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                           }`}
                         >
                           {val}
@@ -706,10 +707,10 @@ function CreateListingForm() {
                       key={val}
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, rating: val }))}
-                      className={`flex-1 py-3 text-lg font-black rounded-xl transition-all ${
+                      className={`flex-1 py-3 text-lg font-black rounded-xl border transition-all ${
                         formData.rating === val
-                          ? 'bg-primary-600 text-white shadow-md scale-[1.02]'
-                          : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+                          ? 'bg-primary-500/15 text-primary-600 dark:text-primary-400 border-primary-500/20 backdrop-blur-sm scale-[1.02]'
+                          : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
                       }`}
                     >
                       {val}
@@ -1037,7 +1038,7 @@ function CreateListingForm() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 font-semibold transition shadow-lg shadow-primary-500/20 order-1 sm:order-2 btn-press"
+              className="flex-1 py-3 bg-primary-500/10 hover:bg-primary-500/20 text-primary-600 dark:text-primary-400 border border-primary-500/20 backdrop-blur-md rounded-xl disabled:bg-slate-300 dark:disabled:bg-slate-700 font-semibold transition order-1 sm:order-2 btn-press"
             >
               {loading ? 'Saving...' : editId ? 'Update Listing' : 'Post Listing'}
             </button>
@@ -1058,19 +1059,25 @@ export default function CreateListingPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
       {/* Navigation */}
-      <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 transition-colors duration-200 sticky top-0 z-50">
+      <nav className="sticky top-0 z-50 bg-white/70 dark:bg-slate-950/70 backdrop-blur-lg border-b border-gray-100 dark:border-slate-800/80 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-105">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="relative w-9 h-9 transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-xl border border-gray-200/50 dark:border-slate-800">
+              <Image 
+                src="/logo image short.png" 
+                alt="Verisite Logo" 
+                fill
+                priority
+                sizes="36px"
+                className="object-cover" 
+              />
             </div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Verisite</h1>
+            <h1 className="text-lg font-black text-slate-900 dark:text-white tracking-tighter uppercase">Verisite</h1>
           </Link>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Link href="/browse" className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-              ← Back to listings
+            <Link href="/browse" className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white flex items-center gap-1.5 transition-colors">
+              <ArrowLeft className="w-4 h-4 text-indigo-500" /> <span className="hidden xs:inline">Browse</span>
             </Link>
           </div>
         </div>

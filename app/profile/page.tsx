@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import { ShieldCheck, CheckCircle2, Clock, Lock } from 'lucide-react';
@@ -344,26 +345,32 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
       {/* Navigation */}
-      <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 transition-colors duration-200 sticky top-0 z-50">
+      <nav className="sticky top-0 z-50 bg-white/70 dark:bg-slate-950/70 backdrop-blur-lg border-b border-gray-100 dark:border-slate-800/80 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-105">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="relative w-9 h-9 transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-xl border border-gray-200/50 dark:border-slate-800">
+              <Image 
+                src="/logo image short.png" 
+                alt="Verisite Logo" 
+                fill
+                priority
+                sizes="36px"
+                className="object-cover" 
+              />
             </div>
-            <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tighter">Verisite</h1>
+            <h1 className="text-lg font-black text-slate-900 dark:text-white tracking-tighter uppercase">Verisite</h1>
           </Link>
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-3 sm:gap-6">
             <ThemeToggle />
             <Link
               href="/browse"
-              className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+              className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white transition-colors"
             >
               Browse
             </Link>
             <button
               onClick={handleLogout}
-              className="text-[10px] font-black uppercase tracking-widest text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+              className="text-xs font-black uppercase tracking-widest text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-350 transition-colors cursor-pointer"
             >
               Logout
             </button>
@@ -396,7 +403,7 @@ export default function ProfilePage() {
                       {profile.role === 'ADMIN' && (
                         <Link 
                           href="/admin"
-                          className="px-3 py-1 rounded-md text-[9px] font-black bg-brand-warning text-white uppercase tracking-widest hover:bg-amber-600 transition-colors flex items-center gap-1 shadow-lg shadow-brand-warning/20"
+                          className="px-3 py-1 rounded-md text-[9px] font-black bg-brand-warning/10 hover:bg-brand-warning/20 text-brand-warning border border-brand-warning/20 backdrop-blur-md uppercase tracking-widest transition-colors flex items-center gap-1"
                         >
                           <ShieldCheck className="w-3 h-3" /> Admin Panel
                         </Link>
@@ -541,7 +548,7 @@ export default function ProfilePage() {
                     <button
                       type="submit"
                       disabled={updateLoading}
-                      className="flex-1 py-3.5 bg-primary-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-primary-700 transition disabled:opacity-50 shadow-lg shadow-primary-500/20 active:scale-95"
+                      className="flex-1 py-3.5 bg-primary-500/10 hover:bg-primary-500/20 text-primary-600 dark:text-primary-400 border border-primary-500/20 backdrop-blur-md rounded-xl font-black uppercase tracking-widest text-[10px] transition disabled:opacity-50 active:scale-95"
                     >
                       {updateLoading ? 'UPDATING...' : 'Save Profile Changes'}
                     </button>
@@ -613,7 +620,7 @@ export default function ProfilePage() {
                   {!isUpgrading && (
                     <button 
                       onClick={() => setIsUpgrading(true)}
-                      className="w-full md:w-auto px-8 py-3 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95"
+                      className="w-full md:w-auto px-8 py-3 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 backdrop-blur-md rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95"
                     >
                       Verify Now
                     </button>
@@ -650,7 +657,7 @@ export default function ProfilePage() {
                       <button
                         type="submit"
                         disabled={upgradeLoading}
-                        className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition disabled:opacity-50 shadow-lg shadow-indigo-600/20 active:scale-95"
+                        className="flex-1 py-3.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 backdrop-blur-md rounded-xl font-black uppercase tracking-widest text-[10px] transition disabled:opacity-50 active:scale-95"
                       >
                         {upgradeLoading ? 'PROCESSING...' : 'Verify & Upgrade Account'}
                       </button>
@@ -675,7 +682,7 @@ export default function ProfilePage() {
                   <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">My Listings</h2>
                   <Link
                     href="/create-listing"
-                    className="px-4 py-2 bg-primary-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary-700 transition-all shadow-lg shadow-primary-500/20 active:scale-95"
+                    className="px-4 py-2 bg-primary-500/10 hover:bg-primary-500/20 text-primary-600 dark:text-primary-400 border border-primary-500/20 backdrop-blur-md rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95"
                   >
                     + Add New
                   </Link>
@@ -802,7 +809,7 @@ export default function ProfilePage() {
                 <div className="w-full md:w-auto">
                   <button
                     onClick={handleDeleteAccount}
-                    className="w-full px-8 py-3 bg-red-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-red-700 transition-all shadow-xl shadow-red-600/20 active:scale-95"
+                    className="w-full px-8 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 backdrop-blur-md rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all active:scale-95"
                   >
                     Terminate Account
                   </button>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import ThemeToggle from '@/components/ThemeToggle';
 import ClientOnly from '@/components/ClientOnly';
 import { ArrowLeft, Mail } from 'lucide-react';
@@ -54,8 +55,15 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md animate-scale-in">
         <div className="text-center mb-8 animate-slide-down">
           <Link href="/" className="flex items-center justify-center gap-2 mb-4 group">
-            <div className="w-12 h-12 flex items-center justify-center transition-transform group-hover:scale-105">
-              <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
+            <div className="relative w-12 h-12 flex items-center justify-center transition-transform group-hover:scale-105 overflow-hidden rounded-full border border-gray-200/50 dark:border-slate-800">
+              <Image 
+                src="/logo image short.png" 
+                alt="Verisite Logo" 
+                fill
+                priority
+                sizes="48px"
+                className="object-cover" 
+              />
             </div>
             <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Verisite</span>
           </Link>
@@ -75,7 +83,7 @@ export default function ForgotPasswordPage() {
                   {message}
                 </p>
               </div>
-              <Link href="/login" className="block w-full py-3.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-black transition-all shadow-lg shadow-primary-500/20 text-[10px] uppercase tracking-widest">
+              <Link href="/login" className="block w-full py-3.5 bg-primary-500/10 hover:bg-primary-500/20 text-primary-600 dark:text-primary-400 border border-primary-500/20 backdrop-blur-md rounded-xl font-black transition-all text-[10px] uppercase tracking-widest text-center">
                 Back to Login
               </Link>
             </div>
@@ -104,7 +112,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 bg-primary-600 hover:bg-primary-700 disabled:bg-slate-300 text-white rounded-xl font-black transition-all shadow-lg shadow-primary-500/20 mt-4 uppercase tracking-widest text-[10px] btn-press"
+                className="w-full py-4 bg-primary-500/10 hover:bg-primary-500/20 text-primary-600 dark:text-primary-400 border border-primary-500/20 backdrop-blur-md disabled:bg-slate-300 rounded-xl font-black transition-all mt-4 uppercase tracking-widest text-[10px] btn-press"
               >
                 {loading ? 'Sending...' : 'Send Reset Link'}
               </button>

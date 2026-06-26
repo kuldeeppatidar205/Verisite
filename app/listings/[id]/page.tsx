@@ -572,7 +572,7 @@ export default function ListingDetailPage() {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col items-center justify-center px-4 text-center">
         <h1 className="text-section-heading text-gray-900 dark:text-white mb-4">Listing not found</h1>
-        <Link href="/browse" className="bg-brand-primary text-white px-6 py-3 rounded-lg font-black uppercase tracking-widest text-micro transition-all active:scale-95">Back to listings</Link>
+        <Link href="/browse" className="bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary border border-brand-primary/20 backdrop-blur-md px-6 py-3 rounded-lg font-black uppercase tracking-widest text-micro transition-all active:scale-95">Back to listings</Link>
       </div>
     );
   }
@@ -583,24 +583,25 @@ export default function ListingDetailPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-500">
-      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative w-8 h-8 sm:w-9 sm:h-9 transition-transform group-hover:scale-105 overflow-hidden rounded-full">
+      <nav className="sticky top-0 z-50 bg-white/70 dark:bg-slate-950/70 backdrop-blur-lg border-b border-gray-100 dark:border-slate-800/80 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="relative w-9 h-9 transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-xl border border-gray-200/50 dark:border-slate-800">
               <Image 
                 src="/logo image short.png" 
-                alt="Logo" 
+                alt="Verisite Logo" 
                 fill
                 priority
+                sizes="36px"
                 className="object-cover" 
               />
             </div>
-            <h1 className="text-card-title font-black tracking-tighter text-gray-900 dark:text-white">Verisite</h1>
+            <h1 className="text-lg font-black text-gray-900 dark:text-white tracking-tighter uppercase">Verisite</h1>
           </Link>
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-3 sm:gap-6">
             <ThemeToggle />
-            <Link href="/browse" className="text-micro font-black uppercase tracking-widest text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-1">
-              <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">Browse</span>
+            <Link href="/browse" className="text-xs font-black uppercase tracking-widest text-gray-500 dark:text-slate-400 hover:text-gray-950 dark:hover:text-white flex items-center gap-1.5 transition-colors">
+              <ArrowLeft className="w-4 h-4 text-indigo-500" /> <span className="hidden xs:inline">Browse</span>
             </Link>
           </div>
         </div>
@@ -875,10 +876,10 @@ export default function ListingDetailPage() {
                               key={val}
                               type="button"
                               onClick={() => setNewReview(prev => ({ ...prev, [field.key]: val }))}
-                              className={`flex-1 py-1 text-xs font-black rounded-md transition-all ${
+                              className={`flex-1 py-1 text-xs font-black rounded-md border transition-all ${
                                 (newReview as Record<string, unknown>)[field.key] === val
-                                  ? 'bg-brand-primary text-white shadow-sm'
-                                  : 'text-slate-300 hover:text-brand-primary'
+                                  ? 'bg-brand-primary/15 text-brand-primary border-brand-primary/20 backdrop-blur-sm'
+                                  : 'border-transparent text-slate-300 hover:text-brand-primary'
                               }`}
                             >
                               {val}
@@ -898,10 +899,10 @@ export default function ListingDetailPage() {
                             key={val}
                             type="button"
                             onClick={() => setNewReview({ ...newReview, rating: val })}
-                            className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-black transition-all ${
+                            className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-black border transition-all ${
                               newReview.rating === val
-                                ? 'bg-brand-warning text-white scale-105 shadow-lg shadow-brand-warning/30'
-                                : 'bg-white dark:bg-slate-950 text-slate-400 border border-slate-200 dark:border-slate-800'
+                                ? 'bg-brand-warning/15 text-brand-warning border-brand-warning/20 backdrop-blur-sm scale-105'
+                                : 'border-transparent bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm text-slate-400 border border-slate-200 dark:border-slate-800'
                             }`}
                           >
                             {val}
@@ -921,7 +922,7 @@ export default function ListingDetailPage() {
                         <ShieldCheck className="w-3.5 h-3.5" /> {reviewError}
                       </div>
                     )}
-                    <button type="submit" disabled={reviewLoading} className="w-full sm:w-auto bg-brand-primary text-white px-8 py-3.5 rounded-xl font-black uppercase tracking-widest text-micro shadow-xl shadow-brand-primary/30 hover:bg-brand-hover transition-all active:scale-95 disabled:opacity-50 ml-auto">
+                    <button type="submit" disabled={reviewLoading} className="w-full sm:w-auto bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary border border-brand-primary/20 backdrop-blur-md px-8 py-3.5 rounded-xl font-black uppercase tracking-widest text-micro transition-all active:scale-95 disabled:opacity-50 ml-auto">
                       {reviewLoading ? 'VERIFYING...' : 'Post Review'}
                     </button>
                   </div>
@@ -1032,8 +1033,8 @@ export default function ListingDetailPage() {
 
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors hover:border-slate-200">
-                     <div className="w-9 h-9 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg shadow-brand-primary/30 shrink-0">
-                        <Calendar className="w-4 h-4 text-white" />
+                     <div className="w-9 h-9 bg-brand-primary/10 border border-brand-primary/20 text-brand-primary rounded-xl flex items-center justify-center shrink-0">
+                        <Calendar className="w-4 h-4 text-brand-primary" />
                      </div>
                      <div>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Availability</p>
@@ -1044,8 +1045,8 @@ export default function ListingDetailPage() {
                   </div>
 
                   <div className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors hover:border-slate-200">
-                     <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0">
-                        <Users className="w-4 h-4 text-white" />
+                     <div className="w-9 h-9 bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center shrink-0">
+                        <Users className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                      </div>
                      <div className="flex-1 min-w-0">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Posted By</p>
@@ -1060,8 +1061,8 @@ export default function ListingDetailPage() {
                       listing.userId?.email ? (
                         <div className="space-y-5 pt-3">
                           <div className="grid grid-cols-1 gap-2.5">
-                            <a href={`mailto:${listing.userId.email}`} className="flex items-center justify-center gap-2.5 w-full py-3.5 bg-brand-primary hover:bg-brand-hover text-white rounded-2xl font-black uppercase tracking-widest text-micro transition-all shadow-xl shadow-brand-primary/25 active:scale-95">
-                              <Mail className="w-4 h-4" /> Send Email
+                            <a href={`mailto:${listing.userId.email}`} className="flex items-center justify-center gap-2.5 w-full py-3.5 bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary border border-brand-primary/20 backdrop-blur-md rounded-2xl font-black uppercase tracking-widest text-micro transition-all active:scale-95">
+                              <Mail className="w-4 h-4 text-brand-primary" /> Send Email
                             </a>
                             {listing.userId.phoneNumber && (
                               <a href={`tel:${listing.userId.phoneNumber}`} className="flex items-center justify-center gap-2.5 w-full py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-gray-900 dark:text-white rounded-2xl font-black uppercase tracking-widest text-micro transition-all hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm">

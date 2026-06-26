@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import ClientOnly from '@/components/ClientOnly';
+import { UserPlus, ArrowLeft } from 'lucide-react';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -79,8 +81,8 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors duration-500 py-12 px-4 relative overflow-x-hidden">
       {/* Dynamic Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] rounded-full bg-primary-500/10 blur-[120px] animate-float" />
-        <div className="absolute bottom-[-20%] right-[-20%] w-[50%] h-[50%] rounded-full bg-indigo-500/10 blur-[120px] animate-float" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] rounded-full bg-indigo-500/5 blur-[120px] animate-float" />
+        <div className="absolute bottom-[-20%] right-[-20%] w-[50%] h-[50%] rounded-full bg-indigo-600/5 blur-[120px] animate-float" style={{ animationDelay: '2s' }} />
       </div>
 
       <div className="absolute top-4 right-4 z-50">
@@ -88,45 +90,51 @@ export default function RegisterPage() {
       </div>
 
       <div className="w-full max-w-xl animate-scale-in">
-        <div className="text-center mb-8 animate-slide-down">
-          <Link href="/" className="flex items-center justify-center gap-2 mb-4 group">
-            <div className="w-12 h-12 flex items-center justify-center transition-transform group-hover:scale-105">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo image short.png" alt="Verisite Logo" className="w-full h-full object-cover rounded-full" />
+        <div className="text-center mb-8">
+          <Link href="/" className="flex items-center justify-center gap-2.5 mb-6 group">
+            <div className="relative w-10 h-10 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-xl border border-gray-200/50 dark:border-slate-800">
+              <Image 
+                src="/logo image short.png" 
+                alt="Verisite Logo" 
+                fill
+                priority
+                sizes="40px"
+                className="object-cover" 
+              />
             </div>
-            <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Verisite</span>
+            <span className="text-lg font-black text-slate-900 dark:text-white tracking-tighter uppercase">Verisite</span>
           </Link>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2 tracking-tighter">Create Account</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">Join the verified community</p>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight uppercase">Create Account</h1>
+          <p className="text-slate-500 dark:text-slate-400 font-semibold text-xs uppercase tracking-wider">Join the verified community</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 sm:p-8 backdrop-blur-md animate-slide-up">
+        <div className="bg-white dark:bg-slate-900/60 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800/80 p-6 sm:p-8 backdrop-blur-lg animate-slide-up">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-xl text-red-700 dark:text-red-400 text-[13px] font-medium">
+              <div className="p-4 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 rounded-2xl text-rose-600 dark:text-rose-400 text-xs font-bold text-center">
                 {error}
               </div>
             )}
             {success && (
-              <div className="p-4 bg-brand-success/10 border border-brand-success/20 rounded-xl text-brand-success text-[13px] font-medium">
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl text-emerald-600 dark:text-emerald-400 text-xs font-bold text-center">
                 {success}
               </div>
             )}
 
             <div className="space-y-2">
-              <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+              <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">
                 Select Your Role
               </label>
-              <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl gap-1">
+              <div className="flex bg-slate-100/50 dark:bg-slate-950 p-1.5 rounded-2xl gap-1.5 border border-slate-200/20 dark:border-slate-800/60">
                 {['GUEST', 'OWNER'].map((r) => (
                   <button
                     key={r}
                     type="button"
                     onClick={() => setFormData({ ...formData, role: r as any })}
-                    className={`flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${
                       formData.role === r
-                        ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-400 shadow-sm'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                        ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200/50 dark:border-slate-700/50'
+                        : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350'
                     }`}
                   >
                     {r === 'GUEST' ? 'Student' : 'PG Owner'}
@@ -137,7 +145,7 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+                <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">
                   Full Name
                 </label>
                 <input
@@ -146,13 +154,13 @@ export default function RegisterPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 text-slate-900 dark:text-white transition-all font-semibold text-xs shadow-inner"
                   placeholder="John Doe"
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
-                  Personal Email (@gmail.com only)
+                <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">
+                  Email (@gmail.com only)
                 </label>
                 <input
                   type="email"
@@ -162,7 +170,7 @@ export default function RegisterPage() {
                   required
                   pattern=".*@gmail\.com$"
                   title="Only @gmail.com emails are allowed"
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 text-slate-900 dark:text-white transition-all font-semibold text-xs shadow-inner"
                   placeholder="john@gmail.com"
                 />
               </div>
@@ -170,7 +178,7 @@ export default function RegisterPage() {
 
             {formData.role === 'OWNER' && (
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+                <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">
                   Phone Number (for contact)
                 </label>
                 <input
@@ -179,7 +187,7 @@ export default function RegisterPage() {
                   value={formData.phoneNumber}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 text-slate-900 dark:text-white transition-all font-semibold text-xs shadow-inner"
                   placeholder="+91 98765 43210"
                 />
               </div>
@@ -187,7 +195,7 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+                <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">
                   Password
                 </label>
                 <input
@@ -196,12 +204,12 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 text-slate-900 dark:text-white transition-all font-semibold text-xs shadow-inner"
                   placeholder="••••••••"
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
+                <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">
                   Confirm Password
                 </label>
                 <input
@@ -210,7 +218,7 @@ export default function RegisterPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white transition-all duration-200 font-medium text-sm"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 text-slate-900 dark:text-white transition-all font-semibold text-xs shadow-inner"
                   placeholder="••••••••"
                 />
               </div>
@@ -219,19 +227,23 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-primary-600 hover:bg-primary-700 disabled:bg-slate-300 text-white rounded-xl font-black transition-all shadow-lg shadow-primary-500/20 mt-4 uppercase tracking-widest text-[10px] btn-press"
+              className="w-full py-4 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 backdrop-blur-md disabled:opacity-50 rounded-2xl font-black transition-all mt-4 uppercase tracking-widest text-micro btn-press cursor-pointer flex items-center justify-center gap-2"
             >
+              <UserPlus className="w-4 h-4" />
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-slate-500 dark:text-slate-400 mt-8 font-medium text-sm">
-          Already have an account?{' '}
-          <Link href="/login" className="text-primary-600 dark:text-primary-400 hover:underline font-black uppercase tracking-widest text-[10px]">
-            Sign In
+        <div className="text-center mt-8">
+          <Link 
+            href="/login" 
+            className="text-xs text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest hover:text-slate-800 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Already have an account? Sign In
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

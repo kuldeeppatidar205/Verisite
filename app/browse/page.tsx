@@ -52,7 +52,6 @@ export default function BrowsePage() {
       return;
     }
     
-    // Fetch user role to set default stream
     const fetchUserRole = async () => {
       try {
         const res = await fetch('/api/users/profile', {
@@ -96,7 +95,6 @@ export default function BrowsePage() {
       const data = await res.json();
       let fetchedListings = data.data || [];
 
-      // Client-side sorting/filtering
       if (sortBy === 'price') {
         fetchedListings.sort((a: Listing, b: Listing) => a.price - b.price);
       } else if (sortBy === 'proximity' && userProfile?.favoriteCollege?.lat) {
@@ -140,30 +138,32 @@ export default function BrowsePage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-500 overflow-x-hidden">
-      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 transition-all duration-300">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 bg-white/70 dark:bg-slate-950/70 backdrop-blur-lg border-b border-gray-100 dark:border-slate-800/80 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative w-10 h-10 transition-transform group-hover:scale-105 overflow-hidden rounded-full">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="relative w-9 h-9 transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-xl border border-gray-200/50 dark:border-slate-800">
               <Image 
                 src="/logo image short.png" 
                 alt="Verisite Logo" 
                 fill
                 priority
+                sizes="36px"
                 className="object-cover" 
               />
             </div>
-            <h1 className="text-xl font-black text-gray-900 dark:text-white tracking-tighter">Verisite</h1>
+            <h1 className="text-lg font-black text-gray-900 dark:text-white tracking-tighter uppercase">Verisite</h1>
           </Link>
           
           <div className="hidden md:flex flex-1 max-w-md mx-8">
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search by name or location..."
+                placeholder="Search PG name or landmark location..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-full text-[10px] font-black uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all text-gray-900 dark:text-white"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 text-xs font-bold text-slate-900 dark:text-white transition-all shadow-inner placeholder-slate-400"
               />
             </div>
           </div>
@@ -171,7 +171,7 @@ export default function BrowsePage() {
           <div className="flex items-center gap-2 sm:gap-4">
             <button 
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="md:hidden p-2 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+              className="md:hidden p-2 text-gray-650 dark:text-slate-350 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 rounded-xl transition-colors cursor-pointer"
             >
               <Search className="w-5 h-5" />
             </button>
@@ -179,23 +179,23 @@ export default function BrowsePage() {
             <div className="hidden sm:flex items-center gap-4">
               <Link
                 href="/create-listing"
-                className="text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="text-xs font-black uppercase tracking-widest text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 Post Room
               </Link>
               <Link
                 href="/profile"
-                className="w-9 h-9 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-sm hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
+                className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-slate-800/50 border border-gray-200/30 dark:border-slate-700/30 flex items-center justify-center text-sm hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
               >
-                <User className="w-5 h-5 text-gray-600 dark:text-slate-300" />
+                <User className="w-4 h-4 text-gray-600 dark:text-slate-350" />
               </Link>
             </div>
             <div className="sm:hidden flex items-center gap-2">
               <Link href="/create-listing" className="p-2 text-gray-600 dark:text-slate-300">
-                <PlusCircle className="w-6 h-6" />
+                <PlusCircle className="w-5 h-5" />
               </Link>
               <Link href="/profile" className="p-2 text-gray-600 dark:text-slate-300">
-                <User className="w-6 h-6" />
+                <User className="w-5 h-5" />
               </Link>
             </div>
           </div>
@@ -205,18 +205,18 @@ export default function BrowsePage() {
         {isSearchOpen && (
           <div className="md:hidden p-4 bg-white dark:bg-slate-950 border-b border-gray-100 dark:border-slate-800 animate-in slide-in-from-top duration-200">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 autoFocus
                 type="text"
-                placeholder="Search by name or location..."
+                placeholder="Search PG name or landmark location..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-10 py-2.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-gray-900 dark:text-white"
+                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-slate-950 dark:text-white shadow-inner"
               />
               <button 
                 onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-650"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -225,29 +225,30 @@ export default function BrowsePage() {
         )}
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-6">
-          <div className="text-center sm:text-left">
-             <h1 className="text-section-heading text-gray-900 dark:text-white tracking-tight mb-2">
-               {activeStream === 'STUDENT' ? 'Student Listings' : 'Owner Listings'}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+        <div className="flex flex-col xl:flex-row justify-between items-center mb-10 gap-6">
+          <div className="text-center xl:text-left">
+             <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tighter uppercase mb-1">
+               {activeStream === 'STUDENT' ? 'Student Ledger' : 'Institutional Listings'}
              </h1>
-             <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+             <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
                {activeStream === 'STUDENT' 
-                 ? 'Verified room from students' 
-                 : 'Direct listings from PG owners'}
+                 ? 'Verified student rooms & roommate matches' 
+                 : 'Direct student accommodation & PG listings'}
              </p>
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-             <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+             {/* Sort Select Controls */}
+             <div className="flex bg-slate-100/50 dark:bg-slate-900/60 p-1.5 rounded-2xl border border-slate-200/10 dark:border-slate-850">
                 <button 
                   onClick={() => setSortBy('newest')}
-                  className={`px-3 py-1.5 rounded-md text-[10px] uppercase tracking-widest font-black transition-all ${sortBy === 'newest' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
+                  className={`px-3 py-2 rounded-xl text-[10px] uppercase tracking-widest font-black transition-all cursor-pointer ${sortBy === 'newest' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-250/20 dark:border-slate-700/50' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350'}`}
                 >
                   Newest
                 </button>
                 <button 
                   onClick={() => setSortBy('price')}
-                  className={`px-3 py-1.5 rounded-md text-[10px] uppercase tracking-widest font-black transition-all ${sortBy === 'price' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
+                  className={`px-3 py-2 rounded-xl text-[10px] uppercase tracking-widest font-black transition-all cursor-pointer ${sortBy === 'price' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-250/20 dark:border-slate-700/50' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350'}`}
                 >
                   Price
                 </button>
@@ -260,22 +261,23 @@ export default function BrowsePage() {
                       router.push('/profile');
                     }
                   }}
-                  className={`px-3 py-1.5 rounded-md text-[10px] uppercase tracking-widest font-black transition-all ${sortBy === 'proximity' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'}`}
+                  className={`px-3 py-2 rounded-xl text-[10px] uppercase tracking-widest font-black transition-all cursor-pointer ${sortBy === 'proximity' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-250/20 dark:border-slate-700/50' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350'}`}
                 >
-                  Nearest to College
+                  Proximity
                 </button>
              </div>
 
-             <div className="flex bg-gray-100 dark:bg-slate-800 p-1.5 rounded-lg">
+             {/* Tab Stream Selector */}
+             <div className="flex bg-slate-100/50 dark:bg-slate-900/60 p-1.5 rounded-2xl border border-slate-200/10 dark:border-slate-850">
                 <button 
                   onClick={() => setActiveStream('STUDENT')}
-                  className={`px-4 py-2 rounded-md font-black text-[10px] uppercase tracking-widest transition-all ${activeStream === 'STUDENT' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'}`}
+                  className={`px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer ${activeStream === 'STUDENT' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-250/20 dark:border-slate-700/50' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
                 >
                   Student Verified
                 </button>
                 <button 
                   onClick={() => setActiveStream('OWNER')}
-                  className={`px-4 py-2 rounded-md font-black text-[10px] uppercase tracking-widest transition-all ${activeStream === 'OWNER' ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'}`}
+                  className={`px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer ${activeStream === 'OWNER' ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-250/20 dark:border-slate-700/50' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
                 >
                   Owner Listings
                 </button>
@@ -286,11 +288,11 @@ export default function BrowsePage() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="flex flex-col gap-3">
-                <div className="w-full aspect-4/3 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse" />
-                <div className="h-4 w-2/3 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
-                <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
-                <div className="h-3 w-1/4 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+              <div key={i} className="flex flex-col gap-3 p-3 bg-white dark:bg-slate-900/10 border border-slate-100 dark:border-slate-900/60 rounded-3xl animate-pulse">
+                <div className="w-full aspect-4/3 bg-slate-100 dark:bg-slate-800/50 rounded-2xl" />
+                <div className="h-4 w-2/3 bg-slate-100 dark:bg-slate-800/50 rounded mt-2" />
+                <div className="h-3 w-full bg-slate-100 dark:bg-slate-800/50 rounded" />
+                <div className="h-3 w-1/4 bg-slate-100 dark:bg-slate-800/50 rounded" />
               </div>
             ))}
           </div>
@@ -301,76 +303,74 @@ export default function BrowsePage() {
                 <div
                   key={listing._id}
                   onClick={() => router.push(`/listings/${listing._id}`)}
-                  className="group flex flex-col gap-3 cursor-pointer transition-transform duration-300 hover:-translate-y-1"
+                  className="group flex flex-col bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/60 rounded-3xl p-3 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl hover:shadow-slate-100 dark:hover:shadow-none cursor-pointer"
                 >
-                  <div className="w-full aspect-4/3 bg-gray-100 dark:bg-slate-800 rounded-xl flex flex-col items-center justify-center relative overflow-hidden border border-gray-200 dark:border-slate-700/50">
-                    <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-[10px] uppercase tracking-widest font-black text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center gap-1.5 z-10">
-                       {activeStream === 'STUDENT' && <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>}
+                  <div className="w-full aspect-4/3 bg-gray-50 dark:bg-slate-950 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden border border-gray-100 dark:border-slate-900">
+                    <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded-md text-[9px] uppercase tracking-widest font-black text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center gap-1.5 z-10">
+                       {activeStream === 'STUDENT' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>}
                        {listing.listingType === 'handover' ? 'Handover' : listing.listingType === 'roommate' ? 'Roommate' : 'PG'}
                     </div>
                     {listing.coordinates && (
-                      <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded text-[10px] font-black text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center z-10">
+                      <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 dark:bg-slate-900/90 rounded-md text-[9px] font-black text-gray-900 dark:text-white backdrop-blur-sm shadow-sm flex items-center z-10 hover:bg-white dark:hover:bg-slate-800 transition-colors">
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${listing.coordinates.lat},${listing.coordinates.lng}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="hover:underline flex items-center gap-1"
+                          className="flex items-center gap-1.5"
                         >
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </div>
-                  )}
-                  
-                  {listing.images && listing.images.length > 0 ? (
-                    <Image 
-                      src={listing.images[0]} 
-                      alt="Room Preview" 
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 opacity-20 group-hover:scale-110 transition-transform duration-300">
-                      {listing.listingType === 'handover' ? (
-                        <GraduationCap className="w-16 h-16" />
-                      ) : listing.listingType === 'roommate' ? (
-                        <Users className="w-16 h-16" />
-                      ) : (
-                        <Home className="w-16 h-16" />
-                      )}
-                    </div>
-                  )}
-                </div>
+                          <MapPin className="w-3 h-3 text-indigo-500" /> Map
+                        </a>
+                      </div>
+                    )}
+                    
+                    {listing.images && listing.images.length > 0 ? (
+                      <Image 
+                        src={listing.images[0]} 
+                        alt="Room Preview" 
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 opacity-20 group-hover:scale-110 transition-transform duration-300 text-gray-500">
+                        {listing.listingType === 'handover' ? (
+                          <GraduationCap className="w-12 h-12" />
+                        ) : listing.listingType === 'roommate' ? (
+                          <Users className="w-12 h-12" />
+                        ) : (
+                          <Home className="w-12 h-12" />
+                        )}
+                      </div>
+                    )}
+                  </div>
 
-                  <div className="flex flex-col mt-1">
-                    <div className="flex justify-between items-start mb-0.5">
-                      <p className="text-card-title text-gray-900 dark:text-white truncate">
-                        {listing.pgName || listing.userId?.hostelName || listing.address || 'Verified Location'}
-                      </p>
-                    </div>
+                  <div className="flex flex-col mt-2 px-1 pb-1">
+                    <h4 className="text-sm font-black text-gray-900 dark:text-white truncate uppercase tracking-tight">
+                      {listing.pgName || listing.userId?.hostelName || listing.address || 'Verified Location'}
+                    </h4>
                     {listing.address && (
-                      <p className="text-meta text-slate-500 dark:text-slate-400 truncate mb-0.5">
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate mt-0.5 font-bold uppercase tracking-wider">
                         {listing.address}
                       </p>
                     )}
-                    <p className="text-body text-slate-500 dark:text-slate-400 line-clamp-1 mb-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-1 font-semibold leading-relaxed">
                       {listing.roomDetails}
                     </p>
                     {listing.price !== undefined && (
-                      <p className="text-body text-gray-900 dark:text-white mt-1 mb-1.5">
-                        ₹{listing.price.toLocaleString('en-IN')} <span className="text-micro text-slate-400">/ month</span>
+                      <p className="text-sm font-black text-gray-900 dark:text-white mt-2">
+                        ₹{listing.price.toLocaleString('en-IN')} <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">/ month</span>
                       </p>
                     )}
-                    <div className="flex items-center gap-2">
-                      <p className="text-micro text-slate-400 dark:text-slate-500">
+                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
                         {new Date(listing.availableDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </p>
                       {(listing.legacyBundle?.mattress || listing.legacyBundle?.cooler) && (
-                        <div className="flex gap-2 items-center">
-                          <span className="text-gray-300 dark:text-slate-600">•</span>
-                          <span className="text-micro text-slate-400 dark:text-slate-500 truncate">
-                            Includes items
+                        <div className="flex gap-1.5 items-center">
+                          <span className="text-slate-200 dark:text-slate-800">•</span>
+                          <span className="text-[9px] font-black uppercase tracking-widest text-indigo-500 dark:text-indigo-400 truncate">
+                            Bundle Available
                           </span>
                         </div>
                       )}
@@ -385,7 +385,7 @@ export default function BrowsePage() {
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-slate-800 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors text-sm"
+                  className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 disabled:opacity-30 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-sm cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -394,10 +394,10 @@ export default function BrowsePage() {
                     <button
                       key={i + 1}
                       onClick={() => setPage(i + 1)}
-                      className={`w-8 h-8 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${
+                      className={`w-8 h-8 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${
                         page === i + 1
-                          ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
-                          : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800'
+                          ? 'bg-indigo-500/10 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 backdrop-blur-md'
+                          : 'text-gray-600 dark:text-slate-445 border border-transparent hover:bg-slate-100 dark:hover:bg-slate-800'
                       }`}
                     >
                       {i + 1}
@@ -407,7 +407,7 @@ export default function BrowsePage() {
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 dark:border-slate-800 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors text-sm"
+                  className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 disabled:opacity-30 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-sm cursor-pointer"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -415,11 +415,11 @@ export default function BrowsePage() {
             )}
           </>
         ) : (
-          <div className="text-center py-20 bg-gray-50 dark:bg-slate-900/30 rounded-xl border border-gray-200 dark:border-slate-800">
-            <p className="text-gray-500 dark:text-slate-400 text-sm font-medium mb-6">No listings match your criteria.</p>
+          <div className="text-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-3xl border border-slate-100 dark:border-slate-800/80">
+            <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold mb-6">No listings match your criteria.</p>
             <Link
               href="/create-listing"
-              className="inline-block px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+              className="inline-block px-6 py-3 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 backdrop-blur-md rounded-xl text-micro font-black uppercase tracking-widest transition-all"
             >
               Post a listing
             </Link>
