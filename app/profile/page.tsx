@@ -87,6 +87,14 @@ export default function ProfilePage() {
       const data = await res.json();
 
       setProfile(data);
+
+      // Auto-redirect if college email is unverified (in update phase), unless bypassed via query param
+      const searchParams = new URLSearchParams(window.location.search);
+      if (data.collegeEmail && !data.collegeEmailVerified && !searchParams.get('bypass')) {
+        router.push(`/verify-email?email=${encodeURIComponent(data.collegeEmail)}&type=college`);
+        return;
+      }
+
       setEditData({
         name: data.name,
         email: data.email,
@@ -115,12 +123,14 @@ export default function ProfilePage() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert(data.message || 'Verification email sent!');
+        alert(data.message || 'Verification OTP sent!');
+        const targetEmail = type === 'college' ? (profile?.collegeEmail || '') : (profile?.email || '');
+        router.push(`/verify-email?email=${encodeURIComponent(targetEmail)}&type=${type}`);
       } else {
-        alert(data.error || 'Failed to resend verification email');
+        alert(data.error || 'Failed to resend verification OTP');
       }
     } catch (error) {
-      alert('An error occurred while resending the verification email.');
+      alert('An error occurred while resending the verification OTP.');
     } finally {
       setResendLoading(null);
     }
@@ -142,6 +152,13 @@ export default function ProfilePage() {
       };
 
       if (editData.collegeName && editData.collegeName !== profile?.favoriteCollege?.name) {
+        // Fallback: update name, but keep existing coordinates (or use 0 if none)
+        body.favoriteCollege = {
+          name: editData.collegeName,
+          lat: profile?.favoriteCollege?.lat ?? 0,
+          lng: profile?.favoriteCollege?.lng ?? 0
+        };
+
         try {
           const searchRes = await fetch(`/api/geocode/search?q=${encodeURIComponent(editData.collegeName)}`);
           const searchData = await searchRes.json();
@@ -169,8 +186,22 @@ export default function ProfilePage() {
       const data = await res.json();
       if (res.ok) {
         setProfile(data.user);
+        setEditData({
+          name: data.user.name,
+          email: data.user.email,
+          collegeEmail: data.user.collegeEmail || '',
+          phoneNumber: data.user.phoneNumber || '',
+          hostelName: data.user.hostelName || '',
+          roomNumber: data.user.roomNumber || '',
+          collegeName: data.user.favoriteCollege?.name || '',
+        });
         setIsEditing(false);
         alert('Profile updated successfully');
+
+        // If college email is unverified (in update phase), redirect to OTP page
+        if (data.user.collegeEmail && !data.user.collegeEmailVerified) {
+          router.push(`/verify-email?email=${encodeURIComponent(data.user.collegeEmail)}&type=college`);
+        }
       } else {
         alert(data.error || 'Failed to update profile');
       }
@@ -193,7 +224,13 @@ export default function ProfilePage() {
         collegeName: upgradeData.collegeName,
       };
 
-      // Geocode college
+      // Geocode college with fallback
+      body.favoriteCollege = {
+        name: upgradeData.collegeName,
+        lat: 0,
+        lng: 0
+      };
+
       try {
         const searchRes = await fetch(`/api/geocode/search?q=${encodeURIComponent(upgradeData.collegeName)}`);
         const searchData = await searchRes.json();
@@ -219,9 +256,9 @@ export default function ProfilePage() {
 
       const data = await res.json();
       if (res.ok) {
-        alert('Upgrade initiated! Please check your institutional email to verify.');
+        alert('Upgrade initiated! Please check your institutional email for the OTP.');
         // Redirect to verification page or refresh
-        router.push(`/verify-email?email=${encodeURIComponent(upgradeData.collegeEmail)}`);
+        router.push(`/verify-email?email=${encodeURIComponent(upgradeData.collegeEmail)}&type=college`);
       } else {
         alert(data.error || 'Failed to upgrade account');
       }
@@ -296,7 +333,7 @@ export default function ProfilePage() {
     router.push('/');
   };
 
-  if (loading) {
+  if (loading || !profile) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-900 flex items-center justify-center transition-colors duration-200">
         <div className="text-slate-600 dark:text-slate-400 animate-pulse font-medium text-lg">Loading profile...</div>
@@ -397,7 +434,18 @@ export default function ProfilePage() {
                 </div>
                 {!isEditing && (
                   <button
-                    onClick={() => setIsEditing(true)}
+                    onClick={() => {
+                      setEditData({
+                        name: profile.name,
+                        email: profile.email,
+                        collegeEmail: profile.collegeEmail || '',
+                        phoneNumber: profile.phoneNumber || '',
+                        hostelName: profile.hostelName || '',
+                        roomNumber: profile.roomNumber || '',
+                        collegeName: profile.favoriteCollege?.name || '',
+                      });
+                      setIsEditing(true);
+                    }}
                     className="w-full sm:w-auto px-6 py-2 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95"
                   >
                     Edit Profile
@@ -464,10 +512,13 @@ export default function ProfilePage() {
                               type="email"
                               value={editData.collegeEmail}
                               onChange={(e) => setEditData({ ...editData, collegeEmail: e.target.value })}
-                              disabled={profile.collegeEmailVerified}
-                              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-primary-500/50 outline-none text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white transition focus:ring-2 focus:ring-primary-500/50 outline-none text-sm font-medium"
                             />
-                            {!profile.collegeEmailVerified && <p className="text-[9px] font-black text-brand-warning uppercase tracking-widest ml-1">You can correct this email before verifying.</p>}
+                            <p className="text-[9px] font-black text-brand-warning uppercase tracking-widest ml-1">
+                              {profile.collegeEmailVerified 
+                                ? "Note: Changing your verified college email will require re-verification." 
+                                : "You can correct this email before verifying."}
+                            </p>
                           </div>
                         )}
                         <div className="space-y-2">
@@ -707,7 +758,7 @@ export default function ProfilePage() {
                         disabled={resendLoading === 'personal'}
                         className="px-4 py-2 bg-brand-warning text-white rounded-lg font-black text-[9px] uppercase tracking-widest hover:bg-amber-600 transition-all disabled:opacity-50 active:scale-95"
                       >
-                        {resendLoading === 'personal' ? 'Sending...' : 'Resend Link'}
+                        {resendLoading === 'personal' ? 'Sending...' : 'Resend OTP'}
                       </button>
                     </div>
                   )}
@@ -723,7 +774,7 @@ export default function ProfilePage() {
                         disabled={resendLoading === 'college'}
                         className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-black text-[9px] uppercase tracking-widest hover:bg-indigo-700 transition-all disabled:opacity-50 active:scale-95"
                       >
-                        {resendLoading === 'college' ? 'Sending...' : 'Resend Link'}
+                        {resendLoading === 'college' ? 'Sending...' : 'Resend OTP'}
                       </button>
                     </div>
                   )}

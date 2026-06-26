@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -20,8 +20,23 @@ interface LocationPickerMapProps {
   onChange: (lat: number, lng: number) => void;
 }
 
+function ChangeView({ center }: { center: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    if (center[0] !== 0 && center[1] !== 0) {
+      map.setView(center, map.getZoom());
+    }
+  }, [center, map]);
+  return null;
+}
+
 function LocationMarker({ lat, lng, onChange }: LocationPickerMapProps) {
   const [position, setPosition] = useState<L.LatLng>(new L.LatLng(lat, lng));
+
+  // Sync state if props change from outside
+  useEffect(() => {
+    setPosition(new L.LatLng(lat, lng));
+  }, [lat, lng]);
 
   useMapEvents({
     click(e) {
@@ -53,6 +68,7 @@ export default function LocationPickerMap({ lat, lng, onChange }: LocationPicker
         scrollWheelZoom={true} 
         style={{ height: '100%', width: '100%' }}
       >
+        <ChangeView center={[lat, lng]} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

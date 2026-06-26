@@ -31,50 +31,49 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'No college email registered for this user' }, { status: 400 });
       }
 
-      const collegeVerificationToken = crypto.randomBytes(32).toString('hex');
+      const collegeVerificationToken = Math.floor(100000 + Math.random() * 900000).toString();
       user.collegeVerificationToken = collegeVerificationToken;
-      user.collegeVerificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      user.collegeVerificationTokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
       await user.save();
-
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
-      const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${collegeVerificationToken}&type=college`;
 
       const emailSent = await sendEmail({
         to: user.collegeEmail,
         subject: 'Verify your Verisite Student account',
-        html: generateVerificationEmailHtml(verifyUrl, user.name),
+        html: generateVerificationEmailHtml(collegeVerificationToken, user.name),
       });
 
       if (!emailSent) {
-        return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to send verification OTP. Please check your email address for typos and try again.' }, { status: 500 });
       }
     } else {
       if (user.personalEmailVerified) {
         return NextResponse.json({ error: 'Personal email already verified' }, { status: 400 });
       }
 
-      const personalVerificationToken = crypto.randomBytes(32).toString('hex');
+      const personalVerificationToken = Math.floor(100000 + Math.random() * 900000).toString();
       user.personalVerificationToken = personalVerificationToken;
-      user.personalVerificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      user.personalVerificationTokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
       await user.save();
-
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
-      const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${personalVerificationToken}&type=personal`;
 
       const emailSent = await sendEmail({
         to: user.email,
         subject: 'Verify your Verisite account',
-        html: generateVerificationEmailHtml(verifyUrl, user.name),
+        html: generateVerificationEmailHtml(personalVerificationToken, user.name),
       });
 
       if (!emailSent) {
-        return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to send verification OTP. Please check your email address for typos and try again.' }, { status: 500 });
       }
     }
 
-    return NextResponse.json({ message: 'Verification email resent successfully' });
-  } catch (error) {
+    return NextResponse.json({ message: 'Verification OTP resent successfully' });
+  } catch (error: any) {
     console.error('Resend verification error:', error);
+    
+    if (error.message && (error.message.includes('timed out') || error.message.includes('timeout') || error.message.includes('ECONNREFUSED'))) {
+      return NextResponse.json({ error: 'Service temporarily unavailable due to database connection timeout. Please try again in a few moments.' }, { status: 503 });
+    }
+
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

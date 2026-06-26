@@ -411,57 +411,80 @@ export default function ListingDetailPage() {
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const res = await fetch('/api/reviews', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              listingId: id,
-              rating: newReview.rating,
-              wifiRating: newReview.wifiRating,
-              foodRating: newReview.foodRating,
-              securityRating: newReview.securityRating,
-              behaviorRating: newReview.behaviorRating,
-              backupRating: newReview.backupRating,
-              responsivenessRating: newReview.responsivenessRating,
-              comment: newReview.comment,
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            }),
-          });
+    const handleSuccess = async (position: GeolocationPosition) => {
+      try {
+        const res = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            listingId: id,
+            rating: newReview.rating,
+            wifiRating: newReview.wifiRating,
+            foodRating: newReview.foodRating,
+            securityRating: newReview.securityRating,
+            behaviorRating: newReview.behaviorRating,
+            backupRating: newReview.backupRating,
+            responsivenessRating: newReview.responsivenessRating,
+            comment: newReview.comment,
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          }),
+        });
 
-          const data = await res.json();
-          if (res.ok) {
-            setNewReview({ 
-              rating: 5, 
-              wifiRating: 5,
-              foodRating: 5,
-              securityRating: 5,
-              behaviorRating: 5,
-              backupRating: 5,
-              responsivenessRating: 5,
-              comment: '',
-            });
-            fetchReviews();
-            fetchListing();
-          } else {
-            setReviewError(data.error);
-          }
-        } catch (error) {
-          setReviewError('Failed to submit review');
-        } finally {
-          setReviewLoading(false);
+        const data = await res.json();
+        if (res.ok) {
+          setNewReview({ 
+            rating: 5, 
+            wifiRating: 5,
+            foodRating: 5,
+            securityRating: 5,
+            behaviorRating: 5,
+            backupRating: 5,
+            responsivenessRating: 5,
+            comment: '',
+          });
+          fetchReviews();
+          fetchListing();
+        } else {
+          setReviewError(data.error);
         }
-      },
-      (error) => {
-        setReviewError('Location access is required to verify your review authenticity.');
+      } catch (error) {
+        setReviewError('Failed to submit review');
+      } finally {
         setReviewLoading(false);
       }
+    };
+
+    const handleFailure = (error: GeolocationPositionError) => {
+      let errorMsg = 'Location access is required to verify your review authenticity.';
+      if (error.code === error.TIMEOUT) {
+        errorMsg = 'Location request timed out. Please check your GPS signal and try again.';
+      } else if (error.code === error.POSITION_UNAVAILABLE) {
+        errorMsg = 'Location position is currently unavailable. Please make sure location services are enabled.';
+      }
+      setReviewError(errorMsg);
+      setReviewLoading(false);
+    };
+
+    // First try with high accuracy, and short timeout
+    navigator.geolocation.getCurrentPosition(
+      handleSuccess,
+      (err) => {
+        if (err.code === err.TIMEOUT || err.code === err.POSITION_UNAVAILABLE) {
+          console.warn("High accuracy geolocation failed/timed out. Retrying with low accuracy...");
+          navigator.geolocation.getCurrentPosition(
+            handleSuccess,
+            handleFailure,
+            { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 }
+          );
+        } else {
+          handleFailure(err);
+        }
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
     );
   };
 

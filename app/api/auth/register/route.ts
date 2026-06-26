@@ -33,9 +33,9 @@ export async function POST(req: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(validated.password, 10);
 
-    // Generate verification token
-    const personalVerificationToken = crypto.randomBytes(32).toString('hex');
-    const personalVerificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    // Generate verification OTP
+    const personalVerificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+    const personalVerificationTokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
     // Create user
     const userObj: any = {
@@ -55,28 +55,25 @@ export async function POST(req: NextRequest) {
     console.log('👤 User created successfully:', newUser._id);
 
     let emailSent = false;
-    let verifyUrl = '';
 
-    // Send verification email for all users
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
-    console.log('🌐 Using Base URL for verification:', baseUrl);
-    
-    // Send verification email
-    verifyUrl = `${baseUrl}/api/auth/verify-email?token=${personalVerificationToken}&type=personal`;
-    
     console.log(`📧 Attempting to send verification email to: ${validated.email}`);
     
     emailSent = await sendEmail({
       to: validated.email,
       subject: 'Verify your Verisite account',
-      html: generateVerificationEmailHtml(verifyUrl, validated.name),
+      html: generateVerificationEmailHtml(personalVerificationToken, validated.name),
     });
 
     if (!emailSent) {
-      console.warn('❌ Email sending failed (sendEmail returned false) for user:', newUser._id);
-    } else {
-      console.log('✅ Verification email sent successfully to:', validated.email);
+      console.warn('❌ Email sending failed immediately for user:', newUser._id);
+      // Rollback the user creation
+      await User.findByIdAndDelete(newUser._id);
+      return NextResponse.json({ 
+        error: 'Failed to dispatch verification email. Please verify the email address is correct and try again.' 
+      }, { status: 400 });
     }
+    
+    console.log('✅ Verification email sent successfully to:', validated.email);
 
     // Generate JWT token
     const jwtToken = signToken({ 
@@ -89,9 +86,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       {
-        message: emailSent 
-            ? 'Registration successful. Please verify your personal email.' 
-            : 'Registration successful. Check console for verification link (email not sent - check Gmail credentials).',
+        message: 'Registration successful. Please verify your personal email.',
         token: jwtToken,
         user: {
           id: newUser._id.toString(),
@@ -115,6 +110,10 @@ export async function POST(req: NextRequest) {
 
     if (error.code === 11000) {
       return NextResponse.json({ error: 'Email or College Email already registered' }, { status: 400 });
+    }
+
+    if (error.message && (error.message.includes('timed out') || error.message.includes('timeout') || error.message.includes('ECONNREFUSED'))) {
+      return NextResponse.json({ error: 'Service temporarily unavailable due to database connection timeout. Please try again in a few moments.' }, { status: 503 });
     }
 
     return NextResponse.json({ error: 'Registration failed: ' + (error.message || 'Unknown error') }, { status: 500 });

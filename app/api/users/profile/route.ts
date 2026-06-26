@@ -80,31 +80,28 @@ export async function PUT(req: NextRequest) {
 
       user.email = validated.email.toLowerCase();
       
-      // Generate new token
-      const personalVerificationToken = crypto.randomBytes(32).toString('hex');
+      // Generate new OTP
+      const personalVerificationToken = Math.floor(100000 + Math.random() * 900000).toString();
       user.personalVerificationToken = personalVerificationToken;
-      user.personalVerificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      user.personalVerificationTokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
       personalEmailChanged = true;
     }
 
-    // Handle College Email Correction (Only if unverified)
+    // Handle College Email Update
     if (validated.collegeEmail && validated.collegeEmail.toLowerCase() !== (user.collegeEmail || '').toLowerCase()) {
-      if (user.collegeEmailVerified) {
-        return NextResponse.json({ error: 'Verified college email cannot be changed' }, { status: 403 });
-      }
-
       // Check if new college email is already taken
       const existingUser = await User.findOne({ collegeEmail: validated.collegeEmail.toLowerCase() });
-      if (existingUser) {
+      if (existingUser && existingUser._id.toString() !== user._id.toString()) {
         return NextResponse.json({ error: 'College email already in use' }, { status: 400 });
       }
 
       user.collegeEmail = validated.collegeEmail.toLowerCase();
+      user.collegeEmailVerified = false; // Reset verification status!
 
-      // Generate new token
-      const collegeVerificationToken = crypto.randomBytes(32).toString('hex');
+      // Generate new OTP
+      const collegeVerificationToken = Math.floor(100000 + Math.random() * 900000).toString();
       user.collegeVerificationToken = collegeVerificationToken;
-      user.collegeVerificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      user.collegeVerificationTokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
       collegeEmailChanged = true;
     }
 
@@ -127,31 +124,37 @@ export async function PUT(req: NextRequest) {
 
     await user.save();
 
-    // Trigger verification emails if changed
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
-    
+    // Trigger verification OTPs if changed
+    let personalEmailSent = true;
+    let collegeEmailSent = true;
+
     if (personalEmailChanged) {
-      const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${user.personalVerificationToken}&type=personal`;
-      await sendEmail({
+      personalEmailSent = await sendEmail({
         to: user.email,
         subject: 'Verify your Verisite account',
-        html: generateVerificationEmailHtml(verifyUrl, user.name),
+        html: generateVerificationEmailHtml(user.personalVerificationToken, user.name),
       });
     }
 
     if (collegeEmailChanged) {
-      const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${user.collegeVerificationToken}&type=college`;
-      await sendEmail({
+      collegeEmailSent = await sendEmail({
         to: user.collegeEmail,
         subject: 'Verify your Verisite Student account',
-        html: generateVerificationEmailHtml(verifyUrl, user.name),
+        html: generateVerificationEmailHtml(user.collegeVerificationToken, user.name),
       });
     }
 
+    let responseMessage = 'Profile updated successfully';
+    if (personalEmailChanged || collegeEmailChanged) {
+      if (!personalEmailSent || !collegeEmailSent) {
+        responseMessage = 'Profile updated, but we encountered an error sending the verification OTP. Please verify the email is correct and try clicking "Resend OTP".';
+      } else {
+        responseMessage = 'Profile updated. A new verification OTP has been sent to your updated address.';
+      }
+    }
+
     return NextResponse.json({
-      message: (personalEmailChanged || collegeEmailChanged) 
-        ? 'Profile updated. A new verification email has been sent to your updated address.'
-        : 'Profile updated successfully',
+      message: responseMessage,
       user: {
         id: user._id.toString(),
         name: user.name,
@@ -166,12 +169,17 @@ export async function PUT(req: NextRequest) {
         favoriteCollege: user.favoriteCollege,
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Profile update error:', error);
     if (error instanceof ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
-    return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+
+    if (error.message && (error.message.includes('timed out') || error.message.includes('timeout') || error.message.includes('ECONNREFUSED'))) {
+      return NextResponse.json({ error: 'Service temporarily unavailable due to database connection timeout. Please try again in a few moments.' }, { status: 503 });
+    }
+
+    return NextResponse.json({ error: 'Failed to update profile: ' + (error.message || 'Unknown error') }, { status: 500 });
   }
 }
 

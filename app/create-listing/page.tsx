@@ -35,6 +35,9 @@ function CreateListingForm() {
   const [showMap, setShowMap] = useState(false);
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [originalListingType, setOriginalListingType] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [mapSearchQuery, setMapSearchQuery] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
   const [formData, setFormData] = useState({
     pgName: '',
     roomDetails: '',
@@ -84,52 +87,76 @@ function CreateListingForm() {
   }, []);
 
   const captureLocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          
-          setFormData(prev => ({
-            ...prev,
-            lat,
-            lng
-          }));
-
-          try {
-            const res = await fetch(`/api/geocode?lat=${lat}&lon=${lng}`);
-            const data = await res.json();
-            
-            if (res.ok && data) {
-              const addressParts = [];
-              if (data.street) addressParts.push(data.street);
-              if (data.locality && data.locality !== data.city) addressParts.push(data.locality);
-              if (data.city) addressParts.push(data.city);
-              if (data.state) addressParts.push(data.state);
-              
-              const detectedAddress = addressParts.filter(Boolean).join(', ');
-              
-              if (detectedAddress) {
-                setFormData(prev => ({
-                  ...prev,
-                  baseAddress: prev.baseAddress || detectedAddress
-                }));
-              }
-            } else {
-              console.warn("Geocoding API error:", data.error);
-            }
-          } catch (error) {
-            console.warn("Error reverse geocoding:", error);
-          }
-        },
-        (error) => {
-          console.error("Error capturing location:", error);
-          setError("Location access is required to post a listing. Please enable location permissions.");
-        }
-      );
-    } else {
+    if (!("geolocation" in navigator)) {
       setError("Geolocation is not supported by your browser.");
+      return;
     }
+
+    const handleSuccess = async (position: GeolocationPosition) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      
+      setFormData(prev => ({
+        ...prev,
+        lat,
+        lng
+      }));
+
+      try {
+        const res = await fetch(`/api/geocode?lat=${lat}&lon=${lng}`);
+        const data = await res.json();
+        
+        if (res.ok && data) {
+          const addressParts = [];
+          if (data.street) addressParts.push(data.street);
+          if (data.locality && data.locality !== data.city) addressParts.push(data.locality);
+          if (data.city) addressParts.push(data.city);
+          if (data.state) addressParts.push(data.state);
+          
+          const detectedAddress = addressParts.filter(Boolean).join(', ');
+          
+          if (detectedAddress) {
+            setFormData(prev => ({
+              ...prev,
+              baseAddress: prev.baseAddress || detectedAddress
+            }));
+          }
+        } else {
+          console.warn("Geocoding API error:", data.error);
+        }
+      } catch (error) {
+        console.warn("Error reverse geocoding:", error);
+      }
+    };
+
+    const handleFailure = (error: GeolocationPositionError) => {
+      console.error("Error capturing location:", error);
+      let errorMsg = "Location access is required to post a listing. Please enable location permissions.";
+      if (error.code === error.TIMEOUT) {
+        errorMsg = "Location request timed out. Please check your GPS signal or enter details manually.";
+      } else if (error.code === error.POSITION_UNAVAILABLE) {
+        errorMsg = "Location position is currently unavailable. Please enter details manually.";
+      }
+      setError(errorMsg);
+    };
+
+    // First try with high accuracy, and short timeout
+    navigator.geolocation.getCurrentPosition(
+      handleSuccess,
+      (err) => {
+        if (err.code === err.TIMEOUT || err.code === err.POSITION_UNAVAILABLE) {
+          console.warn("High accuracy geolocation failed/timed out. Retrying with low accuracy...");
+          navigator.geolocation.getCurrentPosition(
+            handleSuccess,
+            handleFailure,
+            { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 }
+          );
+        } else {
+          handleFailure(err);
+        }
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+    );
   };
 
   const handleMapChange = async (lat: number, lng: number) => {
@@ -170,9 +197,35 @@ function CreateListingForm() {
         setUserRole(normalizedRole as 'STUDENT' | 'OWNER' | 'ADMIN' | 'GUEST');
         setIsPersonalVerified(data.user.personalEmailVerified);
         setIsCollegeVerified(data.user.collegeEmailVerified);
+        setUserProfile(data.user);
       }
     } catch (error) {
       console.error('Failed to fetch user role:', error);
+    }
+  };
+
+  const handleMapSearch = async () => {
+    if (!mapSearchQuery) return;
+    setSearchLoading(true);
+    try {
+      const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(mapSearchQuery)}`);
+      const data = await res.json();
+      if (res.ok && data.lat && data.lon) {
+        setFormData(prev => ({
+          ...prev,
+          lat: data.lat,
+          lng: data.lon,
+          baseAddress: data.name
+        }));
+        setShowMap(true);
+      } else {
+        alert('Location not found. Try a different search term.');
+      }
+    } catch (err) {
+      console.error('Error searching location:', err);
+      alert('Error searching for location.');
+    } finally {
+      setSearchLoading(false);
     }
   };
 
@@ -531,6 +584,31 @@ function CreateListingForm() {
               Property Location *
             </label>
             <div className="flex flex-col gap-2">
+              {/* Search Location Bar */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={mapSearchQuery}
+                  onChange={(e) => setMapSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleMapSearch();
+                    }
+                  }}
+                  className="flex-1 px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white text-sm"
+                  placeholder="Search location (e.g. Bhopal, Indore, specific address...)"
+                />
+                <button
+                  type="button"
+                  onClick={handleMapSearch}
+                  disabled={searchLoading}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg text-sm font-semibold transition"
+                >
+                  {searchLoading ? 'Searching...' : 'Search'}
+                </button>
+              </div>
+
               <input
                 type="text"
                 name="addressPrefix"
@@ -539,26 +617,35 @@ function CreateListingForm() {
                 className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-900 dark:text-white text-sm"
                 placeholder="Specific details (e.g. House No., Building Name)"
               />
+              
               <div className="flex items-center gap-2 px-4 py-2 bg-slate-100/50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg">
                 <span className="text-slate-500 dark:text-slate-400 text-sm whitespace-nowrap">Auto-captured:</span>
-                <span className="text-slate-900 dark:text-white text-sm font-medium truncate">
+                <span className="text-slate-900 dark:text-white text-sm font-medium truncate flex-1">
                   {formData.baseAddress || "Waiting for location..."}
                 </span>
-                {formData.lat && formData.lng && (
-                  <button 
-                    type="button" 
-                    onClick={() => {
-                      if (editId && userRole === 'STUDENT') {
-                        alert('Location cannot be changed after creation for student listings.');
-                        return;
-                      }
-                      setShowMap(!showMap);
-                    }}
-                    className={`ml-auto text-xs font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 whitespace-nowrap ${editId && userRole === 'STUDENT' ? 'opacity-50' : ''}`}
-                  >
-                    {showMap ? 'Hide Map' : 'Edit on Map'}
-                  </button>
-                )}
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    if (editId && userRole === 'STUDENT') {
+                      alert('Location cannot be changed after creation for student listings.');
+                      return;
+                    }
+                    if (!formData.lat || !formData.lng) {
+                      const fallbackLat = userProfile?.favoriteCollege?.lat || 22.9734;
+                      const fallbackLng = userProfile?.favoriteCollege?.lng || 78.6569;
+                      setFormData(prev => ({
+                        ...prev,
+                        lat: fallbackLat,
+                        lng: fallbackLng,
+                        baseAddress: prev.baseAddress || userProfile?.favoriteCollege?.name || "Default center"
+                      }));
+                    }
+                    setShowMap(!showMap);
+                  }}
+                  className={`ml-auto text-xs font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 whitespace-nowrap ${editId && userRole === 'STUDENT' ? 'opacity-50' : ''}`}
+                >
+                  {showMap ? 'Hide Map' : 'Edit on Map'}
+                </button>
               </div>
               
               {showMap && formData.lat && formData.lng && (
@@ -572,7 +659,7 @@ function CreateListingForm() {
               )}
             </div>
             <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
-              The base location is auto-captured based on your current coordinates. You can click "Edit on Map" to refine the exact pin location.
+              Search your city/locality first to center the map, or tap "Edit on Map" to refine the exact pin location.
             </p>
           </div>
 

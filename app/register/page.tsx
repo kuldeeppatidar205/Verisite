@@ -66,7 +66,7 @@ export default function RegisterPage() {
       }
 
       if (res.ok) {
-        router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
+        router.push(`/verify-email?email=${encodeURIComponent(formData.email)}&type=personal`);
       }
     } catch (err) {
       setError('An error occurred. Please try again.');

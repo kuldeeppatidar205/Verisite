@@ -87,12 +87,12 @@ export async function POST(req: NextRequest) {
       listing.coordinates.lng
     );
 
-    const isGeofenceVerified = distance <= 50;
+    const isGeofenceVerified = distance <= 100;
 
     if (!isGeofenceVerified) {
       return NextResponse.json(
         { 
-          error: `Verification failed: You must be at the property location to leave a review. (Current distance: ${Math.round(distance)}m, required: <50m)`,
+          error: `Verification failed: You must be at the property location to leave a review. (Current distance: ${Math.round(distance)}m, required: <100m)`,
         },
         { status: 403 }
       );

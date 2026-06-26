@@ -27,7 +27,7 @@ export async function connectToDatabase() {
       bufferCommands: false,
       maxPoolSize: 10,
       minPoolSize: 2,
-      connectTimeoutMS: 10000,
+      connectTimeoutMS: 20000,
       socketTimeoutMS: 45000,
     };
 

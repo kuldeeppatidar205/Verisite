@@ -37,9 +37,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'This institutional email is already in use' }, { status: 400 });
     }
 
-    // Generate verification token
-    const collegeVerificationToken = crypto.randomBytes(32).toString('hex');
-    const collegeVerificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    // Generate verification OTP
+    const collegeVerificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+    const collegeVerificationTokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    // Capture old state for potential rollback
+    const oldRole = user.role;
+    const oldCollegeEmail = user.collegeEmail;
+    const oldCollegeEmailVerified = user.collegeEmailVerified;
+    const oldFavoriteCollege = user.favoriteCollege;
 
     // Update user to student role and set to unverified
     user.role = 'STUDENT';
@@ -54,15 +60,28 @@ export async function POST(req: NextRequest) {
 
     await user.save();
 
-    // Send verification email
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
-    const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${collegeVerificationToken}&type=college`;
-    
-    await sendEmail({
+    // Send verification OTP
+    const emailSent = await sendEmail({
       to: validated.collegeEmail,
       subject: 'Verify your Verisite Student account',
-      html: generateVerificationEmailHtml(verifyUrl, user.name),
+      html: generateVerificationEmailHtml(collegeVerificationToken, user.name),
     });
+
+    if (!emailSent) {
+      console.warn('❌ Email sending failed immediately for user upgrade:', user._id);
+      // Rollback the upgrade
+      user.role = oldRole;
+      user.collegeEmail = oldCollegeEmail;
+      user.collegeEmailVerified = oldCollegeEmailVerified;
+      user.favoriteCollege = oldFavoriteCollege;
+      user.collegeVerificationToken = undefined;
+      user.collegeVerificationTokenExpiry = undefined;
+      await user.save();
+      
+      return NextResponse.json({ 
+        error: 'Failed to dispatch verification OTP to the institutional address provided. Please check for typos and try again.' 
+      }, { status: 400 });
+    }
 
     return NextResponse.json({
       message: 'Upgrade initiated. Please verify your institutional email.',
@@ -76,11 +95,16 @@ export async function POST(req: NextRequest) {
         collegeEmailVerified: user.collegeEmailVerified,
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Upgrade error:', error);
     if (error instanceof ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
-    return NextResponse.json({ error: 'Failed to upgrade account' }, { status: 500 });
+    
+    if (error.message && (error.message.includes('timed out') || error.message.includes('timeout') || error.message.includes('ECONNREFUSED'))) {
+      return NextResponse.json({ error: 'Service temporarily unavailable due to database connection timeout. Please try again in a few moments.' }, { status: 503 });
+    }
+
+    return NextResponse.json({ error: 'Failed to upgrade account: ' + (error.message || 'Unknown error') }, { status: 500 });
   }
 }
